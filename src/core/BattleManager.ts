@@ -1,4 +1,8 @@
 import { ConfigLoader } from './ConfigLoader';
+import type { CharacterBean } from '../types/CharacterBean';
+import type { Crystal } from '../types/Crystal';
+import type { Hero } from '../types/GameHero';
+import type { CharacterBean } from '../types/CharacterBean';
 
 /**
  * 战斗管理器
@@ -15,9 +19,9 @@ export class BattleManager {
     private battleState: 'prepare' | 'fighting' | 'pause' | 'victory' | 'defeat' = 'prepare';
     /** 战斗数据 */
     private battleData = {
-        heroes: new Map<string, HeroData>(),
-        beans: new Map<string, BeanData>(),
-        crystal: null as CrystalData | null
+        heroes: new Map<string, Hero>(),
+        beans: new Map<string, CharacterBean>(),
+        crystal: null as Crystal | null
     };
 
     /** 事件监听器 */
@@ -52,10 +56,10 @@ export class BattleManager {
      * @param type - 英雄类型
      * @param position - 英雄位置
      */
-    public createHero(id: string, type: string, position: Position): void {
+    public createHero(id: string, type: string, position: Position): Hero | null {
         if (!type) {
             console.error('创建英雄时缺少类型参数');
-            return;
+            return null;
         }
         
         // 将type转换为数字ID
@@ -64,19 +68,26 @@ export class BattleManager {
         
         if (!heroConfig) {
             console.error(`找不到英雄配置: ${type}`);
-            return;
+            return null;
         }
 
-        const heroData: HeroData = {
+        const heroData: Hero = {
+            ...heroConfig,
             id,
-            type: type,
             position,
-            health: heroConfig.stats.hp,
-            maxHealth: heroConfig.stats.hp,
-            level: 1,
-            skills: heroConfig.skills.map((skill: any) => skill.id)
+            battleStats: {
+                ...heroConfig.stats,
+                currentHP: heroConfig.stats.hp,
+                maxHP: heroConfig.stats.hp,
+                level: 1,
+                exp: 0,
+                gold: 0,
+                equippedItems: [],
+                learnedSkills: heroConfig.skills.map((skill: any) => skill.id)
+            }
         };
         this.battleData.heroes.set(id, heroData);
+        return heroData;
         this.emit('heroCreated', heroData);
     }
 
@@ -84,13 +95,24 @@ export class BattleManager {
      * 创建水晶
      * @param position - 水晶位置
      */
-    public createCrystal(position: Position): void {
-        const crystalData: CrystalData = {
-            position,
-            health: 1000,
-            maxHealth: 1000
+    public createCrystal(position: Position): Crystal {
+        const crystalData: Crystal = {
+            id: 1,
+            name: '核心水晶',
+            positionIndex: 0,
+            stats: {
+                hp: 1000,
+                attack: 0,
+                defense: 100,
+                speed: 0,
+                currentHP: 1000,
+                maxHP: 1000
+            },
+            status: 'normal',
+            defenseBonus: 0
         };
         this.battleData.crystal = crystalData;
+        return crystalData;
         this.emit('crystalCreated', crystalData);
     }
 
@@ -100,49 +122,15 @@ export class BattleManager {
      * @param type - 豆豆类型
      * @param position - 生成位置
      */
-    public spawnBean(id: string, type: string, position: Position): void {
-        // 使用默认配置
-        const defaultBeanStats = {
-            normal: {
-                hp: 100,
-                attack: 10,
-                defense: 5,
-                speed: 100
-            },
-            fast: {
-                hp: 60,
-                attack: 8,
-                defense: 3,
-                speed: 150
-            },
-            strong: {
-                hp: 150,
-                attack: 15,
-                defense: 8,
-                speed: 80
-            },
-            boss: {
-                hp: 300,
-                attack: 20,
-                defense: 12,
-                speed: 120
-            }
-        };
-
-        const stats = defaultBeanStats[type as keyof typeof defaultBeanStats] || defaultBeanStats.normal;
-        
-        const beanData: BeanData = {
-            id,
-            position,
-            health: stats.hp,
-            maxHealth: stats.hp,
-            type: type,
-            damage: stats.attack,
-            speed: stats.speed
+    public spawnBean(id: string, config: CharacterBean, position: Position): CharacterBean {
+        const beanData: CharacterBean = {
+            ...config,
+            position
         };
 
         this.battleData.beans.set(id, beanData);
         this.emit('beanSpawned', beanData);
+        return beanData;
     }
 
     /**
@@ -286,38 +274,3 @@ interface Position {
     x: number;
     y: number;
 }
-
-/**
- * 英雄数据接口
- */
-interface HeroData {
-    id: string;
-    type: string;
-    position: Position;
-    health: number;
-    maxHealth: number;
-    level: number;
-    skills: string[];
-}
-
-/**
- * 豆豆数据接口
- */
-interface BeanData {
-    id: string;
-    position: Position;
-    health: number;
-    maxHealth: number;
-    type: string;
-    damage: number;
-    speed: number;
-}
-
-/**
- * 水晶数据接口
- */
-interface CrystalData {
-    position: Position;
-    health: number;
-    maxHealth: number;
-} 

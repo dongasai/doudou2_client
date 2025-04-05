@@ -23,31 +23,8 @@ export interface HeroConfig {
     };
 }
 
-export interface BeanConfig {
-    id: number;
-    type: string;
-    name: string;
-    skill: {
-        name: string;
-        type: string;
-        description: string;
-        cooldown: number;
-        damage?: number;
-        defense_buff?: number;
-        slow?: number;
-        heal?: number;
-        reflect?: number;
-        stun?: number;
-        lifesteal?: number;
-        speed_buff?: number;
-    };
-    stats: {
-        hp: number;
-        attack: number;
-        defense: number;
-        speed: number;
-    };
-}
+import type { CharacterBean } from '../types/CharacterBean';
+import type { BeanConfig } from '../types/Beans';
 
 export interface LevelConfig {
     name: string;
@@ -189,8 +166,16 @@ export class ConfigLoader {
         return Array.from(this.levels.values());
     }
 
-    public getBean(id: number): BeanConfig | undefined {
-        return this.beans.get(id);
+    public getBean(id: number): CharacterBean | undefined {
+        const config = this.beans.get(id);
+        if (!config) return undefined;
+        
+        return {
+            ...config,
+            id: id.toString(),
+            speed: config.stats.speed,
+            position: { x: 0, y: 0 }
+        };
     }
 
     public getAllBeanConfigs(): BeanConfig[] {

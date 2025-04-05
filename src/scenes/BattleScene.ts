@@ -2,6 +2,7 @@ import { BattleManager } from '@/core/BattleManager';
 import { Hero } from '@/objects/Hero';
 import { Crystal } from '@/objects/Crystal';
 import { Bean } from '@/objects/Bean';
+import { ConfigLoader } from '../core/ConfigLoader';
 
 /** 事件数据类型 */
 interface EventData {
@@ -285,7 +286,15 @@ export class BattleScene extends Phaser.Scene {
      * 生成豆豆
      */
     private spawnBean(types: string[]): void {
-        const type = types[Phaser.Math.Between(0, types.length - 1)];
+        // 获取所有豆豆配置
+        const allBeans = ConfigLoader.getInstance().getAllBeanConfigs();
+        // 过滤出当前关卡允许的类型
+        const availableBeans = allBeans.filter((bean: { type: string }) => types.includes(bean.type));
+        if (availableBeans.length === 0) return;
+
+        // 随机选择一个豆豆配置
+        const beanConfig = availableBeans[Phaser.Math.Between(0, availableBeans.length - 1)];
+        
         const angle = Phaser.Math.Between(0, 360);
         const distance = 400;
         const x = this.cameras.main.centerX + Math.cos(angle) * distance;
@@ -293,7 +302,7 @@ export class BattleScene extends Phaser.Scene {
 
         this.battleManager.spawnBean(
             `bean_${Date.now()}`,
-            type,
+            ConfigLoader.getInstance().getBean(beanConfig.id)!,
             { x, y }
         );
     }

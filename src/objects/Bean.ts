@@ -25,7 +25,7 @@ export class Bean extends GameObject {
     private healthBar!: Phaser.GameObjects.Rectangle;
     private healthBarBg!: Phaser.GameObjects.Rectangle;
     private healthBarContainer!: Phaser.GameObjects.Container;
-    private type: string;
+    public type: string;
     private health: number;
     private maxHealth: number;
     private damage: number;
@@ -38,37 +38,22 @@ export class Bean extends GameObject {
      * @param y - 初始Y坐标
      * @param type - 豆豆类型
      */
-    constructor(scene: Phaser.Scene, x: number, y: number, type: string = 'normal') {
+    constructor(scene: Phaser.Scene, x: number, y: number, beanConfig?: any) {
+        const type = beanConfig?.type || 'normal';
         const emoji = Bean.EMOJIS.types[type as keyof typeof Bean.EMOJIS.types] || Bean.EMOJIS.types.normal;
         super(scene, x, y, emoji);
         
         this.type = type;
         
-        // 设置基础属性
-        this.maxHealth = 100;
+        // 从配置加载属性，如果没有配置则使用默认值
+        this.maxHealth = beanConfig?.stats?.hp || 100;
         this.health = this.maxHealth;
-        this.damage = 10;
-        this.speed = 100;
+        this.damage = beanConfig?.stats?.attack || 10;
+        this.speed = beanConfig?.stats?.speed || 100;
         
-        // 根据类型调整属性
-        switch(type) {
-            case 'fast':
-                this.speed *= 1.5;
-                this.damage *= 0.8;
-                break;
-            case 'strong':
-                this.maxHealth *= 1.5;
-                this.health = this.maxHealth;
-                this.damage *= 1.5;
-                this.speed *= 0.8;
-                break;
-            case 'boss':
-                this.maxHealth *= 3;
-                this.health = this.maxHealth;
-                this.damage *= 2;
-                this.speed *= 0.6;
-                this.setScale(2);
-                break;
+        // 如果是boss类型，调整大小
+        if (type === 'boss') {
+            this.setScale(2);
         }
         
         // 设置物理属性
