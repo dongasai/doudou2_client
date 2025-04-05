@@ -29,12 +29,12 @@ export class Crystal extends Phaser.GameObjects.Text {
      * @param y - 初始Y坐标
      */
     constructor(scene: Phaser.Scene, x: number, y: number) {
-        super(scene, x, y, Crystal.EMOJIS.crystal, { fontSize: '48px' });
-        scene.add.existing(this);
-        
-        // 设置层级和物理属性
-        this.setDepth(BattleScene.LAYER_CRYSTAL)
-            .setScale(0.8);            // 设置水晶大小
+       super(scene, x, y, Crystal.EMOJIS.crystal, { fontSize: '30px' });
+       scene.add.existing(this);
+       
+       // 设置层级和物理属性
+       this.setDepth(BattleScene.LAYER_CRYSTAL)
+           .setScale(1.0);            // 30px字体 * 1.0 = 30px大小
 
         // 创建血条
         this.createHealthBar();

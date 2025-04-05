@@ -1,7 +1,16 @@
 import { ConfigLoader } from './ConfigLoader';
+import { WaveManager } from './battle/WaveManager';
 import type { CharacterBean } from '../types/CharacterBean';
 import type { Crystal } from '../types/Crystal';
 import { Hero } from '../objects/Hero';
+import type { HeroCreatedEvent } from '../EV_Event/HeroCreated';
+import type { CrystalCreatedEvent } from '../EV_Event/CrystalCreated';
+import type { BeanSpawnedEvent } from '../EV_Event/BeanSpawned';
+import type { BeanMovedEvent } from '../EV_Event/BeanMoved';
+import type { DamageDealtEvent } from '../EV_Event/DamageDealt';
+import type { HeroDiedEvent } from '../EV_Event/HeroDied';
+import type { BeanDefeatedEvent } from '../EV_Event/BeanDefeated';
+import type { GameOverEvent } from '../EV_Event/GameOver';
 
 /**
  * 战斗管理器
@@ -26,10 +35,8 @@ export class BattleManager {
     /** 事件监听器 */
     private eventListeners = new Map<string, Function[]>();
 
-    private scene: Phaser.Scene;
-
-    constructor(scene: Phaser.Scene) {
-        this.scene = scene;
+    constructor() {
+        console.log('战斗引擎初始化');
         this.init();
     }
 
@@ -39,6 +46,16 @@ export class BattleManager {
     private init() {
         // 初始化战斗数据
         this.resetBattleData();
+
+        // 监听豆豆生成事件
+        const waveManager = WaveManager.getInstance();
+        waveManager.on('spawnBean', (data: {
+            id: string;
+            config: CharacterBean;
+            position: Position;
+        }) => {
+            this.addBean(data.id, data.config, data.position);
+        });
     }
 
     /**
@@ -54,40 +71,56 @@ export class BattleManager {
 
     /**
      * 创建英雄
-     * @param id - 英雄ID
-     * @param type - 英雄类型
-     * @param position - 英雄位置
+     * @param id - 英雄ID (格式: "hero_{index}")
+     * @param positionIndex - 站位索引 (0-4)
      */
-    public createHero(id: string, type: string, position: Position): Hero | null {
-        if (!type) {
-            console.error('创建英雄时缺少类型参数');
+    public createHero(id: string, positionIndex: number): Hero | null {
+        // 从ID中提取英雄类型
+        const heroId = parseInt(id.replace('hero_', ''));
+        if (isNaN(heroId)) {
+            console.error('无效的英雄ID格式');
             return null;
         }
         
-        // 将type转换为数字ID
-        const heroId = parseInt(type);
+        // 计算英雄位置 (使用固定坐标)
+        const radius = 80;
+        const angle = (positionIndex * 72) * (Math.PI / 180);
+        const position = {
+            x: 400 + Math.cos(angle) * radius,
+            y: 300 + Math.sin(angle) * radius
+        };
+        
+        console.log(`创建英雄: ID=${id}, 站位=${positionIndex}`);
         const heroConfig = ConfigLoader.getInstance().getHero(heroId);
         
-        if (!heroConfig) {
-            console.error(`找不到英雄配置: ${type}`);
+        if (!heroConfig || !heroConfig.stats) {
+            console.error(`找不到英雄配置或缺少stats: ${heroId}`);
             return null;
         }
 
-        const hero = new Hero(this.scene, position.x, position.y, heroConfig.type);
-        hero['id'] = parseInt(id.replace('hero_', ''));
-        hero['battleStats'] = {
-            ...heroConfig.stats,
-            hp: heroConfig.stats.hp,
-            level: 1,
-            exp: 0,
-            gold: 0,
-            equippedItems: [],
-            learnedSkills: heroConfig.skills.map((skill: any) => skill.id)
-        };
+        const hero = new Hero(
+            null as any, // 临时传递null作为scene参数
+            heroId,
+            heroConfig.name,
+            heroConfig.type,
+            position,
+            {
+                hp: heroConfig.stats.hp,
+                maxHp: heroConfig.stats.hp,
+                attack: heroConfig.stats.attack,
+                defense: heroConfig.stats.defense,
+                speed: heroConfig.stats.speed,
+                level: 1,
+                exp: 0,
+                expToNextLevel: 100,
+                gold: 0
+            },
+            heroConfig.skills || []
+        );
         this.battleData.heroes.set(id, hero);
         this.emit('heroCreated', {
             id,
-            type,
+            type: heroConfig.type,
             position
         });
         return hero;
@@ -122,18 +155,32 @@ export class BattleManager {
 
     /**
      * 生成豆豆
+     * @param types - 允许的豆豆类型
+     * @param centerX - 场景中心X坐标
+     * @param centerY - 场景中心Y坐标
+     */
+    public spawnBeans(types: string[], centerX: number, centerY: number): void {
+        WaveManager.getInstance().spawnBeans(types, centerX, centerY);
+    }
+
+    /**
+     * 添加豆豆到战斗数据
      * @param id - 豆豆ID
-     * @param type - 豆豆类型
+     * @param config - 豆豆配置
      * @param position - 生成位置
      */
-    public spawnBean(id: string, config: CharacterBean, position: Position): CharacterBean {
+    public addBean(id: string, config: CharacterBean, position: Position): CharacterBean {
         const beanData: CharacterBean = {
             ...config,
             position
         };
 
         this.battleData.beans.set(id, beanData);
-        this.emit('beanSpawned', beanData);
+        this.emit('beanSpawned', {
+            id,
+            config,
+            position
+        });
         return beanData;
     }
 
@@ -226,7 +273,7 @@ export class BattleManager {
                 const dx = centerX - bean.position.x;
                 const dy = centerY - bean.position.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                const speed = bean.speed * deltaTime;
+                const speed = bean.stats.speed * deltaTime;
                 
                 if (distance > speed) {
                     bean.position.x += (dx / distance) * speed;
@@ -267,6 +314,14 @@ export class BattleManager {
     /**
      * 注册事件监听器
      */
+    public on(event: 'heroCreated', callback: (data: HeroCreatedEvent) => void): void;
+    public on(event: 'crystalCreated', callback: (data: CrystalCreatedEvent) => void): void;
+    public on(event: 'beanSpawned', callback: (data: BeanSpawnedEvent) => void): void;
+    public on(event: 'beanMoved', callback: (data: BeanMovedEvent) => void): void;
+    public on(event: 'damageDealt', callback: (data: DamageDealtEvent) => void): void;
+    public on(event: 'heroDied', callback: (data: HeroDiedEvent) => void): void;
+    public on(event: 'beanDefeated', callback: (data: BeanDefeatedEvent) => void): void;
+    public on(event: 'gameOver', callback: (data: GameOverEvent) => void): void;
     public on(event: string, callback: Function): void {
         if (!this.eventListeners.has(event)) {
             this.eventListeners.set(event, []);
@@ -277,6 +332,14 @@ export class BattleManager {
     /**
      * 触发事件
      */
+    private emit(event: 'heroCreated', data: HeroCreatedEvent): void;
+    private emit(event: 'crystalCreated', data: CrystalCreatedEvent): void;
+    private emit(event: 'beanSpawned', data: BeanSpawnedEvent): void;
+    private emit(event: 'beanMoved', data: BeanMovedEvent): void;
+    private emit(event: 'damageDealt', data: DamageDealtEvent): void;
+    private emit(event: 'heroDied', data: HeroDiedEvent): void;
+    private emit(event: 'beanDefeated', data: BeanDefeatedEvent): void;
+    private emit(event: 'gameOver', data: GameOverEvent): void;
     private emit(event: string, data: any): void {
         const callbacks = this.eventListeners.get(event);
         if (callbacks) {
@@ -285,10 +348,4 @@ export class BattleManager {
     }
 }
 
-/**
- * 位置接口
- */
-interface Position {
-    x: number;
-    y: number;
-}
+import { Position } from '../types/Position';

@@ -1,30 +1,5 @@
-/**
- * 游戏配置加载器
- * 负责加载和管理游戏中的各种配置数据
- */
-export interface HeroConfig {
-    id: number;
-    name: string;
-    type: string;
-    style: string;
-    specialty: string;
-    skills: {
-        name: string;
-        type: string;
-        description: string;
-        cooldown: number;
-        cost: number;
-    }[];
-    stats: {
-        hp: number;
-        attack: number;
-        defense: number;
-        speed: number;
-    };
-}
-
 import type { CharacterBean } from '../types/CharacterBean';
-import type { BeanConfig } from '../types/Beans';
+import type { Hero } from '../types/GameHero';
 
 export interface LevelConfig {
     name: string;
@@ -57,9 +32,9 @@ export interface LevelConfig {
 
 export class ConfigLoader {
     private static instance: ConfigLoader;
-    private heroes: Map<number, HeroConfig> = new Map();
+    private heroes: Map<number, Hero> = new Map();
     private levels: Map<number, LevelConfig> = new Map();
-    private beans: Map<number, BeanConfig> = new Map();
+    private beans: Map<number, CharacterBean> = new Map();
 
     private constructor() {}
 
@@ -141,7 +116,7 @@ export class ConfigLoader {
             const response = await fetch('/src/data/beans.json');
             if (response.ok) {
                 const { beans } = await response.json();
-            beans.forEach((bean: BeanConfig) => {
+            beans.forEach((bean: CharacterBean) => {
                 this.beans.set(bean.id, bean);
             });
             }
@@ -150,11 +125,11 @@ export class ConfigLoader {
         }
     }
 
-    public getHero(id: number): HeroConfig | undefined {
+    public getHero(id: number): Hero | undefined {
         return this.heroes.get(id);
     }
 
-    public getAllHeroes(): HeroConfig[] {
+    public getAllHeroes(): Hero[] {
         return Array.from(this.heroes.values());
     }
 
@@ -170,15 +145,10 @@ export class ConfigLoader {
         const config = this.beans.get(id);
         if (!config) return undefined;
         
-        return {
-            ...config,
-            id: id.toString(),
-            speed: config.stats.speed,
-            position: { x: 0, y: 0 }
-        };
+        return config;
     }
 
-    public getAllBeanConfigs(): BeanConfig[] {
+    public getAllBeanConfigs(): CharacterBean[] {
         return Array.from(this.beans.values());
     }
 } 

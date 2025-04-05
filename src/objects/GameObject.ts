@@ -3,7 +3,7 @@
  * 所有游戏中的可交互对象都继承自此类
  * 提供基本的场景管理、物理系统和生命周期方法
  */
-export class GameObject extends Phaser.GameObjects.Sprite {
+export class GameObject extends Phaser.GameObjects.Container {
     /** 游戏场景引用 */
     public scene: Phaser.Scene;
     /** 物理系统身体组件 */
@@ -18,8 +18,17 @@ export class GameObject extends Phaser.GameObjects.Sprite {
      * @param y - 初始Y坐标
      * @param texture - 对象的贴图键名（在这个游戏中通常是emoji）
      */
-    constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
-        super(scene, x, y, texture);
+    protected textObject!: Phaser.GameObjects.Text;
+    
+    constructor(scene: Phaser.Scene, x: number, y: number, text: string) {
+        super(scene, x, y);
+        
+        // 创建Text作为子对象(临时方案)
+        this.textObject = scene.add.text(0, 0, text, {
+            fontSize: '48px',
+            fontFamily: 'Arial'
+        }).setOrigin(0.5);
+        this.add(this.textObject);
         this.scene = scene;
         this.objectType = '';
         
@@ -38,7 +47,6 @@ export class GameObject extends Phaser.GameObjects.Sprite {
      */
     update(time?: number, delta?: number) {
         // 子类实现具体更新逻辑
-        super.update();
     }
 
     /**

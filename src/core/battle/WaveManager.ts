@@ -1,5 +1,6 @@
 import { EventManager } from './EventManager';
 import { ConfigLoader } from '../ConfigLoader';
+import type { BeanConfig } from '../../types/Beans';
 
 /**
  * 波次管理器
@@ -9,6 +10,7 @@ export class WaveManager {
     private static instance: WaveManager;
     private eventManager: EventManager;
     private configLoader: ConfigLoader;
+    private eventListeners = new Map<string, Function[]>();
     
     /** 当前波次 */
     private currentWave: number = 0;
@@ -88,4 +90,53 @@ export class WaveManager {
             chapter: this.currentChapter
         };
     }
+
+    /**
+     * 注册事件监听器
+     */
+    public on(event: string, callback: Function): void {
+        if (!this.eventListeners.has(event)) {
+            this.eventListeners.set(event, []);
+        }
+        this.eventListeners.get(event)?.push(callback);
+    }
+
+    /**
+     * 触发事件
+     */
+    private emit(event: string, data: any): void {
+        const callbacks = this.eventListeners.get(event);
+        if (callbacks) {
+            callbacks.forEach(callback => callback(data));
+        }
+    }
+
+    /**
+     * 生成豆豆
+     * @param types - 允许的豆豆类型
+     * @param centerX - 场景中心X坐标
+     * @param centerY - 场景中心Y坐标
+     */
+    public spawnBeans(types: string[], centerX: number, centerY: number): void {
+        // 获取所有豆豆配置
+        const allBeans = this.configLoader.getAllBeanConfigs();
+        // 过滤出当前关卡允许的类型
+        const availableBeans = allBeans.filter((bean: BeanConfig) => types.includes(bean.type));
+        if (availableBeans.length === 0) return;
+
+        // 随机选择一个豆豆配置
+        const beanConfig = availableBeans[Phaser.Math.Between(0, availableBeans.length - 1)];
+        
+        const angle = Phaser.Math.Between(0, 360);
+        const distance = 400;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+
+        this.eventManager.emit('spawnBean', {
+            id: `bean_${Date.now()}`,
+            config: this.configLoader.getBean(beanConfig.id)!,
+            position: { x, y }
+        });
+    }
+
 } 

@@ -2,43 +2,17 @@ import { BattleManager } from '@/core/BattleManager';
 import { Hero } from '@/objects/Hero';
 import { Crystal } from '@/objects/Crystal';
 import { Bean } from '@/objects/Bean';
+import { PositionMarker } from '@/objects/PositionMarker';
 import { ConfigLoader } from '../core/ConfigLoader';
-
-/** 事件数据类型 */
-interface EventData {
-    heroCreated: {
-        id: string;
-        type: string;
-        position: { x: number; y: number };
-    };
-    crystalCreated: {
-        position: { x: number; y: number };
-    };
-    beanSpawned: {
-        id: string;
-        type: string;
-        position: { x: number; y: number };
-    };
-    damageDealt: {
-        targetType: 'hero' | 'bean' | 'crystal';
-        targetId: string;
-        damage: number;
-        currentHealth: number;
-    };
-    beanMoved: {
-        beanId: string;
-        position: { x: number; y: number };
-    };
-    heroDied: {
-        heroId: string;
-    };
-    beanDefeated: {
-        beanId: string;
-    };
-    gameOver: {
-        victory: boolean;
-    };
-}
+import { Logger } from '../utils/Logger';
+import type { HeroCreatedEvent } from '../EV_Event/HeroCreated';
+import type { CrystalCreatedEvent } from '../EV_Event/CrystalCreated';
+import type { BeanSpawnedEvent } from '../EV_Event/BeanSpawned';
+import type { DamageDealtEvent } from '../EV_Event/DamageDealt';
+import type { BeanMovedEvent } from '../EV_Event/BeanMoved';
+import type { HeroDiedEvent } from '../EV_Event/HeroDied';
+import type { BeanDefeatedEvent } from '../EV_Event/BeanDefeated';
+import type { GameOverEvent } from '../EV_Event/GameOver';
 
 /**
  * 战斗场景
@@ -76,7 +50,7 @@ export class BattleScene extends Phaser.Scene {
 
     constructor() {
         super({ key: 'BattleScene' });
-        this.battleManager = new BattleManager(this);
+        this.battleManager = new BattleManager();
         this.setupEventListeners();
     }
 
@@ -85,27 +59,71 @@ export class BattleScene extends Phaser.Scene {
      */
     private setupEventListeners(): void {
         // 监听英雄创建事件
-        this.battleManager.on('heroCreated', (data: EventData['heroCreated']) => {
-            const hero = new Hero(this, data.position.x, data.position.y, data.type)
-                .setDepth(BattleScene.LAYER_HERO); // 英雄层
+        this.battleManager.on('heroCreated', (data: HeroCreatedEvent) => {
+            // 获取英雄数据
+            const heroId = parseInt(data.type);
+            const heroData = ConfigLoader.getInstance().getHero(heroId);
+            const heroName = heroData?.emoji || heroData?.name || `英雄${heroId}`;
+            
+            Logger.getInstance('BattleScene').format(`创建英雄`, [
+                {key: 'ID', value: data.id},
+                {key: '名称', value: heroName},
+                {key: '类型', value: data.type},
+                {key: '站位', value: `(${data.position.x}, ${data.position.y})`}
+            ]);
+
+            // 获取英雄配置数据
+            const heroConfig = ConfigLoader.getInstance().getHero(parseInt(data.type));
+            if (!heroConfig) {
+                Logger.getInstance('BattleScene').error(`找不到英雄配置: ${data.type}`);
+                return;
+            }
+
+            Logger.getInstance('BattleScene').format(`创建英雄详细数据`, [
+                {key: 'ID', value: data.id},
+                {key: '名称', value: heroConfig.name},
+                {key: '类型', value: data.type},
+                {key: '站位', value: `(${data.position.x}, ${data.position.y})`},
+                {key: '基础属性', value: `HP=${heroConfig.stats?.hp || 0}, 攻击=${heroConfig.stats?.attack || 0}, 防御=${heroConfig.stats?.defense || 0}`}
+            ]);
+
+            const hero = new Hero(
+                this,
+                parseInt(data.type),
+                heroConfig.name,
+                data.type,
+                data.position,
+                {
+                    hp: heroConfig.stats?.hp || 0,
+                    maxHp: heroConfig.stats?.hp || 0,
+                    attack: heroConfig.stats?.attack || 0,
+                    defense: heroConfig.stats?.defense || 0,
+                    speed: heroConfig.stats?.speed || 0,
+                    level: 1,
+                    exp: 0,
+                    expToNextLevel: 100,
+                    gold: 0
+                },
+                []
+            );
             this.gameObjects.heroes.set(data.id, hero);
         });
 
         // 监听水晶创建事件
-        this.battleManager.on('crystalCreated', (data: EventData['crystalCreated']) => {
-            this.gameObjects.crystal = new Crystal(this, this.cameras.main.centerX, this.cameras.main.centerY)
-                .setDepth(BattleScene.LAYER_CRYSTAL); // 水晶层
+        this.battleManager.on('crystalCreated', (data: CrystalCreatedEvent) => {
+            this.gameObjects.crystal = new Crystal(this, this.cameras.main.centerX - 10, this.cameras.main.centerY)
+               .setDepth(BattleScene.LAYER_CRYSTAL); // 水晶层
         });
 
         // 监听豆豆生成事件
-        this.battleManager.on('beanSpawned', (data: EventData['beanSpawned']) => {
+        this.battleManager.on('beanSpawned', (data: BeanSpawnedEvent) => {
             const bean = new Bean(this, data.position.x, data.position.y)
-                .setDepth(BattleScene.LAYER_ENEMY); // 怪物层
+                .setDepth(BattleScene.LAYER_ENEMY); // 恢复怪物层
             this.gameObjects.beans.set(data.id, bean);
         });
 
         // 监听伤害事件
-        this.battleManager.on('damageDealt', (data: EventData['damageDealt']) => {
+        this.battleManager.on('damageDealt', (data: DamageDealtEvent) => {
             let target = null;
             switch(data.targetType) {
                 case 'hero':
@@ -124,7 +142,7 @@ export class BattleScene extends Phaser.Scene {
         });
 
         // 监听实体移动事件
-        this.battleManager.on('beanMoved', (data: EventData['beanMoved']) => {
+        this.battleManager.on('beanMoved', (data: BeanMovedEvent) => {
             const bean = this.gameObjects.beans.get(data.beanId);
             if (bean) {
                 bean.x = data.position.x;
@@ -133,7 +151,7 @@ export class BattleScene extends Phaser.Scene {
         });
 
         // 监听实体死亡事件
-        this.battleManager.on('heroDied', (data: EventData['heroDied']) => {
+        this.battleManager.on('heroDied', (data: HeroDiedEvent) => {
             const hero = this.gameObjects.heroes.get(data.heroId);
             if (hero) {
                 hero.destroy();
@@ -141,7 +159,7 @@ export class BattleScene extends Phaser.Scene {
             }
         });
 
-        this.battleManager.on('beanDefeated', (data: EventData['beanDefeated']) => {
+        this.battleManager.on('beanDefeated', (data: BeanDefeatedEvent) => {
             const bean = this.gameObjects.beans.get(data.beanId);
             if (bean) {
                 bean.destroy();
@@ -150,12 +168,30 @@ export class BattleScene extends Phaser.Scene {
         });
 
         // 监听游戏结束事件
-        this.battleManager.on('gameOver', (data: EventData['gameOver']) => {
+        this.battleManager.on('gameOver', (data: GameOverEvent) => {
             this.showGameOverScreen(data.victory);
         });
     }
 
     create(data: { level: number; heroes: number[] }) {
+        // 打印战斗初始化信息
+        const levelData = ConfigLoader.getInstance().getLevel(data.level);
+        Logger.getInstance('BattleScene').format(`战斗场景初始化`, [
+            {key: '关卡ID', value: data.level},
+            {key: '关卡数据', value: JSON.stringify(levelData, null, 2)},
+            {key: '英雄ID列表', value: `[${data.heroes.join(', ')}]`}
+        ]);
+        
+        // 打印每个英雄的详细信息和站位
+        data.heroes.forEach((heroId, index) => {
+            const heroData = ConfigLoader.getInstance().getHero(heroId);
+            Logger.getInstance('BattleScene').format(`英雄${index}`, [
+                {key: 'ID', value: heroId},
+                {key: '站位', value: index},
+                {key: '数据', value: JSON.stringify(heroData, null, 4)}
+            ]);
+        });
+
         // 设置背景
         this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000)
             .setOrigin(0, 0)
@@ -168,22 +204,28 @@ export class BattleScene extends Phaser.Scene {
         });
 
         // 创建英雄位置
-        const positions = [
-            { x: this.cameras.main.centerX, y: this.cameras.main.centerY - 200 }, // 北
-            { x: this.cameras.main.centerX + 200, y: this.cameras.main.centerY }, // 东
-            { x: this.cameras.main.centerX, y: this.cameras.main.centerY + 200 }, // 南
-            { x: this.cameras.main.centerX - 200, y: this.cameras.main.centerY }, // 西
-            { x: this.cameras.main.centerX, y: this.cameras.main.centerY }        // 中
-        ];
+        // 创建并存储站位点坐标
+        const positions: {x: number, y: number}[] = [];
+        const radius = 80;
+        for (let i = 0; i < 5; i++) {
+            const angle = (i * 72) * (Math.PI / 180);
+            const x = this.cameras.main.centerX + 5 + Math.cos(angle) * radius;
+            const y = this.cameras.main.centerY + 10 + Math.sin(angle) * radius;
+            positions.push({x, y});
+            new PositionMarker(this, x, y, i);
+        }
 
         // 创建选择的英雄
+        Logger.getInstance('BattleScene').debug('Creating heroes with data:', data);
         data.heroes.forEach((heroId, index) => {
             if (index < positions.length) {
+                Logger.getInstance('BattleScene').debug(`Creating hero ${index} at position:`, positions[index]);
                 this.battleManager.createHero(
                     `hero_${index}`,
-                    heroId.toString(),
-                    positions[index]
+                    index
                 );
+            } else {
+                Logger.getInstance('BattleScene').warn(`No position available for hero ${index}`);
             }
         });
 
@@ -286,24 +328,10 @@ export class BattleScene extends Phaser.Scene {
      * 生成豆豆
      */
     private spawnBean(types: string[]): void {
-        // 获取所有豆豆配置
-        const allBeans = ConfigLoader.getInstance().getAllBeanConfigs();
-        // 过滤出当前关卡允许的类型
-        const availableBeans = allBeans.filter((bean: { type: string }) => types.includes(bean.type));
-        if (availableBeans.length === 0) return;
-
-        // 随机选择一个豆豆配置
-        const beanConfig = availableBeans[Phaser.Math.Between(0, availableBeans.length - 1)];
-        
-        const angle = Phaser.Math.Between(0, 360);
-        const distance = 400;
-        const x = this.cameras.main.centerX + Math.cos(angle) * distance;
-        const y = this.cameras.main.centerY + Math.sin(angle) * distance;
-
-        this.battleManager.spawnBean(
-            `bean_${Date.now()}`,
-            ConfigLoader.getInstance().getBean(beanConfig.id)!,
-            { x, y }
+        this.battleManager.spawnBeans(
+            types,
+            this.cameras.main.centerX,
+            this.cameras.main.centerY
         );
     }
 

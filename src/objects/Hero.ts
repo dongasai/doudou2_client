@@ -1,288 +1,162 @@
-import { GameObject } from './GameObject';
+import Phaser from 'phaser';
 import { Skill } from '@/types/Skill';
+import type { Position } from '@/types/Position';
+import { Logger } from '@/utils/Logger';
 
-export class Hero extends GameObject {
-    private static readonly EMOJIS = {
-        effects: {
-            explosion: '💥',
-            sparkle: '✨',
-            heal: '💚',
-            shield: '🛡️'
-        },
-        heroes: {
-            '战士': '⚔️',
-            '法师': '🔮',
-            '射手': '🏹',
-            '辅助': '💖',
-            '刺客': '🗡️'
-        },
-        skills: {
-            attack: '⚔️',
-            heal: '💖',
-            shield: '🛡️',
-            buff: '⬆️',
-            debuff: '⬇️',
-            special: '✨'
-        }
-    };
+interface HeroStats {
+    hp: number;
+    maxHp: number;
+    attack: number;
+    defense: number;
+    speed: number;
+    level: number;
+    exp: number;
+    expToNextLevel: number;
+    gold: number;
+}
 
-    public id: number = 0;
-    public battleStats: any = {};
-    private skills: Skill[] = [];
-    private currentLevel: number = 1;
-    private experience: number = 0;
-    private health: number = 100;
-    private maxHealth: number = 100;
-    private stats = {
-        attack: 10,
-        defense: 5,
-        speed: 5
-    };
-    private healthBar!: Phaser.GameObjects.Rectangle;
-    private healthBarBg!: Phaser.GameObjects.Rectangle;
+export class Hero extends Phaser.GameObjects.Sprite {
+    public readonly id: number;
+    public readonly name: string;
+    public readonly type: string;
+    public position: Position;
+    public stats: HeroStats;
+    public skills: Skill[];
+    public equippedItems: any[];
 
-    constructor(scene: Phaser.Scene, x: number, y: number, type: string) {
-        const emoji = Hero.EMOJIS.heroes[type as keyof typeof Hero.EMOJIS.heroes] || '👤';
-        super(scene, x, y, emoji);
-        
-        this.objectType = type;
-        
-        // 设置物理属性
-        this.setScale(1.5);
-        if (this.body) {
-            this.body.setCollideWorldBounds(true);
-        }
-        
-        // 创建血条
-        this.createHealthBar();
+    constructor(
+        scene: Phaser.Scene,
+        id: number,
+        name: string,
+        type: string,
+        position: Position,
+        stats: Partial<HeroStats> = {},
+        skills: Skill[] = []
+    ) {
+        super(scene, position.x, position.y, 'hero');
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.position = position;
+        this.skills = skills;
+        this.equippedItems = [];
+
+        this.stats = {
+            hp: stats.hp ?? 100,
+            maxHp: stats.maxHp ?? 100,
+            attack: stats.attack ?? 10,
+            defense: stats.defense ?? 5,
+            speed: stats.speed ?? 5,
+            level: stats.level ?? 1,
+            exp: stats.exp ?? 0,
+            expToNextLevel: stats.expToNextLevel ?? 100,
+            gold: stats.gold ?? 0
+        };
+
+        Logger.getInstance('Hero').format('创建英雄', [
+            {key: '名称', value: name},
+            {key: 'ID', value: id},
+            {key: '类型', value: type},
+            {key: '位置', value: `(${position.x}, ${position.y})`}
+        ]);
+        Logger.getInstance('Hero').format('初始属性', [
+            {key: 'HP', value: `${this.stats.hp}/${this.stats.maxHp}`},
+            {key: '攻击', value: this.stats.attack},
+            {key: '防御', value: this.stats.defense}
+        ]);
     }
 
-    private createHealthBar(): void {
-        const width = 50;
-        const height = 6;
-        const padding = 2;
-        
-        // 创建血条背景
-        this.healthBarBg = this.scene.add.rectangle(
-            this.x,
-            this.y - 30,
-            width,
-            height,
-            0x000000,
-            0.8
-        );
-        
-        // 创建血条
-        this.healthBar = this.scene.add.rectangle(
-            this.x - width/2 + padding,
-            this.y - 30,
-            width - padding * 2,
-            height - padding * 2,
-            0x00ff00
-        );
-        this.healthBar.setOrigin(0, 0.5);
-    }
+    public takeDamage(damage: number): number {
+        const actualDamage = Math.max(0, damage - this.stats.defense);
+        this.stats.hp = Math.max(0, this.stats.hp - actualDamage);
 
-    public takeDamage(damage: number): void {
-        this.health = Math.max(0, this.health - Math.max(0, damage - this.stats.defense));
-        this.updateHealthBar();
-        
-        // 显示伤害数字
-        this.showDamageNumber(damage);
-        
-        // 显示受击效果
-        this.showHitEffect();
-        
-        if (this.health <= 0) {
+        Logger.getInstance('Hero').format(`${this.name} 受到伤害`, [
+            {key: '原始伤害', value: damage},
+            {key: '减免后伤害', value: actualDamage},
+            {key: '剩余HP', value: `${this.stats.hp}/${this.stats.maxHp}`}
+        ]);
+
+        if (this.stats.hp <= 0) {
             this.die();
         }
+
+        return actualDamage;
     }
 
-    private updateHealthBar(): void {
-        const healthPercentage = this.health / this.maxHealth;
-        const width = this.healthBarBg.width - 4;
-        this.healthBar.width = width * healthPercentage;
+    public heal(amount: number): void {
+        const oldHp = this.stats.hp;
+        this.stats.hp = Math.min(this.stats.maxHp, this.stats.hp + amount);
+        const healed = this.stats.hp - oldHp;
+
+        Logger.getInstance('Hero').format(`${this.name} 恢复HP`, [
+            {key: '恢复量', value: `+${healed}`},
+            {key: '当前HP', value: `${this.stats.hp}/${this.stats.maxHp}`}
+        ]);
     }
 
-    private showDamageNumber(damage: number): void {
-        const text = this.scene.add.text(
-            this.x,
-            this.y - 40,
-            `-${damage}`,
-            {
-                fontSize: '20px',
-                color: '#ff0000'
-            }
-        ).setOrigin(0.5);
+    public gainExperience(amount: number): boolean {
+        this.stats.exp += amount;
+        Logger.getInstance('Hero').format(`${this.name} 获得经验`, [
+            {key: '经验值', value: `+${amount}`},
+            {key: '当前经验', value: `${this.stats.exp}/${this.stats.expToNextLevel}`}
+        ]);
 
-        this.scene.tweens.add({
-            targets: text,
-            y: text.y - 50,
-            alpha: 0,
-            duration: 1000,
-            onComplete: () => text.destroy()
-        });
-    }
-
-    private showHitEffect(): void {
-        // 闪烁效果
-        this.scene.tweens.add({
-            targets: this,
-            alpha: 0.5,
-            duration: 100,
-            yoyo: true
-        });
-
-        // 显示受击特效
-        const hitEmoji = this.scene.add.text(
-            this.x,
-            this.y,
-            Hero.EMOJIS.effects.explosion,
-            { fontSize: '24px' }
-        ).setOrigin(0.5);
-
-        this.scene.tweens.add({
-            targets: hitEmoji,
-            scale: 1.5,
-            alpha: 0,
-            duration: 300,
-            onComplete: () => hitEmoji.destroy()
-        });
-    }
-
-    public castSkill(skillType: string): void {
-        const skillEmoji = Hero.EMOJIS.skills[skillType as keyof typeof Hero.EMOJIS.skills] || '✨';
-        const skillEffect = this.scene.add.text(
-            this.x,
-            this.y,
-            skillEmoji,
-            { fontSize: '32px' }
-        ).setOrigin(0.5);
-
-        this.scene.tweens.add({
-            targets: skillEffect,
-            scale: 2,
-            alpha: 0,
-            duration: 500,
-            onComplete: () => skillEffect.destroy()
-        });
-    }
-
-    public heal(amount: number) {
-        this.health = Math.min(this.maxHealth, this.health + amount);
-        this.updateHealthBar();
-    }
-
-    public gainExperience(amount: number) {
-        this.experience += amount;
-        const requiredExp = this.currentLevel * 100;  // 简单的等级经验计算
-
-        if (this.experience >= requiredExp) {
+        if (this.stats.exp >= this.stats.expToNextLevel) {
             this.levelUp();
+            return true;
         }
+        return false;
     }
 
-    private levelUp() {
-        this.currentLevel++;
-        this.experience = 0;
+    private levelUp(): void {
+        this.stats.level++;
+        this.stats.exp -= this.stats.expToNextLevel;
+        this.stats.expToNextLevel = Math.floor(this.stats.expToNextLevel * 1.5);
 
-        // 提升属性
-        this.maxHealth += 20;
-        this.health = this.maxHealth;
+        this.stats.maxHp += 20;
+        this.stats.hp = this.stats.maxHp;
         this.stats.attack += 5;
         this.stats.defense += 2;
         this.stats.speed += 1;
 
-        // 显示升级效果
-        this.showLevelUpEffect();
-    }
-
-    private showLevelUpEffect() {
-        // 创建一个升级特效
-        const levelUpText = this.scene.add.text(
-            this.x,
-            this.y - 50,
-            'LEVEL UP!',
-            { fontSize: '24px', color: '#ffff00' }
-        );
-
-        // 让文字向上飘动并消失
-        this.scene.tweens.add({
-            targets: levelUpText,
-            y: this.y - 100,
-            alpha: 0,
-            duration: 1000,
-            onComplete: () => levelUpText.destroy()
-        });
+        Logger.getInstance('Hero').format(`${this.name} 升级`, [
+            {key: '新等级', value: this.stats.level},
+            {key: 'HP', value: `${this.stats.hp}/${this.stats.maxHp}`},
+            {key: '攻击', value: this.stats.attack},
+            {key: '防御', value: this.stats.defense}
+        ]);
     }
 
     private die(): void {
-        // 死亡动画
-        this.scene.tweens.add({
-            targets: this,
-            scale: 0,
-            alpha: 0,
-            duration: 300,
-            onComplete: () => this.destroy()
-        });
-
-        // 显示特效
-        const effectEmoji = this.scene.add.text(
-            this.x,
-            this.y,
-            Hero.EMOJIS.effects.sparkle,
-            { fontSize: '32px' }
-        ).setOrigin(0.5);
-
-        this.scene.tweens.add({
-            targets: effectEmoji,
-            scale: 2,
-            alpha: 0,
-            duration: 500,
-            onComplete: () => effectEmoji.destroy()
-        });
+        Logger.getInstance('Hero').info(`${this.name} 已死亡`);
     }
 
-    public setPosition(x: number, y: number): this {
-        super.setPosition(x, y);
-        
-        // 更新血条位置
-        if (this.healthBar && this.healthBarBg) {
-            this.healthBarBg.setPosition(x, y - 30);
-            this.healthBar.setPosition(x - this.healthBarBg.width/2 + 2, y - 30);
+    public useSkill(skillId: string): boolean {
+        const skill = this.skills.find(s => s.id === skillId);
+        if (!skill) {
+            Logger.getInstance('Hero').warn(`${this.name} 尝试使用不存在的技能: ${skillId}`);
+            return false;
         }
-        
-        return this;
+
+        Logger.getInstance('Hero').info(`${this.name} 使用技能: ${skill.name}`);
+        return true;
+    }
+
+    public learnSkill(skill: Skill): void {
+        if (this.skills.some(s => s.id === skill.id)) {
+            Logger.getInstance('Hero').info(`${this.name} 已经学会了技能: ${skill.name}`);
+            return;
+        }
+
+        this.skills.push(skill);
+        Logger.getInstance('Hero').info(`${this.name} 学会了新技能: ${skill.name}`);
+    }
+
+    public update(): void {
+        // 可以在这里添加每帧更新的逻辑
     }
 
     public destroy(): void {
-        // 清理血条
-        if (this.healthBar) {
-            this.healthBar.destroy();
-        }
-        if (this.healthBarBg) {
-            this.healthBarBg.destroy();
-        }
-        
         super.destroy();
     }
-
-    update(): void {
-        // 可以在这里添加更新逻辑
-    }
-
-    // 技能相关方法
-    public learnSkill(skill: Skill) {
-        if (this.skills.length < 4) {
-            this.skills.push(skill);
-        }
-    }
-
-    public useSkill(index: number) {
-        if (index >= 0 && index < this.skills.length) {
-            const skill = this.skills[index];
-            // TODO: 实现技能效果
-            console.log(`${this.name} 使用技能: ${skill.name}`);
-        }
-    }
-} 
+}
