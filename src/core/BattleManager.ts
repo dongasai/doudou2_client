@@ -1,8 +1,7 @@
 import { ConfigLoader } from './ConfigLoader';
 import type { CharacterBean } from '../types/CharacterBean';
 import type { Crystal } from '../types/Crystal';
-import type { Hero } from '../types/GameHero';
-import type { CharacterBean } from '../types/CharacterBean';
+import { Hero } from '../objects/Hero';
 
 /**
  * 战斗管理器
@@ -27,7 +26,10 @@ export class BattleManager {
     /** 事件监听器 */
     private eventListeners = new Map<string, Function[]>();
 
-    constructor() {
+    private scene: Phaser.Scene;
+
+    constructor(scene: Phaser.Scene) {
+        this.scene = scene;
         this.init();
     }
 
@@ -71,24 +73,24 @@ export class BattleManager {
             return null;
         }
 
-        const heroData: Hero = {
-            ...heroConfig,
-            id,
-            position,
-            battleStats: {
-                ...heroConfig.stats,
-                currentHP: heroConfig.stats.hp,
-                maxHP: heroConfig.stats.hp,
-                level: 1,
-                exp: 0,
-                gold: 0,
-                equippedItems: [],
-                learnedSkills: heroConfig.skills.map((skill: any) => skill.id)
-            }
+        const hero = new Hero(this.scene, position.x, position.y, heroConfig.type);
+        hero['id'] = parseInt(id.replace('hero_', ''));
+        hero['battleStats'] = {
+            ...heroConfig.stats,
+            hp: heroConfig.stats.hp,
+            level: 1,
+            exp: 0,
+            gold: 0,
+            equippedItems: [],
+            learnedSkills: heroConfig.skills.map((skill: any) => skill.id)
         };
-        this.battleData.heroes.set(id, heroData);
-        return heroData;
-        this.emit('heroCreated', heroData);
+        this.battleData.heroes.set(id, hero);
+        this.emit('heroCreated', {
+            id,
+            type,
+            position
+        });
+        return hero;
     }
 
     /**
@@ -112,8 +114,10 @@ export class BattleManager {
             defenseBonus: 0
         };
         this.battleData.crystal = crystalData;
+        this.emit('crystalCreated', {
+            position
+        });
         return crystalData;
-        this.emit('crystalCreated', crystalData);
     }
 
     /**
@@ -209,14 +213,28 @@ export class BattleManager {
         for (const [id, bean] of this.battleData.beans) {
             if (this.battleData.crystal) {
                 // 计算豆豆朝向水晶的移动
+                const center = { x: 400, y: 300 };
                 const direction = this.calculateDirection(
                     bean.position,
-                    this.battleData.crystal.position
+                    center
                 );
                 
                 // 更新豆豆位置
-                bean.position.x += direction.x * bean.speed * deltaTime;
-                bean.position.y += direction.y * bean.speed * deltaTime;
+                // 豆豆向固定中心点(400,300)移动
+                const centerX = 400;
+                const centerY = 300;
+                const dx = centerX - bean.position.x;
+                const dy = centerY - bean.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const speed = bean.speed * deltaTime;
+                
+                if (distance > speed) {
+                    bean.position.x += (dx / distance) * speed;
+                    bean.position.y += (dy / distance) * speed;
+                } else {
+                    bean.position.x = centerX;
+                    bean.position.y = centerY;
+                }
                 
                 this.emit('beanMoved', { beanId: id, position: bean.position });
             }

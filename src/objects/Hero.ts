@@ -26,7 +26,8 @@ export class Hero extends GameObject {
         }
     };
 
-    private name: string = '';
+    public id: number = 0;
+    public battleStats: any = {};
     private skills: Skill[] = [];
     private currentLevel: number = 1;
     private experience: number = 0;

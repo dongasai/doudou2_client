@@ -76,7 +76,7 @@ export class BattleScene extends Phaser.Scene {
 
     constructor() {
         super({ key: 'BattleScene' });
-        this.battleManager = new BattleManager();
+        this.battleManager = new BattleManager(this);
         this.setupEventListeners();
     }
 
