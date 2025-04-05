@@ -1,0 +1,43 @@
+{
+  "id": 21,
+  "name": "金刚",
+  "type": "战士",
+  "style": "特长型",
+  "specialty": "超高防御",
+  "skills": [
+    {
+      "name": "金身",
+      "type": "增益",
+      "description": "提高防御力",
+      "cooldown": 10,
+      "cost": 60
+    },
+    {
+      "name": "反伤",
+      "type": "增益",
+      "description": "反弹伤害",
+      "cooldown": 12,
+      "cost": 70
+    },
+    {
+      "name": "重击",
+      "type": "控制",
+      "description": "击晕敌人",
+      "cooldown": 15,
+      "cost": 80
+    },
+    {
+      "name": "不灭",
+      "type": "增益",
+      "description": "短暂无敌",
+      "cooldown": 25,
+      "cost": 100
+    }
+  ],
+  "stats": {
+    "hp": 1100,
+    "attack": 50,
+    "defense": 120,
+    "speed": 40
+  }
+}

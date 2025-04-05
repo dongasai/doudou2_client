@@ -1,0 +1,43 @@
+{
+  "id": 18,
+  "name": "武僧",
+  "type": "战士",
+  "style": "均衡型",
+  "specialty": "连击",
+  "skills": [
+    {
+      "name": "连拳",
+      "type": "伤害",
+      "description": "快速连续攻击",
+      "cooldown": 5,
+      "cost": 40
+    },
+    {
+      "name": "金钟",
+      "type": "增益",
+      "description": "减伤状态",
+      "cooldown": 12,
+      "cost": 70
+    },
+    {
+      "name": "气功",
+      "type": "治疗",
+      "description": "恢复生命值",
+      "cooldown": 10,
+      "cost": 60
+    },
+    {
+      "name": "佛怒",
+      "type": "伤害",
+      "description": "爆发伤害",
+      "cooldown": 15,
+      "cost": 85
+    }
+  ],
+  "stats": {
+    "hp": 950,
+    "attack": 80,
+    "defense": 70,
+    "speed": 65
+  }
+}

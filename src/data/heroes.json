@@ -1,0 +1,48 @@
+{
+    "heroes": [
+        {
+            "id": 1,
+            "name": "剑士",
+            "emoji": "⚔️",
+            "baseStats": {
+                "maxHp": 100,
+                "attack": 15,
+                "defense": 5,
+                "speed": 100,
+                "range": 50
+            },
+            "skills": [
+                {
+                    "id": 101,
+                    "name": "横扫",
+                    "damage": 20,
+                    "cooldown": 5,
+                    "range": 60,
+                    "type": "active"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "弓箭手",
+            "emoji": "🏹",
+            "baseStats": {
+                "maxHp": 80,
+                "attack": 20,
+                "defense": 3,
+                "speed": 90,
+                "range": 150
+            },
+            "skills": [
+                {
+                    "id": 201,
+                    "name": "穿透射击",
+                    "damage": 30,
+                    "cooldown": 8,
+                    "range": 200,
+                    "type": "active"
+                }
+            ]
+        }
+    ]
+} 

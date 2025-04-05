@@ -1,0 +1,29 @@
+{
+  "name": "第一章-第十关",
+  "description": "Boss终极决战",
+  "difficulty": 2.0,
+  "crystal": {
+    "maxHp": 500
+  },
+  "beanRatios": [
+    {"type": "豆豆王", "weight": 1}
+  ],
+  "totalBeans": 1,
+  "spawnInterval": 0,
+  "attrFactors": {
+    "hp": 2.0,
+    "attack": 2.0,
+    "defense": 2.0,
+    "speed": 1.5
+  },
+  "victoryCondition": {
+    "type": "bossDefeated",
+    "value": "豆豆王"
+  },
+  "defeatCondition": {
+    "type": "crystalDestroyed"
+  },
+  "background": "boss",
+  "availableHeroSlots": 3,
+  "isBossLevel": true
+}

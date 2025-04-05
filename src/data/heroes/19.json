@@ -1,0 +1,43 @@
+{
+  "id": 19,
+  "name": "血魔",
+  "type": "法师",
+  "style": "均衡型",
+  "specialty": "生命偷取",
+  "skills": [
+    {
+      "name": "吸血",
+      "type": "伤害",
+      "description": "造成伤害并回血",
+      "cooldown": 5,
+      "cost": 45
+    },
+    {
+      "name": "献祭",
+      "type": "伤害",
+      "description": "消耗生命造成伤害",
+      "cooldown": 8,
+      "cost": 60
+    },
+    {
+      "name": "血池",
+      "type": "控制",
+      "description": "创造伤害区域",
+      "cooldown": 12,
+      "cost": 75
+    },
+    {
+      "name": "血祭",
+      "type": "伤害",
+      "description": "大范围伤害",
+      "cooldown": 15,
+      "cost": 90
+    }
+  ],
+  "stats": {
+    "hp": 850,
+    "attack": 95,
+    "defense": 50,
+    "speed": 60
+  }
+}

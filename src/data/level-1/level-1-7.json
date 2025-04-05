@@ -1,0 +1,31 @@
+{
+  "name": "第一章-第七关",
+  "description": "组合挑战关卡",
+  "difficulty": 1.7,
+  "crystal": {
+    "maxHp": 700
+  },
+  "beanRatios": [
+    {"type": "暴躁豆", "weight": 1},
+    {"type": "炸弹豆", "weight": 1},
+    {"type": "冰霜豆", "weight": 1},
+    {"type": "铁甲豆", "weight": 1},
+    {"type": "闪电豆", "weight": 1}
+  ],
+  "totalBeans": 60,
+  "spawnInterval": 700,
+  "attrFactors": {
+    "hp": 1.5,
+    "attack": 1.4,
+    "defense": 1.3,
+    "speed": 1.2
+  },
+  "victoryCondition": {
+    "type": "allDefeated"
+  },
+  "defeatCondition": {
+    "type": "crystalDestroyed"
+  },
+  "background": "night",
+  "availableHeroSlots": 3
+}

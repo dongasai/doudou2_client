@@ -1,0 +1,21 @@
+{
+  "name": "doudou2-client",
+  "version": "1.0.0",
+  "description": "豆豆大作战2客户端",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "vite",
+    "tree": "node scripts/generate-tree.js",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "phaser": "^3.60.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-json": "^6.1.0",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  }
+}

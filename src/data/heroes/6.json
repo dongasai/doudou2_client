@@ -1,0 +1,43 @@
+{
+  "id": 6,
+  "name": "玄武",
+  "type": "战士",
+  "style": "均衡型",
+  "specialty": "持续作战",
+  "skills": [
+    {
+      "name": "水盾",
+      "type": "增益",
+      "description": "创造可吸收伤害的水盾",
+      "cooldown": 8,
+      "cost": 55
+    },
+    {
+      "name": "水牢",
+      "type": "控制",
+      "description": "困住敌人并造成伤害",
+      "cooldown": 10,
+      "cost": 65
+    },
+    {
+      "name": "回流",
+      "type": "治疗",
+      "description": "将造成的伤害转化为生命值",
+      "cooldown": 12,
+      "cost": 70
+    },
+    {
+      "name": "潮汐",
+      "type": "伤害",
+      "description": "释放水流冲击敌人",
+      "cooldown": 9,
+      "cost": 60
+    }
+  ],
+  "stats": {
+    "hp": 950,
+    "attack": 75,
+    "defense": 75,
+    "speed": 60
+  }
+}

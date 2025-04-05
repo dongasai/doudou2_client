@@ -1,0 +1,304 @@
+{
+  "items": [
+    {
+      "id": "sword_1",
+      "name": "铁剑",
+      "type": "weapon",
+      "effect": {
+        "stat": "attack",
+        "value": 10
+      },
+      "price": 50
+    },
+    {
+      "id": "sword_2",
+      "name": "钢剑",
+      "type": "weapon",
+      "effect": {
+        "stat": "attack",
+        "value": 15
+      },
+      "price": 80
+    },
+    {
+      "id": "sword_3",
+      "name": "火焰剑",
+      "type": "weapon",
+      "effect": {
+        "stat": "attack",
+        "value": 20
+      },
+      "price": 120
+    },
+    {
+      "id": "bow_1",
+      "name": "短弓",
+      "type": "weapon",
+      "effect": {
+        "stat": "attack",
+        "value": 12
+      },
+      "price": 60
+    },
+    {
+      "id": "staff_1",
+      "name": "橡木法杖",
+      "type": "weapon",
+      "effect": {
+        "stat": "attack",
+        "value": 8
+      },
+      "price": 40
+    },
+    {
+      "id": "armor_1",
+      "name": "皮甲",
+      "type": "armor",
+      "effect": {
+        "stat": "defense",
+        "value": 5
+      },
+      "price": 40
+    },
+    {
+      "id": "armor_2",
+      "name": "锁子甲",
+      "type": "armor",
+      "effect": {
+        "stat": "defense",
+        "value": 10
+      },
+      "price": 80
+    },
+    {
+      "id": "armor_3",
+      "name": "板甲",
+      "type": "armor",
+      "effect": {
+        "stat": "defense",
+        "value": 15
+      },
+      "price": 120
+    },
+    {
+      "id": "shield_1",
+      "name": "小圆盾",
+      "type": "armor",
+      "effect": {
+        "stat": "defense",
+        "value": 8
+      },
+      "price": 60
+    },
+    {
+      "id": "helm_1",
+      "name": "皮头盔",
+      "type": "armor",
+      "effect": {
+        "stat": "defense",
+        "value": 3
+      },
+      "price": 30
+    },
+    {
+      "id": "ring_1",
+      "name": "铜戒指",
+      "type": "accessory",
+      "effect": {
+        "stat": "attack",
+        "value": 5
+      },
+      "price": 50
+    },
+    {
+      "id": "ring_2",
+      "name": "银戒指",
+      "type": "accessory",
+      "effect": {
+        "stat": "attack",
+        "value": 8
+      },
+      "price": 80
+    },
+    {
+      "id": "amulet_1",
+      "name": "护身符",
+      "type": "accessory",
+      "effect": {
+        "stat": "hp",
+        "value": 50
+      },
+      "price": 60
+    },
+    {
+      "id": "potion_1",
+      "name": "治疗药水",
+      "type": "consumable",
+      "effect": {
+        "stat": "hp",
+        "value": 100
+      },
+      "price": 30
+    },
+    {
+      "id": "potion_2",
+      "name": "攻击药水",
+      "type": "consumable",
+      "effect": {
+        "stat": "attack",
+        "value": 10
+      },
+      "price": 40
+    },
+    {
+      "id": "potion_3",
+      "name": "防御药水",
+      "type": "consumable",
+      "effect": {
+        "stat": "defense",
+        "value": 10
+      },
+      "price": 40
+    },
+    {
+      "id": "gloves_1",
+      "name": "皮手套",
+      "type": "armor",
+      "effect": {
+        "stat": "defense",
+        "value": 2
+      },
+      "price": 20
+    },
+    {
+      "id": "boots_1",
+      "name": "皮靴",
+      "type": "armor",
+      "effect": {
+        "stat": "defense",
+        "value": 2
+      },
+      "price": 20
+    },
+    {
+      "id": "belt_1",
+      "name": "皮带",
+      "type": "armor",
+      "effect": {
+        "stat": "hp",
+        "value": 30
+      },
+      "price": 25
+    },
+    {
+      "id": "cloak_1",
+      "name": "斗篷",
+      "type": "armor",
+      "effect": {
+        "stat": "defense",
+        "value": 3
+      },
+      "price": 35
+    },
+    {
+      "id": "axe_1",
+      "name": "手斧",
+      "type": "weapon",
+      "effect": {
+        "stat": "attack",
+        "value": 12
+      },
+      "price": 65
+    },
+    {
+      "id": "mace_1",
+      "name": "钉头锤",
+      "type": "weapon",
+      "effect": {
+        "stat": "attack",
+        "value": 14
+      },
+      "price": 75
+    },
+    {
+      "id": "wand_1",
+      "name": "魔法棒",
+      "type": "weapon",
+      "effect": {
+        "stat": "attack",
+        "value": 10
+      },
+      "price": 55
+    },
+    {
+      "id": "orb_1",
+      "name": "水晶球",
+      "type": "accessory",
+      "effect": {
+        "stat": "attack",
+        "value": 7
+      },
+      "price": 70
+    },
+    {
+      "id": "book_1",
+      "name": "魔法书",
+      "type": "accessory",
+      "effect": {
+        "stat": "attack",
+        "value": 6
+      },
+      "price": 65
+    },
+    {
+      "id": "scroll_1",
+      "name": "攻击卷轴",
+      "type": "consumable",
+      "effect": {
+        "stat": "attack",
+        "value": 15
+      },
+      "price": 50
+    },
+    {
+      "id": "scroll_2",
+      "name": "防御卷轴",
+      "type": "consumable",
+      "effect": {
+        "stat": "defense",
+        "value": 15
+      },
+      "price": 50
+    },
+    {
+      "id": "gem_1",
+      "name": "红宝石",
+      "type": "accessory",
+      "effect": {
+        "stat": "hp",
+        "value": 80
+      },
+      "price": 100
+    },
+    {
+      "id": "gem_2",
+      "name": "蓝宝石",
+      "type": "accessory",
+      "effect": {
+        "stat": "attack",
+        "value": 12
+      },
+      "price": 120
+    },
+    {
+      "id": "gem_3",
+      "name": "绿宝石",
+      "type": "accessory",
+      "effect": {
+        "stat": "defense",
+        "value": 12
+      },
+      "price": 120
+    }
+  ]
+}

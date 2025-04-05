@@ -1,0 +1,43 @@
+{
+  "id": 9,
+  "name": "狂刀",
+  "type": "战士",
+  "style": "均衡型",
+  "specialty": "近战输出",
+  "skills": [
+    {
+      "name": "连斩",
+      "type": "伤害",
+      "description": "连续挥刀攻击",
+      "cooldown": 5,
+      "cost": 40
+    },
+    {
+      "name": "旋风",
+      "type": "伤害",
+      "description": "旋转攻击周围敌人",
+      "cooldown": 8,
+      "cost": 60
+    },
+    {
+      "name": "重击",
+      "type": "伤害",
+      "description": "强力挥砍造成伤害",
+      "cooldown": 10,
+      "cost": 55
+    },
+    {
+      "name": "战意",
+      "type": "增益",
+      "description": "提升攻击力",
+      "cooldown": 15,
+      "cost": 80
+    }
+  ],
+  "stats": {
+    "hp": 900,
+    "attack": 90,
+    "defense": 65,
+    "speed": 70
+  }
+}

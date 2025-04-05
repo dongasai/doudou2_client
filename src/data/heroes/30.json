@@ -1,0 +1,43 @@
+{
+  "id": 30,
+  "name": "御剑",
+  "type": "战士",
+  "style": "均衡型",
+  "specialty": "剑术精通",
+  "skills": [
+    {
+      "name": "御气",
+      "type": "增益",
+      "description": "强化攻击",
+      "cooldown": 10,
+      "cost": 55
+    },
+    {
+      "name": "剑阵",
+      "type": "控制",
+      "description": "剑气封锁",
+      "cooldown": 12,
+      "cost": 70
+    },
+    {
+      "name": "破空",
+      "type": "伤害",
+      "description": "远程斩击",
+      "cooldown": 8,
+      "cost": 60
+    },
+    {
+      "name": "剑舞",
+      "type": "伤害",
+      "description": "范围攻击",
+      "cooldown": 15,
+      "cost": 85
+    }
+  ],
+  "stats": {
+    "hp": 880,
+    "attack": 95,
+    "defense": 60,
+    "speed": 70
+  }
+}

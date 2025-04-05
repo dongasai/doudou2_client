@@ -1,0 +1,43 @@
+{
+  "id": 28,
+  "name": "傀儡",
+  "type": "战士",
+  "style": "均衡型",
+  "specialty": "分身作战",
+  "skills": [
+    {
+      "name": "分身",
+      "type": "召唤",
+      "description": "创造分身",
+      "cooldown": 12,
+      "cost": 70
+    },
+    {
+      "name": "操控",
+      "type": "控制",
+      "description": "控制敌人",
+      "cooldown": 15,
+      "cost": 80
+    },
+    {
+      "name": "幻象",
+      "type": "召唤",
+      "description": "召唤一个幻象分身",
+      "cooldown": 10,
+      "cost": 60
+    },
+    {
+      "name": "合体",
+      "type": "增益",
+      "description": "吸收分身",
+      "cooldown": 20,
+      "cost": 90
+    }
+  ],
+  "stats": {
+    "hp": 900,
+    "attack": 70,
+    "defense": 65,
+    "speed": 60
+  }
+}

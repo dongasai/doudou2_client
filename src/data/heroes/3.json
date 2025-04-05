@@ -1,0 +1,43 @@
+{
+  "id": 3,
+  "name": "疾风",
+  "type": "射手",
+  "style": "特长型",
+  "specialty": "远程输出",
+  "skills": [
+    {
+      "name": "快射",
+      "type": "伤害",
+      "description": "连续发射三箭",
+      "cooldown": 5,
+      "cost": 45
+    },
+    {
+      "name": "精准射击",
+      "type": "伤害",
+      "description": "瞄准射击造成额外伤害",
+      "cooldown": 8,
+      "cost": 50
+    },
+    {
+      "name": "穿云",
+      "type": "伤害",
+      "description": "发射穿透箭",
+      "cooldown": 10,
+      "cost": 65
+    },
+    {
+      "name": "箭雨",
+      "type": "伤害",
+      "description": "召唤箭雨打击范围目标",
+      "cooldown": 15,
+      "cost": 90
+    }
+  ],
+  "stats": {
+    "hp": 700,
+    "attack": 100,
+    "defense": 30,
+    "speed": 80
+  }
+}

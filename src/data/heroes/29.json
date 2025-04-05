@@ -1,0 +1,43 @@
+{
+  "id": 29,
+  "name": "灵猫",
+  "type": "刺客",
+  "style": "均衡型",
+  "specialty": "敏捷作战",
+  "skills": [
+    {
+      "name": "猛击",
+      "type": "伤害",
+      "description": "强力近战攻击",
+      "cooldown": 8,
+      "cost": 60
+    },
+    {
+      "name": "利爪",
+      "type": "伤害",
+      "description": "连续攻击",
+      "cooldown": 6,
+      "cost": 45
+    },
+    {
+      "name": "轻盈",
+      "type": "增益",
+      "description": "提升闪避",
+      "cooldown": 12,
+      "cost": 65
+    },
+    {
+      "name": "狂野",
+      "type": "伤害",
+      "description": "爆发伤害",
+      "cooldown": 15,
+      "cost": 80
+    }
+  ],
+  "stats": {
+    "hp": 750,
+    "attack": 90,
+    "defense": 45,
+    "speed": 100
+  }
+}

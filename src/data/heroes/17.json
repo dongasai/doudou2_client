@@ -1,0 +1,43 @@
+{
+  "id": 17,
+  "name": "风行",
+  "type": "射手",
+  "style": "均衡型",
+  "specialty": "快速射击",
+  "skills": [
+    {
+      "name": "风之专注",
+      "type": "增益",
+      "description": "提升攻击速度",
+      "cooldown": 6,
+      "cost": 45
+    },
+    {
+      "name": "风矢",
+      "type": "伤害",
+      "description": "发射风之箭",
+      "cooldown": 8,
+      "cost": 55
+    },
+    {
+      "name": "风盾",
+      "type": "增益",
+      "description": "获得护盾",
+      "cooldown": 12,
+      "cost": 70
+    },
+    {
+      "name": "龙卷",
+      "type": "控制",
+      "description": "创造龙卷风",
+      "cooldown": 15,
+      "cost": 85
+    }
+  ],
+  "stats": {
+    "hp": 750,
+    "attack": 90,
+    "defense": 45,
+    "speed": 85
+  }
+}

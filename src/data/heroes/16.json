@@ -1,0 +1,43 @@
+{
+  "id": 16,
+  "name": "机关",
+  "type": "射手",
+  "style": "均衡型",
+  "specialty": "区域控制",
+  "skills": [
+    {
+      "name": "布雷",
+      "type": "控制",
+      "description": "设置地雷",
+      "cooldown": 8,
+      "cost": 50
+    },
+    {
+      "name": "炮台",
+      "type": "召唤",
+      "description": "部署炮台",
+      "cooldown": 15,
+      "cost": 80
+    },
+    {
+      "name": "陷阱",
+      "type": "控制",
+      "description": "设置捕捉陷阱",
+      "cooldown": 12,
+      "cost": 65
+    },
+    {
+      "name": "轰炸",
+      "type": "伤害",
+      "description": "范围轰炸",
+      "cooldown": 18,
+      "cost": 90
+    }
+  ],
+  "stats": {
+    "hp": 800,
+    "attack": 85,
+    "defense": 55,
+    "speed": 60
+  }
+}

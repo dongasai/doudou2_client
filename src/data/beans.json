@@ -1,0 +1,360 @@
+{
+  "beans": [
+    {
+      "id": 1,
+      "name": "暴躁豆",
+      "type": "近战",
+      "skill": {
+        "name": "冲撞",
+        "type": "伤害",
+        "description": "直线冲向目标造成伤害",
+        "cooldown": 5,
+        "damage": 30
+      },
+      "stats": {
+        "hp": 200,
+        "attack": 25,
+        "defense": 10,
+        "speed": 50
+      }
+    },
+    {
+      "id": 2,
+      "name": "毒豆",
+      "type": "远程",
+      "skill": {
+        "name": "毒液喷射",
+        "type": "减益",
+        "description": "喷射毒液造成持续伤害",
+        "cooldown": 8,
+        "damage": 15
+      },
+      "stats": {
+        "hp": 150,
+        "attack": 20,
+        "defense": 5,
+        "speed": 40
+      }
+    },
+    {
+      "id": 3,
+      "name": "铁甲豆",
+      "type": "防御",
+      "skill": {
+        "name": "硬化",
+        "type": "增益",
+        "description": "暂时提高防御力",
+        "cooldown": 10,
+        "defense_buff": 30
+      },
+      "stats": {
+        "hp": 300,
+        "attack": 15,
+        "defense": 40,
+        "speed": 30
+      }
+    },
+    {
+      "id": 4,
+      "name": "闪电豆",
+      "type": "远程",
+      "skill": {
+        "name": "闪电链",
+        "type": "伤害",
+        "description": "释放连锁闪电",
+        "cooldown": 12,
+        "damage": 25
+      },
+      "stats": {
+        "hp": 180,
+        "attack": 30,
+        "defense": 15,
+        "speed": 60
+      }
+    },
+    {
+      "id": 5,
+      "name": "分裂豆",
+      "type": "特殊",
+      "skill": {
+        "name": "分裂",
+        "type": "召唤",
+        "description": "死亡时分裂成两个小豆豆",
+        "cooldown": 0
+      },
+      "stats": {
+        "hp": 250,
+        "attack": 20,
+        "defense": 20,
+        "speed": 45
+      }
+    },
+    {
+      "id": 6,
+      "name": "冰霜豆",
+      "type": "远程",
+      "skill": {
+        "name": "冰锥",
+        "type": "控制",
+        "description": "发射冰锥减速目标",
+        "cooldown": 7,
+        "slow": 30
+      },
+      "stats": {
+        "hp": 220,
+        "attack": 22,
+        "defense": 18,
+        "speed": 35
+      }
+    },
+    {
+      "id": 7,
+      "name": "炸弹豆",
+      "type": "自爆",
+      "skill": {
+        "name": "爆炸",
+        "type": "伤害",
+        "description": "接近目标后自爆",
+        "cooldown": 0,
+        "damage": 50
+      },
+      "stats": {
+        "hp": 100,
+        "attack": 40,
+        "defense": 5,
+        "speed": 55
+      }
+    },
+    {
+      "id": 8,
+      "name": "治疗豆",
+      "type": "辅助",
+      "skill": {
+        "name": "治疗波",
+        "type": "治疗",
+        "description": "治疗周围豆豆",
+        "cooldown": 15,
+        "heal": 40
+      },
+      "stats": {
+        "hp": 280,
+        "attack": 10,
+        "defense": 25,
+        "speed": 40
+      }
+    },
+    {
+      "id": 9,
+      "name": "暗影豆",
+      "type": "近战",
+      "skill": {
+        "name": "暗影突袭",
+        "type": "伤害",
+        "description": "从阴影中突袭目标",
+        "cooldown": 8,
+        "damage": 35
+      },
+      "stats": {
+        "hp": 190,
+        "attack": 28,
+        "defense": 12,
+        "speed": 65
+      }
+    },
+    {
+      "id": 10,
+      "name": "岩石豆",
+      "type": "防御",
+      "skill": {
+        "name": "投石",
+        "type": "伤害",
+        "description": "投掷岩石造成伤害",
+        "cooldown": 6,
+        "damage": 20
+      },
+      "stats": {
+        "hp": 350,
+        "attack": 18,
+        "defense": 35,
+        "speed": 25
+      }
+    },
+    {
+      "id": 11,
+      "name": "旋风豆",
+      "type": "近战",
+      "skill": {
+        "name": "旋风斩",
+        "type": "伤害",
+        "description": "旋转攻击周围目标",
+        "cooldown": 10,
+        "damage": 25
+      },
+      "stats": {
+        "hp": 230,
+        "attack": 25,
+        "defense": 20,
+        "speed": 50
+      }
+    },
+    {
+      "id": 12,
+      "name": "幻象豆",
+      "type": "特殊",
+      "skill": {
+        "name": "幻象",
+        "type": "召唤",
+        "description": "制造一个幻象迷惑敌人",
+        "cooldown": 12
+      },
+      "stats": {
+        "hp": 160,
+        "attack": 15,
+        "defense": 10,
+        "speed": 55
+      }
+    },
+    {
+      "id": 13,
+      "name": "火焰豆",
+      "type": "远程",
+      "skill": {
+        "name": "火球",
+        "type": "伤害",
+        "description": "发射火球造成范围伤害",
+        "cooldown": 9,
+        "damage": 28
+      },
+      "stats": {
+        "hp": 170,
+        "attack": 32,
+        "defense": 8,
+        "speed": 45
+      }
+    },
+    {
+      "id": 14,
+      "name": "荆棘豆",
+      "type": "防御",
+      "skill": {
+        "name": "反伤",
+        "type": "增益",
+        "description": "反弹部分受到的伤害",
+        "cooldown": 8,
+        "reflect": 30
+      },
+      "stats": {
+        "hp": 240,
+        "attack": 12,
+        "defense": 30,
+        "speed": 35
+      }
+    },
+    {
+      "id": 15,
+      "name": "音波豆",
+      "type": "远程",
+      "skill": {
+        "name": "音爆",
+        "type": "控制",
+        "description": "发出音波眩晕敌人",
+        "cooldown": 15,
+        "stun": 2
+      },
+      "stats": {
+        "hp": 200,
+        "attack": 18,
+        "defense": 15,
+        "speed": 40
+      }
+    },
+    {
+      "id": 16,
+      "name": "吸血豆",
+      "type": "近战",
+      "skill": {
+        "name": "吸血",
+        "type": "治疗",
+        "description": "攻击时恢复生命值",
+        "cooldown": 5,
+        "lifesteal": 20
+      },
+      "stats": {
+        "hp": 260,
+        "attack": 22,
+        "defense": 18,
+        "speed": 45
+      }
+    },
+    {
+      "id": 17,
+      "name": "磁力豆",
+      "type": "特殊",
+      "skill": {
+        "name": "磁吸",
+        "type": "控制",
+        "description": "吸引附近金属物品",
+        "cooldown": 10
+      },
+      "stats": {
+        "hp": 210,
+        "attack": 15,
+        "defense": 25,
+        "speed": 40
+      }
+    },
+    {
+      "id": 18,
+      "name": "剧毒豆",
+      "type": "远程",
+      "skill": {
+        "name": "毒雾",
+        "type": "减益",
+        "description": "释放持续毒雾区域",
+        "cooldown": 12,
+        "damage": 10
+      },
+      "stats": {
+        "hp": 180,
+        "attack": 25,
+        "defense": 12,
+        "speed": 35
+      }
+    },
+    {
+      "id": 19,
+      "name": "狂暴豆",
+      "type": "近战",
+      "skill": {
+        "name": "狂暴",
+        "type": "增益",
+        "description": "提升攻击速度",
+        "cooldown": 15,
+        "speed_buff": 40
+      },
+      "stats": {
+        "hp": 270,
+        "attack": 35,
+        "defense": 15,
+        "speed": 55
+      }
+    },
+    {
+      "id": 20,
+      "name": "幽灵豆",
+      "type": "特殊",
+      "skill": {
+        "name": "穿墙",
+        "type": "位移",
+        "description": "可以穿过障碍物",
+        "cooldown": 8
+      },
+      "stats": {
+        "hp": 190,
+        "attack": 20,
+        "defense": 5,
+        "speed": 60
+      }
+    }
+  ]
+}

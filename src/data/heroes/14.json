@@ -1,0 +1,43 @@
+{
+  "id": 14,
+  "name": "毒医",
+  "type": "法师",
+  "style": "特长型",
+  "specialty": "持续伤害",
+  "skills": [
+    {
+      "name": "毒雾",
+      "type": "减益",
+      "description": "释放毒雾",
+      "cooldown": 8,
+      "cost": 55
+    },
+    {
+      "name": "剧毒",
+      "type": "伤害",
+      "description": "注入剧毒",
+      "cooldown": 10,
+      "cost": 65
+    },
+    {
+      "name": "瘟疫",
+      "type": "减益",
+      "description": "传播疾病",
+      "cooldown": 15,
+      "cost": 85
+    },
+    {
+      "name": "解药",
+      "type": "治疗",
+      "description": "解除中毒状态",
+      "cooldown": 12,
+      "cost": 70
+    }
+  ],
+  "stats": {
+    "hp": 780,
+    "attack": 95,
+    "defense": 45,
+    "speed": 65
+  }
+}

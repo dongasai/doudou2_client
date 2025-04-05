@@ -1,0 +1,43 @@
+{
+  "id": 22,
+  "name": "魅影",
+  "type": "刺客",
+  "style": "特长型",
+  "specialty": "隐身突袭",
+  "skills": [
+    {
+      "name": "伪装",
+      "type": "隐身",
+      "description": "原地隐身",
+      "cooldown": 12,
+      "cost": 55
+    },
+    {
+      "name": "暗袭",
+      "type": "伤害",
+      "description": "背刺攻击",
+      "cooldown": 8,
+      "cost": 55
+    },
+    {
+      "name": "迷雾",
+      "type": "控制",
+      "description": "制造烟雾",
+      "cooldown": 15,
+      "cost": 75
+    },
+    {
+      "name": "夜袭",
+      "type": "伤害",
+      "description": "范围暗影打击",
+      "cooldown": 20,
+      "cost": 90
+    }
+  ],
+  "stats": {
+    "hp": 700,
+    "attack": 115,
+    "defense": 35,
+    "speed": 95
+  }
+}

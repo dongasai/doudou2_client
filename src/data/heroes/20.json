@@ -1,0 +1,43 @@
+{
+  "id": 20,
+  "name": "死灵",
+  "type": "法师",
+  "style": "均衡型",
+  "specialty": "召唤",
+  "skills": [
+    {
+      "name": "召骷",
+      "type": "召唤",
+      "description": "召唤骷髅",
+      "cooldown": 8,
+      "cost": 55
+    },
+    {
+      "name": "死光",
+      "type": "伤害",
+      "description": "发射死亡射线",
+      "cooldown": 6,
+      "cost": 50
+    },
+    {
+      "name": "枯萎",
+      "type": "减益",
+      "description": "降低属性",
+      "cooldown": 10,
+      "cost": 65
+    },
+    {
+      "name": "亡灵",
+      "type": "召唤",
+      "description": "召唤强大亡灵",
+      "cooldown": 20,
+      "cost": 100
+    }
+  ],
+  "stats": {
+    "hp": 780,
+    "attack": 90,
+    "defense": 45,
+    "speed": 55
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "id": 2,
+  "name": "铁壁",
+  "type": "战士",
+  "style": "特长型",
+  "specialty": "防御与控制",
+  "skills": [
+    {
+      "name": "盾击",
+      "type": "控制",
+      "description": "用盾牌击晕敌人",
+      "cooldown": 4,
+      "cost": 30
+    },
+    {
+      "name": "铁甲",
+      "type": "增益",
+      "description": "临时提升防御力",
+      "cooldown": 10,
+      "cost": 60
+    },
+    {
+      "name": "守护",
+      "type": "增益",
+      "description": "为周围队友提供护盾",
+      "cooldown": 15,
+      "cost": 80
+    },
+    {
+      "name": "震地",
+      "type": "控制",
+      "description": "震慑周围敌人",
+      "cooldown": 12,
+      "cost": 70
+    }
+  ],
+  "stats": {
+    "hp": 1200,
+    "attack": 60,
+    "defense": 100,
+    "speed": 40
+  }
+}

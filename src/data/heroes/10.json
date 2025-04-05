@@ -1,0 +1,43 @@
+{
+  "id": 10,
+  "name": "幻影",
+  "type": "刺客",
+  "style": "均衡型",
+  "specialty": "灵活作战",
+  "skills": [
+    {
+      "name": "幻影打击",
+      "type": "伤害",
+      "description": "快速发动多次攻击",
+      "cooldown": 6,
+      "cost": 45
+    },
+    {
+      "name": "分身",
+      "type": "召唤",
+      "description": "制造分身迷惑敌人",
+      "cooldown": 12,
+      "cost": 70
+    },
+    {
+      "name": "幻刺",
+      "type": "伤害",
+      "description": "造成多段伤害",
+      "cooldown": 8,
+      "cost": 55
+    },
+    {
+      "name": "虚实",
+      "type": "增益",
+      "description": "提高闪避率",
+      "cooldown": 15,
+      "cost": 80
+    }
+  ],
+  "stats": {
+    "hp": 800,
+    "attack": 95,
+    "defense": 45,
+    "speed": 85
+  }
+}

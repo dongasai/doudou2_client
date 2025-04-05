@@ -1,0 +1,43 @@
+{
+  "id": 13,
+  "name": "圣光",
+  "type": "辅助",
+  "style": "特长型",
+  "specialty": "团队增益",
+  "skills": [
+    {
+      "name": "祝福",
+      "type": "增益",
+      "description": "提升队友属性",
+      "cooldown": 10,
+      "cost": 60
+    },
+    {
+      "name": "圣疗",
+      "type": "治疗",
+      "description": "群体治疗",
+      "cooldown": 12,
+      "cost": 80
+    },
+    {
+      "name": "庇护",
+      "type": "增益",
+      "description": "提供无敌效果",
+      "cooldown": 20,
+      "cost": 100
+    },
+    {
+      "name": "审判",
+      "type": "伤害",
+      "description": "对敌人造成真实伤害",
+      "cooldown": 15,
+      "cost": 85
+    }
+  ],
+  "stats": {
+    "hp": 850,
+    "attack": 45,
+    "defense": 70,
+    "speed": 55
+  }
+}

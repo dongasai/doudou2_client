@@ -1,0 +1,43 @@
+{
+  "id": 1,
+  "name": "烈焰",
+  "type": "法师",
+  "style": "特长型",
+  "specialty": "范围伤害",
+  "skills": [
+    {
+      "name": "火球术",
+      "type": "伤害",
+      "description": "发射一个火球，造成范围伤害",
+      "cooldown": 3,
+      "cost": 40
+    },
+    {
+      "name": "烈焰风暴",
+      "type": "伤害",
+      "description": "召唤持续的火焰风暴",
+      "cooldown": 8,
+      "cost": 80
+    },
+    {
+      "name": "灼烧",
+      "type": "减益",
+      "description": "使目标持续受到火焰伤害",
+      "cooldown": 5,
+      "cost": 50
+    },
+    {
+      "name": "炎爆",
+      "type": "伤害",
+      "description": "引发大范围爆炸",
+      "cooldown": 12,
+      "cost": 100
+    }
+  ],
+  "stats": {
+    "hp": 800,
+    "attack": 120,
+    "defense": 40,
+    "speed": 60
+  }
+}

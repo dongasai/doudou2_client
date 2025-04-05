@@ -1,0 +1,43 @@
+{
+  "id": 26,
+  "name": "战鼓",
+  "type": "辅助",
+  "style": "均衡型",
+  "specialty": "团队增益",
+  "skills": [
+    {
+      "name": "鼓舞",
+      "type": "增益",
+      "description": "提升攻击",
+      "cooldown": 10,
+      "cost": 60
+    },
+    {
+      "name": "战歌",
+      "type": "增益",
+      "description": "提升移速",
+      "cooldown": 12,
+      "cost": 65
+    },
+    {
+      "name": "震慑",
+      "type": "控制",
+      "description": "声波攻击",
+      "cooldown": 15,
+      "cost": 75
+    },
+    {
+      "name": "号角",
+      "type": "增益",
+      "description": "全队增益",
+      "cooldown": 20,
+      "cost": 90
+    }
+  ],
+  "stats": {
+    "hp": 900,
+    "attack": 60,
+    "defense": 70,
+    "speed": 65
+  }
+}

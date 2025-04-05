@@ -1,0 +1,43 @@
+{
+  "id": 5,
+  "name": "影刃",
+  "type": "刺客",
+  "style": "特长型",
+  "specialty": "突进与暴击",
+  "skills": [
+    {
+      "name": "暗影打击",
+      "type": "伤害",
+      "description": "从暗处发动强力攻击",
+      "cooldown": 10,
+      "cost": 60
+    },
+    {
+      "name": "致命一击",
+      "type": "伤害",
+      "description": "造成致命伤害",
+      "cooldown": 6,
+      "cost": 50
+    },
+    {
+      "name": "影分",
+      "type": "召唤",
+      "description": "创造分身混淆敌人",
+      "cooldown": 12,
+      "cost": 70
+    },
+    {
+      "name": "暗杀",
+      "type": "伤害",
+      "description": "对低血量目标造成致命一击",
+      "cooldown": 15,
+      "cost": 90
+    }
+  ],
+  "stats": {
+    "hp": 750,
+    "attack": 110,
+    "defense": 35,
+    "speed": 90
+  }
+}

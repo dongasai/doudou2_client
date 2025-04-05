@@ -1,0 +1,43 @@
+{
+  "id": 7,
+  "name": "星辰",
+  "type": "法师",
+  "style": "均衡型",
+  "specialty": "控制与伤害",
+  "skills": [
+    {
+      "name": "星光",
+      "type": "伤害",
+      "description": "发射星光射线",
+      "cooldown": 4,
+      "cost": 45
+    },
+    {
+      "name": "星陨",
+      "type": "伤害",
+      "description": "召唤陨石打击",
+      "cooldown": 10,
+      "cost": 70
+    },
+    {
+      "name": "星阵",
+      "type": "控制",
+      "description": "创造减速领域",
+      "cooldown": 12,
+      "cost": 75
+    },
+    {
+      "name": "星盾",
+      "type": "增益",
+      "description": "获得伤害护盾",
+      "cooldown": 15,
+      "cost": 80
+    }
+  ],
+  "stats": {
+    "hp": 850,
+    "attack": 85,
+    "defense": 55,
+    "speed": 65
+  }
+}

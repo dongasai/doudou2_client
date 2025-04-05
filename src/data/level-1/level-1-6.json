@@ -1,0 +1,30 @@
+{
+  "name": "第一章-第六关",
+  "description": "爆炸挑战关卡",
+  "difficulty": 1.6,
+  "crystal": {
+    "maxHp": 750
+  },
+  "beanRatios": [
+    {"type": "暴躁豆", "weight": 2},
+    {"type": "炸弹豆", "weight": 1},
+    {"type": "冰霜豆", "weight": 1},
+    {"type": "铁甲豆", "weight": 1}
+  ],
+  "totalBeans": 55,
+  "spawnInterval": 750,
+  "attrFactors": {
+    "hp": 1.4,
+    "attack": 1.3,
+    "defense": 1.25,
+    "speed": 1.15
+  },
+  "victoryCondition": {
+    "type": "allDefeated"
+  },
+  "defeatCondition": {
+    "type": "crystalDestroyed"
+  },
+  "background": "volcano",
+  "availableHeroSlots": 3
+}

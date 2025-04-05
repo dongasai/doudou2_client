@@ -1,0 +1,43 @@
+{
+  "id": 4,
+  "name": "青莲",
+  "type": "辅助",
+  "style": "特长型",
+  "specialty": "治疗与增益",
+  "skills": [
+    {
+      "name": "治愈",
+      "type": "治疗",
+      "description": "恢复单个目标生命值",
+      "cooldown": 4,
+      "cost": 40
+    },
+    {
+      "name": "回春",
+      "type": "治疗",
+      "description": "持续恢复周围队友生命值",
+      "cooldown": 12,
+      "cost": 80
+    },
+    {
+      "name": "加速",
+      "type": "增益",
+      "description": "提升队友攻击速度",
+      "cooldown": 8,
+      "cost": 50
+    },
+    {
+      "name": "净化",
+      "type": "治疗",
+      "description": "移除减益效果并恢复生命值",
+      "cooldown": 15,
+      "cost": 90
+    }
+  ],
+  "stats": {
+    "hp": 800,
+    "attack": 40,
+    "defense": 50,
+    "speed": 65
+  }
+}

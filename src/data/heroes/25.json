@@ -1,0 +1,43 @@
+{
+  "id": 25,
+  "name": "地师",
+  "type": "法师",
+  "style": "特长型",
+  "specialty": "地形控制",
+  "skills": [
+    {
+      "name": "土墙",
+      "type": "控制",
+      "description": "制造障碍",
+      "cooldown": 10,
+      "cost": 60
+    },
+    {
+      "name": "震荡",
+      "type": "控制",
+      "description": "地面震动",
+      "cooldown": 8,
+      "cost": 55
+    },
+    {
+      "name": "陷阱",
+      "type": "控制",
+      "description": "制造陷坑",
+      "cooldown": 12,
+      "cost": 70
+    },
+    {
+      "name": "地裂",
+      "type": "伤害",
+      "description": "造成裂痕",
+      "cooldown": 15,
+      "cost": 85
+    }
+  ],
+  "stats": {
+    "hp": 850,
+    "attack": 85,
+    "defense": 65,
+    "speed": 50
+  }
+}

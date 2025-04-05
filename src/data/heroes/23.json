@@ -1,0 +1,43 @@
+{
+  "id": 23,
+  "name": "药师",
+  "type": "辅助",
+  "style": "特长型",
+  "specialty": "持续恢复",
+  "skills": [
+    {
+      "name": "回春",
+      "type": "治疗",
+      "description": "持续治疗",
+      "cooldown": 8,
+      "cost": 50
+    },
+    {
+      "name": "解毒",
+      "type": "治疗",
+      "description": "清除减益",
+      "cooldown": 12,
+      "cost": 65
+    },
+    {
+      "name": "强化",
+      "type": "增益",
+      "description": "提升属性",
+      "cooldown": 15,
+      "cost": 75
+    },
+    {
+      "name": "圣泉",
+      "type": "治疗",
+      "description": "创造治疗区域",
+      "cooldown": 20,
+      "cost": 90
+    }
+  ],
+  "stats": {
+    "hp": 800,
+    "attack": 40,
+    "defense": 60,
+    "speed": 65
+  }
+}
