@@ -101,6 +101,40 @@ export interface LevelConfig {
 }
 
 /**
+ * 关卡索引类型定义
+ */
+export interface LevelIndex {
+  levels: Array<{
+    id: string;
+    name: string;
+    description: string;
+    difficulty: number;
+    background: string;
+    availableHeroSlots: number;
+    victoryCondition: string;
+    defeatCondition: string;
+  }>;
+  byDifficulty: {[key: string]: Array<{
+    id: string;
+    name: string;
+    description: string;
+    difficulty: number;
+  }>};
+  byBackground: {[key: string]: Array<{
+    id: string;
+    name: string;
+    description: string;
+    background: string;
+  }>};
+  byVictoryCondition: {[key: string]: Array<{
+    id: string;
+    name: string;
+    description: string;
+    victoryCondition: string;
+  }>};
+}
+
+/**
  * 关卡章节配置
  */
 export interface ChapterConfig {

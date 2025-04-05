@@ -53,6 +53,8 @@ export interface Hero {
     id: number;
     /** 英雄名称 */
     name: string;
+    /** 英雄表情符号 */
+    emoji: string;
     /** 英雄职业类型 */
     type: HeroType;
     /** 成长类型 - 特长型/均衡型 */
@@ -62,7 +64,7 @@ export interface Hero {
     /** 拥有的技能列表 */
     skills: Skill[];
     /** 基础属性 */
-    stats: Stats;
+    stats?: Stats;
     /** 战斗临时状态(可选) */
     battleStats?: BattleStats;
 }

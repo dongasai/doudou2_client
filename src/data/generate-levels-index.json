@@ -1,0 +1,312 @@
+{
+  "levels": [
+    {
+      "id": "level-1-1",
+      "name": "第一章-第一关",
+      "description": "基础难度关卡",
+      "difficulty": 1,
+      "background": "grassland",
+      "availableHeroSlots": 3,
+      "victoryCondition": "allDefeated",
+      "defeatCondition": "crystalDestroyed"
+    },
+    {
+      "id": "level-1-10",
+      "name": "第一章-第十关",
+      "description": "Boss终极决战",
+      "difficulty": 2,
+      "background": "boss",
+      "availableHeroSlots": 3,
+      "victoryCondition": "bossDefeated",
+      "defeatCondition": "crystalDestroyed"
+    },
+    {
+      "id": "level-1-2",
+      "name": "第一章-第二关",
+      "description": "初级难度关卡",
+      "difficulty": 1.2,
+      "background": "grassland",
+      "availableHeroSlots": 3,
+      "victoryCondition": "allDefeated",
+      "defeatCondition": "crystalDestroyed"
+    },
+    {
+      "id": "level-1-3",
+      "name": "第一章-第三关",
+      "description": "进阶难度关卡",
+      "difficulty": 1.3,
+      "background": "grassland",
+      "availableHeroSlots": 3,
+      "victoryCondition": "allDefeated",
+      "defeatCondition": "crystalDestroyed"
+    },
+    {
+      "id": "level-1-4",
+      "name": "第一章-第四关",
+      "description": "冰霜挑战关卡",
+      "difficulty": 1.4,
+      "background": "snowfield",
+      "availableHeroSlots": 3,
+      "victoryCondition": "allDefeated",
+      "defeatCondition": "crystalDestroyed"
+    },
+    {
+      "id": "level-1-5",
+      "name": "第一章-第五关",
+      "description": "属性强化关卡",
+      "difficulty": 1.5,
+      "background": "grassland",
+      "availableHeroSlots": 3,
+      "victoryCondition": "allDefeated",
+      "defeatCondition": "crystalDestroyed"
+    },
+    {
+      "id": "level-1-6",
+      "name": "第一章-第六关",
+      "description": "爆炸挑战关卡",
+      "difficulty": 1.6,
+      "background": "volcano",
+      "availableHeroSlots": 3,
+      "victoryCondition": "allDefeated",
+      "defeatCondition": "crystalDestroyed"
+    },
+    {
+      "id": "level-1-7",
+      "name": "第一章-第七关",
+      "description": "组合挑战关卡",
+      "difficulty": 1.7,
+      "background": "night",
+      "availableHeroSlots": 3,
+      "victoryCondition": "allDefeated",
+      "defeatCondition": "crystalDestroyed"
+    },
+    {
+      "id": "level-1-8",
+      "name": "第一章-第八关",
+      "description": "高强度挑战关卡",
+      "difficulty": 1.8,
+      "background": "ruins",
+      "availableHeroSlots": 3,
+      "victoryCondition": "allDefeated",
+      "defeatCondition": "crystalDestroyed"
+    },
+    {
+      "id": "level-1-9",
+      "name": "第一章-第九关",
+      "description": "终极挑战关卡",
+      "difficulty": 1.9,
+      "background": "hell",
+      "availableHeroSlots": 3,
+      "victoryCondition": "allDefeated",
+      "defeatCondition": "crystalDestroyed"
+    }
+  ],
+  "byDifficulty": {
+    "1": [
+      {
+        "id": "level-1-1",
+        "name": "第一章-第一关",
+        "description": "基础难度关卡",
+        "difficulty": 1
+      },
+      {
+        "id": "level-1-2",
+        "name": "第一章-第二关",
+        "description": "初级难度关卡",
+        "difficulty": 1.2
+      },
+      {
+        "id": "level-1-3",
+        "name": "第一章-第三关",
+        "description": "进阶难度关卡",
+        "difficulty": 1.3
+      },
+      {
+        "id": "level-1-4",
+        "name": "第一章-第四关",
+        "description": "冰霜挑战关卡",
+        "difficulty": 1.4
+      },
+      {
+        "id": "level-1-5",
+        "name": "第一章-第五关",
+        "description": "属性强化关卡",
+        "difficulty": 1.5
+      },
+      {
+        "id": "level-1-6",
+        "name": "第一章-第六关",
+        "description": "爆炸挑战关卡",
+        "difficulty": 1.6
+      },
+      {
+        "id": "level-1-7",
+        "name": "第一章-第七关",
+        "description": "组合挑战关卡",
+        "difficulty": 1.7
+      },
+      {
+        "id": "level-1-8",
+        "name": "第一章-第八关",
+        "description": "高强度挑战关卡",
+        "difficulty": 1.8
+      },
+      {
+        "id": "level-1-9",
+        "name": "第一章-第九关",
+        "description": "终极挑战关卡",
+        "difficulty": 1.9
+      }
+    ],
+    "2": [
+      {
+        "id": "level-1-10",
+        "name": "第一章-第十关",
+        "description": "Boss终极决战",
+        "difficulty": 2
+      }
+    ]
+  },
+  "byBackground": {
+    "grassland": [
+      {
+        "id": "level-1-1",
+        "name": "第一章-第一关",
+        "description": "基础难度关卡",
+        "background": "grassland"
+      },
+      {
+        "id": "level-1-2",
+        "name": "第一章-第二关",
+        "description": "初级难度关卡",
+        "background": "grassland"
+      },
+      {
+        "id": "level-1-3",
+        "name": "第一章-第三关",
+        "description": "进阶难度关卡",
+        "background": "grassland"
+      },
+      {
+        "id": "level-1-5",
+        "name": "第一章-第五关",
+        "description": "属性强化关卡",
+        "background": "grassland"
+      }
+    ],
+    "boss": [
+      {
+        "id": "level-1-10",
+        "name": "第一章-第十关",
+        "description": "Boss终极决战",
+        "background": "boss"
+      }
+    ],
+    "snowfield": [
+      {
+        "id": "level-1-4",
+        "name": "第一章-第四关",
+        "description": "冰霜挑战关卡",
+        "background": "snowfield"
+      }
+    ],
+    "volcano": [
+      {
+        "id": "level-1-6",
+        "name": "第一章-第六关",
+        "description": "爆炸挑战关卡",
+        "background": "volcano"
+      }
+    ],
+    "night": [
+      {
+        "id": "level-1-7",
+        "name": "第一章-第七关",
+        "description": "组合挑战关卡",
+        "background": "night"
+      }
+    ],
+    "ruins": [
+      {
+        "id": "level-1-8",
+        "name": "第一章-第八关",
+        "description": "高强度挑战关卡",
+        "background": "ruins"
+      }
+    ],
+    "hell": [
+      {
+        "id": "level-1-9",
+        "name": "第一章-第九关",
+        "description": "终极挑战关卡",
+        "background": "hell"
+      }
+    ]
+  },
+  "byVictoryCondition": {
+    "allDefeated": [
+      {
+        "id": "level-1-1",
+        "name": "第一章-第一关",
+        "description": "基础难度关卡",
+        "victoryCondition": "allDefeated"
+      },
+      {
+        "id": "level-1-2",
+        "name": "第一章-第二关",
+        "description": "初级难度关卡",
+        "victoryCondition": "allDefeated"
+      },
+      {
+        "id": "level-1-3",
+        "name": "第一章-第三关",
+        "description": "进阶难度关卡",
+        "victoryCondition": "allDefeated"
+      },
+      {
+        "id": "level-1-4",
+        "name": "第一章-第四关",
+        "description": "冰霜挑战关卡",
+        "victoryCondition": "allDefeated"
+      },
+      {
+        "id": "level-1-5",
+        "name": "第一章-第五关",
+        "description": "属性强化关卡",
+        "victoryCondition": "allDefeated"
+      },
+      {
+        "id": "level-1-6",
+        "name": "第一章-第六关",
+        "description": "爆炸挑战关卡",
+        "victoryCondition": "allDefeated"
+      },
+      {
+        "id": "level-1-7",
+        "name": "第一章-第七关",
+        "description": "组合挑战关卡",
+        "victoryCondition": "allDefeated"
+      },
+      {
+        "id": "level-1-8",
+        "name": "第一章-第八关",
+        "description": "高强度挑战关卡",
+        "victoryCondition": "allDefeated"
+      },
+      {
+        "id": "level-1-9",
+        "name": "第一章-第九关",
+        "description": "终极挑战关卡",
+        "victoryCondition": "allDefeated"
+      }
+    ],
+    "bossDefeated": [
+      {
+        "id": "level-1-10",
+        "name": "第一章-第十关",
+        "description": "Boss终极决战",
+        "victoryCondition": "bossDefeated"
+      }
+    ]
+  }
+}
