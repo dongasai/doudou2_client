@@ -25,45 +25,5 @@
     "type": "crystalDestroyed"
   },
   "background": "grassland",
-  "availableHeroSlots": 3,
-  "shopItems": [
-    {
-      "id": "sword_1",
-      "name": "铁剑",
-      "type": "weapon",
-      "effect": {
-        "stat": "attack",
-        "value": 10
-      },
-      "price": 50
-    },
-    {
-      "id": "armor_1",
-      "name": "皮甲",
-      "type": "armor",
-      "effect": {
-        "stat": "defense",
-        "value": 5
-      },
-      "price": 40
-    }
-  ],
-  "levelUpOptions": [
-    {
-      "id": "hp_up",
-      "name": "生命提升",
-      "effect": {
-        "stat": "hp",
-        "value": 50
-      }
-    },
-    {
-      "id": "atk_up",
-      "name": "攻击提升",
-      "effect": {
-        "stat": "attack",
-        "value": 5
-      }
-    }
-  ]
+  "availableHeroSlots": 3
 }
