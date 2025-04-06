@@ -39,7 +39,12 @@ export interface LevelUpOption {
   };
 }
 
+/**
+ * 关卡配置类型定义
+ */
 export interface LevelConfig {
+  /** 关卡唯一标识符 */
+  id: string;
   /** 关卡名称 */
   name: string;
   /** 关卡描述 */
@@ -72,7 +77,7 @@ export interface LevelConfig {
   attrFactors: {
     /** 生命值系数 */
     hp: number;
-    /** 攻击力系数 */ 
+    /** 攻击力系数 */
     attack: number;
     /** 防御力系数 */
     defense: number;
@@ -80,22 +85,20 @@ export interface LevelConfig {
     speed: number;
   };
 
-  /** 胜利条件 */
+  /** 胜利条件类型 */
   victoryCondition: {
-    /** 条件类型 */
-    type: 'allDefeated' | 'timeSurvived';
+    type: 'allDefeated' | 'bossDefeated' | 'timeSurvived';
     /** 要求值(如存活时间秒数) */
     value?: number;
   };
 
-  /** 失败条件 */  
+  /** 失败条件类型 */
   defeatCondition: {
-    /** 条件类型 */
     type: 'crystalDestroyed' | 'heroesDefeated';
   };
 
   /** 背景类型 */
-  background: string;
+  background: 'grassland' | 'boss' | 'snowfield' | 'volcano' | 'night' | 'ruins' | 'hell';
   /** 可用英雄槽位数量 */
   availableHeroSlots: number;
 }
