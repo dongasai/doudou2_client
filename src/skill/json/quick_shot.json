@@ -1,0 +1,27 @@
+{
+    "id": "quick_shot",
+    "name": "快速远程攻击",
+    "type": "damage",
+    "targetType": "single",
+    "range": 500,
+    "cooldown": 2000,
+    "baseDamage": 60,
+    "criticalRate": 0.3,
+    "criticalMultiplier": 1.8,
+    "dev_description": "快速射击技能技术实现细节:\n- 基础伤害随距离增加(每100距离+10%伤害)\n- 高暴击概率设计(30%)\n- 暴击伤害倍率1.8x\n- 附带短暂移速增益效果",
+    "adjustableParams": {
+        "baseDamage": "基础伤害值",
+        "criticalRate": "暴击概率(0-1)",
+        "criticalMultiplier": "暴击伤害倍率",
+        "range": "有效射程"
+    },
+    "fixedParams": ["cooldown", "cost"],
+    "effects": {
+        "swift": {
+            "type": "buff",
+            "attribute": "speed",
+            "value": 10,
+            "duration": 1000
+        }
+    }
+}

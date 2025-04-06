@@ -2,8 +2,8 @@ import { GameObject } from '../GameObject';
 import { HeroStats } from './HeroStats';
 import { HeroLevel } from './HeroLevel';
 import { HeroSkill, Skill } from './HeroSkill';
-import { EventManager } from '../../core/battle/EventManager';
-import { DamageManager } from '../../core/battle/DamageManager';
+import { EventManager } from '../../battle/EventManager';
+import { DamageManager } from '../../battle/DamageManager';
 
 /**
  * 英雄基类
@@ -12,19 +12,19 @@ import { DamageManager } from '../../core/battle/DamageManager';
 export class Hero extends GameObject {
     private eventManager: EventManager;
     private damageManager: DamageManager;
-    
+
     /** 英雄ID */
     private id: string;
     /** 英雄名称 */
     public override name: string;
-    
+
     /** 属性系统 */
     private stats: HeroStats;
     /** 等级系统 */
     private level: HeroLevel;
     /** 技能系统 */
     private skillSystem: HeroSkill;
-    
+
     /** 血条显示对象 */
     private healthBar!: Phaser.GameObjects.Rectangle;
     /** 血条背景显示对象 */
@@ -43,26 +43,26 @@ export class Hero extends GameObject {
         }
     }) {
         super(scene, x, y, '🦸');  // 使用英雄emoji作为贴图
-        
+
         this.eventManager = EventManager.getInstance();
         this.damageManager = DamageManager.getInstance();
-        
+
         this.id = config.id;
         this.name = config.name;
         this.objectType = config.type;
-        
+
         // 初始化各个系统
         this.stats = new HeroStats(config.stats);
         this.level = new HeroLevel();
         this.skillSystem = new HeroSkill();
-        
+
         // 创建血条
         this.createHealthBar();
-        
+
         // 设置物理属性
         this.setScale(2);
         this.body.setCollideWorldBounds(true);
-        
+
         // 监听事件
         this.setupEventListeners();
     }
@@ -77,7 +77,7 @@ export class Hero extends GameObject {
 
         this.healthBarBg = this.scene.add.rectangle(0, y, width, height, 0x000000);
         this.healthBar = this.scene.add.rectangle(0, y, width, height, 0x00ff00);
-        
+
         this.updateHealthBar();
     }
 
@@ -109,7 +109,7 @@ export class Hero extends GameObject {
             currentHealth: this.stats.hp,
             defense: this.stats.defense
         });
-        
+
         this.stats.hp = newHealth;
         this.updateHealthBar();
     }
@@ -173,4 +173,4 @@ export class Hero extends GameObject {
         this.healthBarBg.destroy();
         super.destroy(fromScene);
     }
-} 
+}

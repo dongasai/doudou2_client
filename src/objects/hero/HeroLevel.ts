@@ -1,4 +1,4 @@
-import { EventManager } from '../../core/battle/EventManager';
+import { EventManager } from '../../battle/EventManager';
 
 /**
  * 英雄等级系统
@@ -84,4 +84,4 @@ export class HeroLevel {
     public getLevelProgress(): number {
         return this.experience / this.getRequiredExperience();
     }
-} 
+}

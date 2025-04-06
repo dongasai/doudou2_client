@@ -1,5 +1,5 @@
 import { ConfigLoader } from '../../core/ConfigLoader';
-import { EventManager } from '../../core/battle/EventManager';
+import { EventManager } from '../../battle/EventManager';
 
 /**
  * 英雄属性系统
@@ -49,7 +49,7 @@ export class HeroStats {
 
     public takeDamage(amount: number) {
         this.currentHealth = Math.max(0, this.currentHealth - amount);
-        
+
         this.eventManager.emit('heroHealthChanged', {
             currentHealth: this.currentHealth,
             maxHealth: this.maxHealth
@@ -62,7 +62,7 @@ export class HeroStats {
 
     public heal(amount: number) {
         this.currentHealth = Math.min(this.maxHealth, this.currentHealth + amount);
-        
+
         this.eventManager.emit('heroHealthChanged', {
             currentHealth: this.currentHealth,
             maxHealth: this.maxHealth
@@ -104,4 +104,4 @@ export class HeroStats {
     public getRange(): number {
         return this.range;
     }
-} 
+}

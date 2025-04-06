@@ -1,0 +1,53 @@
+{
+    "id": "shield_bash",
+    "name": "盾击",
+    "type": "control",
+    "targetType": "single",
+    "description": "用盾牌击打目标，造成伤害并有一定几率击晕",
+    "range": 1,
+    "cooldown": 3,
+    "level": 1,
+    "maxLevel": 5,
+    "effects": {
+        "stun": {
+            "type": "control",
+            "duration": 1,
+            "value": 1
+        },
+        "defense_debuff": {
+            "type": "debuff",
+            "duration": 2,
+            "attribute": "defense",
+            "value": -20
+        }
+    },
+    "upgrades": [
+        {
+            "level": 2,
+            "cost": 100,
+            "cooldown": 2.5
+        },
+        {
+            "level": 3,
+            "cost": 200,
+            "cooldown": 2
+        },
+        {
+            "level": 4,
+            "cost": 300,
+            "cooldown": 1.5
+        },
+        {
+            "level": 5,
+            "cost": 400,
+            "cooldown": 1
+        }
+    ],
+    "controlCalculation": "眩晕时间: effects.stun.duration, 防御减益: effects.defense_debuff.value",
+    "adjustableParams": {
+        "cooldown": "冷却时间(秒)",
+        "duration": "控制持续时间(秒)",
+        "value": "减益效果数值"
+    },
+    "fixedParams": ["cost"]
+} 

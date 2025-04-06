@@ -1,5 +1,5 @@
-import { EventManager } from '../../core/battle/EventManager';
-import { DamageManager } from '../../core/battle/DamageManager';
+import { EventManager } from '../../battle/EventManager';
+import { DamageManager } from '../../battle/DamageManager';
 import { ConfigLoader } from '../../core/ConfigLoader';
 
 export interface Skill {
@@ -38,7 +38,7 @@ export class HeroSkill {
         this.eventManager = EventManager.getInstance();
         this.damageManager = DamageManager.getInstance();
         this.configLoader = ConfigLoader.getInstance();
-        
+
         // 加载英雄技能
         this.loadHeroSkills(heroId);
     }
@@ -166,4 +166,4 @@ export class HeroSkill {
             amount
         });
     }
-} 
+}

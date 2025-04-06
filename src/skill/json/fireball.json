@@ -1,0 +1,18 @@
+{
+    "id": "fireball",
+    "name": "火球术",
+    "type": "damage",
+    "targetType": "single",
+    "range": 400,
+    "cooldown": 3000,
+    "baseDamage": 100,
+    "criticalRate": 0.2,
+    "criticalMultiplier": 1.5,
+    "dev_description": "火球术技能技术实现细节:\n- 单体魔法伤害技能\n- 基础伤害+暴击机制\n- 伤害受魔法攻击力和目标抗性影响",
+    "adjustableParams": {
+        "baseDamage": "基础伤害值",
+        "criticalRate": "暴击概率(0-1)",
+        "criticalMultiplier": "暴击伤害倍率"
+    },
+    "fixedParams": ["cooldown", "cost"]
+}

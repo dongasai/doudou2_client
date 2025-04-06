@@ -1,16 +1,16 @@
 import { ConfigLoader } from './ConfigLoader';
-import { WaveManager } from './battle/WaveManager';
+import { WaveManager } from '../battle/WaveManager';
 import type { CharacterBean } from '../types/CharacterBean';
 import type { Crystal } from '../types/Crystal';
 import { Hero } from '../objects/Hero';
-import type { HeroCreatedEvent } from '../EV_Event/HeroCreated';
-import type { CrystalCreatedEvent } from '../EV_Event/CrystalCreated';
-import type { BeanSpawnedEvent } from '../EV_Event/BeanSpawned';
-import type { BeanMovedEvent } from '../EV_Event/BeanMoved';
-import type { DamageDealtEvent } from '../EV_Event/DamageDealt';
-import type { HeroDiedEvent } from '../EV_Event/HeroDied';
-import type { BeanDefeatedEvent } from '../EV_Event/BeanDefeated';
-import type { GameOverEvent } from '../EV_Event/GameOver';
+import type { HeroCreatedEvent } from '@/Event/b2v/HeroCreated';
+import type { CrystalCreatedEvent } from '@/Event/b2v/CrystalCreated';
+import type { BeanSpawnedEvent } from '@/Event/b2v/BeanSpawned';
+import type { BeanMovedEvent } from '@/Event/b2v/BeanMoved';
+import type { DamageDealtEvent } from '@/Event/b2v/DamageDealt';
+import type { HeroDiedEvent } from '@/Event/b2v/HeroDied';
+import type { BeanDefeatedEvent } from '@/Event/b2v/BeanDefeated';
+import type { GameOverEvent } from '@/Event/b2v/GameOver';
 
 /**
  * 战斗管理器
@@ -81,7 +81,7 @@ export class BattleManager {
             console.error('无效的英雄ID格式');
             return null;
         }
-        
+
         // 计算英雄位置 (使用固定坐标)
         const radius = 80;
         const angle = (positionIndex * 72) * (Math.PI / 180);
@@ -89,10 +89,10 @@ export class BattleManager {
             x: 400 + Math.cos(angle) * radius,
             y: 300 + Math.sin(angle) * radius
         };
-        
+
         console.log(`创建英雄: ID=${id}, 站位=${positionIndex}`);
         const heroConfig = ConfigLoader.getInstance().getHero(heroId);
-        
+
         if (!heroConfig || !heroConfig.stats) {
             console.error(`找不到英雄配置或缺少stats: ${heroId}`);
             return null;
@@ -192,7 +192,7 @@ export class BattleManager {
      */
     public handleDamage(targetType: 'hero' | 'bean' | 'crystal', targetId: string, damage: number): void {
         let target: any = null;
-        
+
         switch(targetType) {
             case 'hero':
                 target = this.battleData.heroes.get(targetId);
@@ -246,7 +246,7 @@ export class BattleManager {
 
         // 更新所有实体的位置和状态
         this.updateEntities(deltaTime);
-        
+
         // 检查胜利条件
         this.checkVictoryCondition();
     }
@@ -265,7 +265,7 @@ export class BattleManager {
                     bean.position,
                     center
                 );
-                
+
                 // 更新豆豆位置
                 // 豆豆向固定中心点(400,300)移动
                 const centerX = 400;
@@ -274,7 +274,7 @@ export class BattleManager {
                 const dy = centerY - bean.position.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 const speed = bean.stats.speed * deltaTime;
-                
+
                 if (distance > speed) {
                     bean.position.x += (dx / distance) * speed;
                     bean.position.y += (dy / distance) * speed;
@@ -282,7 +282,7 @@ export class BattleManager {
                     bean.position.x = centerX;
                     bean.position.y = centerY;
                 }
-                
+
                 this.emit('beanMoved', { beanId: id, position: bean.position });
             }
         }
@@ -348,4 +348,4 @@ export class BattleManager {
     }
 }
 
-import { Position } from '../types/Position';
+import { Position } from '@/types/Position';

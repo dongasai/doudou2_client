@@ -1,0 +1,27 @@
+{
+    "id": "stun_shot",
+    "name": "眩晕射击",
+    "type": "control",
+    "targetType": "single",
+    "range": 400,
+    "cooldown": 15000,
+    "duration": 1500,
+    "baseDamage": 30,
+    "effects": {
+        "stun": {
+            "type": "control",
+            "duration": 1500
+        },
+        "daze": {
+            "type": "debuff",
+            "attribute": "accuracy",
+            "value": -30,
+            "duration": 3000
+        }
+    },
+    "adjustableParams": {
+        "baseDamage": "基础伤害值",
+        "stun.duration": "眩晕持续时间(ms)",
+        "range": "射程范围"
+    }
+}

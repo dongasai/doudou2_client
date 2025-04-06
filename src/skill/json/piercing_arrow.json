@@ -1,0 +1,25 @@
+{
+    "id": "piercing_arrow",
+    "name": "穿透箭",
+    "type": "damage",
+    "targetType": "multiple",
+    "range": 5,
+    "cooldown": 4,
+    "dev_description": "穿透箭技能技术实现细节:\n- 可穿透多个目标的物理伤害技能\n- 附带流血DOT效果\n- 连锁效果最多3个目标\n- 每次连锁伤害递减20%",
+    "effects": {
+        "bleed": {
+            "type": "dot",
+            "duration": 3,
+            "value": 10
+        }
+    },
+    "chainEffect": {
+        "maxTargets": 3,
+        "damageReduction": 0.2
+    },
+    "adjustableParams": {
+        "range": "攻击范围",
+        "bleed.value": "流血伤害值",
+        "chainEffect.maxTargets": "最大连锁目标数"
+    }
+}

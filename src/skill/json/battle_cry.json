@@ -1,0 +1,24 @@
+{
+    "id": "battle_cry",
+    "name": "战吼",
+    "type": "buff",
+    "targetType": "self",
+    "range": 0,
+    "cooldown": 12000,
+    "duration": 6000,
+    "effectValue": 30,
+    "dev_description": "战吼技能技术实现细节:\n- 自身增益技能\n- 提升攻击力\n- 效果不可叠加",
+    "effects": {
+        "attack_boost": {
+            "type": "buff",
+            "attribute": "attack",
+            "value": 30,
+            "duration": 6000
+        }
+    },
+    "adjustableParams": {
+        "effectValue": "效果数值",
+        "duration": "持续时间(ms)"
+    },
+    "fixedParams": ["cooldown", "cost"]
+}

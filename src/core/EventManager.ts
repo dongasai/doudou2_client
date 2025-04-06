@@ -1,9 +1,9 @@
-import { BattleBean, BattleHero } from './battle/types';
+import { BattleBean, BattleHero } from '../battle/types';
 
 /**
  * 战斗事件类型定义
  */
-export type BattleEventType = 
+export type BattleEventType =
     | 'battle_started'
     | 'battle_paused'
     | 'battle_resumed'
@@ -76,7 +76,7 @@ export class EventManager {
      */
     public off(event: BattleEventType, callback: Function): void {
         if (!this.listeners.has(event)) return;
-        
+
         const callbacks = this.listeners.get(event)!;
         const index = callbacks.indexOf(callback);
         if (index !== -1) {
@@ -91,7 +91,7 @@ export class EventManager {
      */
     public emit(event: BattleEventType, data: any): void {
         if (!this.listeners.has(event)) return;
-        
+
         const callbacks = this.listeners.get(event)!;
         callbacks.forEach(callback => {
             try {
@@ -108,4 +108,4 @@ export class EventManager {
     public clear(): void {
         this.listeners.clear();
     }
-} 
+}

@@ -1,0 +1,29 @@
+{
+    "id": "flame_storm",
+    "name": "烈焰风暴",
+    "type": "damage",
+    "targetType": "area",
+    "range": 300,
+    "cooldown": 8000,
+    "baseDamage": 80,
+    "duration": 3000,
+    "criticalRate": 0.1,
+    "criticalMultiplier": 1.3,
+    "dev_description": "烈焰风暴技能技术实现细节:\n- 范围持续伤害技能\n- 基础伤害+燃烧DOT效果\n- 低暴击率但稳定输出\n- 魔法伤害类型，受魔法抗性影响",
+    "effects": {
+        "burn": {
+            "type": "dot",
+            "damage": 10,
+            "interval": 500,
+            "duration": 3000
+        }
+    },
+    "adjustableParams": {
+        "baseDamage": "基础伤害值",
+        "criticalRate": "暴击概率(0-1)",
+        "criticalMultiplier": "暴击伤害倍率",
+        "duration": "持续时间(ms)",
+        "interval": "伤害间隔(ms)"
+    },
+    "fixedParams": ["cooldown", "cost"]
+}

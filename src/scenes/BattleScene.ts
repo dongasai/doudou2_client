@@ -5,14 +5,14 @@ import { Bean } from '@/objects/Bean';
 import { PositionMarker } from '@/objects/PositionMarker';
 import { ConfigLoader } from '../core/ConfigLoader';
 import { Logger } from '../utils/Logger';
-import type { HeroCreatedEvent } from '../EV_Event/HeroCreated';
-import type { CrystalCreatedEvent } from '../EV_Event/CrystalCreated';
-import type { BeanSpawnedEvent } from '../EV_Event/BeanSpawned';
-import type { DamageDealtEvent } from '../EV_Event/DamageDealt';
-import type { BeanMovedEvent } from '../EV_Event/BeanMoved';
-import type { HeroDiedEvent } from '../EV_Event/HeroDied';
-import type { BeanDefeatedEvent } from '../EV_Event/BeanDefeated';
-import type { GameOverEvent } from '../EV_Event/GameOver';
+import type { HeroCreatedEvent } from '@/Event/b2v/HeroCreated';
+import type { CrystalCreatedEvent } from '@/Event/b2v/CrystalCreated';
+import type { BeanSpawnedEvent } from '@/Event/b2v/BeanSpawned';
+import type { DamageDealtEvent } from '@/Event/b2v/DamageDealt';
+import type { BeanMovedEvent } from '@/Event/b2v/BeanMoved';
+import type { HeroDiedEvent } from '@/Event/b2v/HeroDied';
+import type { BeanDefeatedEvent } from '@/Event/b2v/BeanDefeated';
+import type { GameOverEvent } from '@/Event/b2v/GameOver';
 
 /**
  * 战斗场景
@@ -40,7 +40,7 @@ export class BattleScene extends Phaser.Scene {
 
     /** 战斗管理器实例 */
     private battleManager: BattleManager;
-    
+
     /** 游戏对象映射 */
     private gameObjects = {
         heroes: new Map<string, Hero>(),
@@ -64,7 +64,7 @@ export class BattleScene extends Phaser.Scene {
             const heroId = parseInt(data.type);
             const heroData = ConfigLoader.getInstance().getHero(heroId);
             const heroName = heroData?.emoji || heroData?.name || `英雄${heroId}`;
-            
+
             Logger.getInstance('BattleScene').format(`创建英雄`, [
                 {key: 'ID', value: data.id},
                 {key: '名称', value: heroName},
@@ -181,7 +181,7 @@ export class BattleScene extends Phaser.Scene {
             {key: '关卡数据', value: JSON.stringify(levelData, null, 2)},
             {key: '英雄ID列表', value: `[${data.heroes.join(', ')}]`}
         ]);
-        
+
         // 打印每个英雄的详细信息和站位
         data.heroes.forEach((heroId, index) => {
             const heroData = ConfigLoader.getInstance().getHero(heroId);

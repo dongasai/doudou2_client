@@ -8,8 +8,9 @@
     "tree": "node scripts/generate-tree.js",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test:logger": "ts-node src/utils/Loggertest.ts",
-    "skill:validate": "ts-node src/skill/validate.ts"
+    "test:logger": "ts-node test/Loggertest.ts",
+    "skill:validate": "ts-node src/skill/validate.ts",
+    "skill:index": "ts-node scripts/generate_skill_index.ts"
   },
   "dependencies": {
     "phaser": "^3.60.0"

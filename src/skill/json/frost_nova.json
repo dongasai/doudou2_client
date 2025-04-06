@@ -1,0 +1,30 @@
+{
+    "id": "frost_nova",
+    "name": "冰霜新星",
+    "type": "control",
+    "targetType": "area",
+    "range": 250,
+    "cooldown": 12000,
+    "duration": 2000,
+    "effectValue": 0.5,
+    "dev_description": "冰霜新星技能技术实现细节:\n- 范围控制技能\n- 同时降低移动速度和攻击速度\n- 效果可与其他减速效果叠加\n- 受控制抗性影响",
+    "effects": {
+        "slow": {
+            "type": "debuff",
+            "attribute": "speed",
+            "value": -50,
+            "duration": 2000
+        },
+        "chill": {
+            "type": "debuff",
+            "attribute": "attack_speed",
+            "value": -20,
+            "duration": 2000
+        }
+    },
+    "adjustableParams": {
+        "range": "作用范围",
+        "slow.value": "减速效果值",
+        "duration": "持续时间(ms)"
+    }
+}
