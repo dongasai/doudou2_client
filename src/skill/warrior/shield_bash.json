@@ -3,51 +3,44 @@
     "name": "盾击",
     "type": "control",
     "targetType": "single",
-    "range": 150,
-    "cooldown": 5000,
-    "baseDamage": 50,
-    "duration": 1500,
-    "effectValue": 1,
-    "emoji": "🛡️",
-    "description": "用盾牌击晕目标，造成少量伤害并晕眩",
+    "description": "用盾牌击打目标，造成伤害并有一定几率击晕",
+    "range": 1,
+    "cooldown": 3,
     "level": 1,
     "maxLevel": 5,
-    "upgrades": [
-        {
-            "level": 2,
-            "baseDamage": 65,
-            "duration": 1700,
-            "cost": 100
-        },
-        {
-            "level": 3,
-            "baseDamage": 80,
-            "duration": 1900,
-            "cost": 200
-        },
-        {
-            "level": 4,
-            "baseDamage": 100,
-            "duration": 2100,
-            "cost": 400
-        },
-        {
-            "level": 5,
-            "baseDamage": 125,
-            "duration": 2500,
-            "effectValue": 1.2,
-            "cost": 800
-        }
-    ],
     "effects": {
         "stun": {
             "type": "control",
-            "duration": 1500
+            "duration": 1,
+            "value": 1
         },
-        "defense_reduction": {
+        "defense_debuff": {
             "type": "debuff",
-            "value": -20,
-            "duration": 3000
+            "duration": 2,
+            "attribute": "defense",
+            "value": -20
         }
-    }
+    },
+    "upgrades": [
+        {
+            "level": 2,
+            "cost": 100,
+            "cooldown": 2.5
+        },
+        {
+            "level": 3,
+            "cost": 200,
+            "cooldown": 2
+        },
+        {
+            "level": 4,
+            "cost": 300,
+            "cooldown": 1.5
+        },
+        {
+            "level": 5,
+            "cost": 400,
+            "cooldown": 1
+        }
+    ]
 } 

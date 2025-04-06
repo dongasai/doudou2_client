@@ -1,4 +1,13 @@
-import { SkillConfig, SkillType, TargetType, EffectType, AttributeType } from './type';
+import { 
+    SkillConfig, 
+    SkillType, 
+    TargetType, 
+    EffectType, 
+    AttributeType,
+    SkillEffect,
+    BuffEffect,
+    DebuffEffect
+} from './type';
 
 interface SkillIndexEntry {
     id: string;
@@ -14,6 +23,11 @@ interface SkillCategory {
 
 interface SkillIndex {
     [category: string]: SkillCategory;
+}
+
+interface ValidationResult {
+    isValid: boolean;
+    errors: string[];
 }
 
 const skillIndex = require('./skill_index.json') as SkillIndex;
@@ -42,14 +56,6 @@ const VALID_ATTRIBUTE_TYPES: AttributeType[] = ['attack', 'defense', 'speed', 'a
  * 技能分类验证
  */
 const VALID_CATEGORIES = ['mage', 'warrior', 'archer', 'support', 'control'];
-
-/**
- * 验证结果
- */
-interface ValidationResult {
-    isValid: boolean;
-    errors: string[];
-}
 
 /**
  * 验证技能索引
@@ -190,8 +196,10 @@ async function validateSkillConfig(category: string, skillId: string): Promise<V
                     result.isValid = false;
                 }
 
-                if ('attribute' in effect && !VALID_ATTRIBUTE_TYPES.includes(effect.attribute)) {
-                    result.errors.push(`无效的属性类型: ${effectId} - ${effect.attribute}`);
+                // 检查属性类型（仅对buff和debuff效果）
+                if ((effect.type === 'buff' || effect.type === 'debuff') && 
+                    !VALID_ATTRIBUTE_TYPES.includes((effect as BuffEffect | DebuffEffect).attribute)) {
+                    result.errors.push(`无效的属性类型: ${effectId} - ${(effect as BuffEffect | DebuffEffect).attribute}`);
                     result.isValid = false;
                 }
             });

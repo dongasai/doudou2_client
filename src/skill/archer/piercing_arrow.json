@@ -1,58 +1,44 @@
 {
     "id": "piercing_arrow",
-    "name": "穿云箭",
+    "name": "穿透箭",
     "type": "damage",
     "targetType": "multiple",
-    "range": 600,
-    "cooldown": 6000,
-    "baseDamage": 120,
-    "penetration": 0.3,
-    "criticalRate": 0.15,
-    "criticalMultiplier": 1.5,
-    "emoji": "🎯",
-    "description": "射出一支能穿透敌人的箭矢",
+    "description": "射出一支能够穿透多个目标的箭",
+    "range": 5,
+    "cooldown": 4,
     "level": 1,
     "maxLevel": 5,
-    "upgrades": [
-        {
-            "level": 2,
-            "baseDamage": 140,
-            "penetration": 0.35,
-            "cost": 150
-        },
-        {
-            "level": 3,
-            "baseDamage": 165,
-            "penetration": 0.4,
-            "criticalRate": 0.18,
-            "cost": 300
-        },
-        {
-            "level": 4,
-            "baseDamage": 195,
-            "penetration": 0.45,
-            "criticalRate": 0.2,
-            "cost": 600
-        },
-        {
-            "level": 5,
-            "baseDamage": 230,
-            "penetration": 0.5,
-            "criticalRate": 0.25,
-            "criticalMultiplier": 1.8,
-            "cost": 1200
-        }
-    ],
     "effects": {
-        "armor_break": {
-            "type": "debuff",
-            "attribute": "defense",
-            "value": -15,
-            "duration": 3000
+        "bleed": {
+            "type": "dot",
+            "duration": 3,
+            "value": 10
         }
     },
     "chainEffect": {
         "maxTargets": 3,
         "damageReduction": 0.2
-    }
-} 
+    },
+    "upgrades": [
+        {
+            "level": 2,
+            "cost": 100,
+            "range": 6
+        },
+        {
+            "level": 3,
+            "cost": 200,
+            "range": 7
+        },
+        {
+            "level": 4,
+            "cost": 300,
+            "range": 8
+        },
+        {
+            "level": 5,
+            "cost": 400,
+            "range": 10
+        }
+    ]
+}

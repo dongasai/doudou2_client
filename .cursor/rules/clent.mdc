@@ -10,4 +10,4 @@ alwaysApply: true
 - 不可以import项目以外的文件
 - 优先使用TypeScript进行开发
 - 不采用任何图片资源,玩家/豆豆/技能/道具等均采用Emoji来实现
-- 不能修改src/data,src/types下的内容
+- 不能修改`src/data`和`src/types`文件夹下的内容

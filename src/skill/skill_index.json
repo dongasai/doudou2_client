@@ -5,7 +5,7 @@
             "name": "火球术",
             "type": "damage",
             "targetType": "single",
-            "description": "向目标投掷一个火球，造成魔法伤害"
+            "description": "向目标发射一个火球，造成魔法伤害"
         },
         "flame_storm": {
             "id": "flame_storm",
@@ -21,14 +21,14 @@
             "name": "盾击",
             "type": "control",
             "targetType": "single",
-            "description": "用盾牌击晕目标，造成少量伤害并晕眩"
+            "description": "用盾牌击打目标，造成伤害并有一定几率击晕"
         },
         "battle_cry": {
             "id": "battle_cry",
             "name": "战吼",
             "type": "buff",
             "targetType": "self",
-            "description": "发出震慑敌人的怒吼，提升自身攻击力"
+            "description": "发出震慑敌人的怒吼，提升自身攻击力和防御力"
         }
     },
     "archer": {
@@ -37,14 +37,14 @@
             "name": "快速射击",
             "type": "damage",
             "targetType": "single",
-            "description": "快速射出一箭，有较高的暴击率"
+            "description": "快速射出一箭，造成物理伤害"
         },
         "piercing_arrow": {
             "id": "piercing_arrow",
-            "name": "穿云箭",
+            "name": "穿透箭",
             "type": "damage",
             "targetType": "multiple",
-            "description": "射出一支能穿透敌人的箭矢"
+            "description": "射出一支能够穿透多个目标的箭"
         }
     },
     "support": {
