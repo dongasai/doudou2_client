@@ -1,4 +1,3 @@
-
 /**
  * 技能系统接口
  * 定义游戏中所有技能的基础属性和效果
@@ -42,3 +41,70 @@ interface Skill {
 
 // 导出技能类型
 export type { Skill };
+
+/**
+ * 技能类型枚举
+ */
+export type SkillType = 'damage' | 'heal' | 'buff' | 'debuff' | 'control';
+
+/**
+ * 目标类型枚举
+ */
+export type TargetType = 'single' | 'multiple' | 'area' | 'self';
+
+/**
+ * 效果类型枚举
+ */
+export type EffectType = 'dot' | 'hot' | 'buff' | 'debuff' | 'control';
+
+/**
+ * 属性类型枚举
+ */
+export type AttributeType = 'attack' | 'defense' | 'speed' | 'attack_speed' | 'accuracy';
+
+/**
+ * 技能效果接口
+ */
+export interface SkillEffect {
+    type: EffectType;
+    duration: number;
+    attribute?: AttributeType;
+    value: number;
+}
+
+/**
+ * 技能升级接口
+ */
+export interface SkillUpgrade {
+    level: number;
+    cost: number;
+    damage?: number;
+    cooldown?: number;
+    range?: number;
+}
+
+/**
+ * 连锁效果接口
+ */
+export interface ChainEffect {
+    maxTargets: number;
+    damageReduction: number;
+}
+
+/**
+ * 技能配置接口
+ */
+export interface SkillConfig {
+    id: string;
+    name: string;
+    type: SkillType;
+    targetType: TargetType;
+    description: string;
+    range: number;
+    cooldown: number;
+    level: number;
+    maxLevel: number;
+    effects?: Record<string, SkillEffect>;
+    upgrades?: SkillUpgrade[];
+    chainEffect?: ChainEffect;
+}

@@ -1,0 +1,50 @@
+{
+    "mage": {
+        "fireball": {
+            "id": "fireball",
+            "name": "火球术",
+            "type": "damage",
+            "targetType": "single",
+            "description": "向目标发射一个火球，造成魔法伤害"
+        },
+        "flame_storm": {
+            "id": "flame_storm",
+            "name": "烈焰风暴",
+            "type": "damage",
+            "targetType": "area",
+            "description": "在目标区域召唤烈焰风暴，持续造成魔法伤害"
+        }
+    },
+    "warrior": {
+        "shield_bash": {
+            "id": "shield_bash",
+            "name": "盾击",
+            "type": "control",
+            "targetType": "single",
+            "description": "用盾牌击打目标，造成伤害并有一定几率击晕"
+        },
+        "battle_cry": {
+            "id": "battle_cry",
+            "name": "战吼",
+            "type": "buff",
+            "targetType": "self",
+            "description": "发出震慑敌人的怒吼，提升自身攻击力和防御力"
+        }
+    },
+    "archer": {
+        "quick_shot": {
+            "id": "quick_shot",
+            "name": "快速射击",
+            "type": "damage",
+            "targetType": "single",
+            "description": "快速射出一箭，造成物理伤害"
+        },
+        "piercing_arrow": {
+            "id": "piercing_arrow",
+            "name": "穿透箭",
+            "type": "damage",
+            "targetType": "multiple",
+            "description": "射出一支能够穿透多个目标的箭"
+        }
+    }
+} 

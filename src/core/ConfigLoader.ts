@@ -1,42 +1,24 @@
 import type { CharacterBean } from '../types/CharacterBean';
 import type { Hero } from '../types/GameHero';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import type { LevelConfig } from '../types/Level';
 
-export interface LevelConfig {
-    name: string;
-    description: string;
-    difficulty: number;
-    crystal: {
-        maxHp: number;
-    };
-    beanRatios: {
-        type: string;
-        weight: number;
-    }[];
-    totalBeans: number;
-    spawnInterval: number;
-    attrFactors: {
-        hp: number;
-        attack: number;
-        defense: number;
-        speed: number;
-    };
-    victoryCondition: {
-        type: string;
-    };
-    defeatCondition: {
-        type: string;
-    };
-    background: string;
-    availableHeroSlots: number;
-}
-
+/**
+ * 配置加载器
+ * 负责加载和管理游戏配置
+ */
 export class ConfigLoader {
     private static instance: ConfigLoader;
-    private heroes: Map<number, Hero> = new Map();
-    private levels: Map<number, LevelConfig> = new Map();
-    private beans: Map<number, CharacterBean> = new Map();
+    private levels: Map<string, LevelConfig>; // 使用 "chapter-stage" 格式作为key
+    private beans: Map<number, CharacterBean>;
+    private heroes: Map<number, Hero>;
 
-    private constructor() {}
+    private constructor() {
+        this.levels = new Map();
+        this.beans = new Map();
+        this.heroes = new Map();
+    }
 
     /**
      * 获取配置加载器实例
@@ -55,9 +37,9 @@ export class ConfigLoader {
         console.log('[ConfigLoader] 开始加载所有配置...');
         try {
             await Promise.all([
-                this.loadHeroes(),
                 this.loadLevels(),
-                this.loadBeans()
+                this.loadBeans(),
+                this.loadHeroes()
             ]);
             console.log('[ConfigLoader] 所有配置加载完成');
         } catch (error) {
@@ -66,89 +48,145 @@ export class ConfigLoader {
         }
     }
 
-    private async loadHeroes(): Promise<void> {
-        try {
-            for (let i = 1; i <= 30; i++) {
-                const response = await fetch(`/src/data/heroes/${i}.json`);
-                if (response.ok) {
-                    const hero = await response.json();
-                    this.heroes.set(hero.id, hero);
-                }
-            }
-        } catch (error) {
-            console.error('加载英雄配置失败:', error);
-        }
-    }
-
+    /**
+     * 加载关卡配置
+     */
     private async loadLevels(): Promise<void> {
         try {
-            console.log('[ConfigLoader] 开始加载关卡配置...');
+            const levelsDir = path.join(__dirname, '../../data/level-1');
+            const files = await fs.readdir(levelsDir);
             
-            for (let i = 1; i <= 10; i++) {
-                const url = `/src/data/level-1/level-1-${i}.json`;
-                console.log(`[ConfigLoader] 加载关卡 ${i}: ${url}`);
-                
-                try {
-                    const response = await fetch(url);
-                    
-                    if (!response.ok) {
-                        console.error(`[ConfigLoader] 关卡 ${i} 加载失败: HTTP ${response.status}`);
-                        continue;
-                    }
-                    
-                    const level = await response.json();
-                    this.levels.set(i, level);
-                    console.log(`[ConfigLoader] 成功加载关卡 ${i}`, level);
-                } catch (error) {
-                    console.error(`[ConfigLoader] 关卡 ${i} 加载异常:`, error);
+            for (const file of files) {
+                if (file.endsWith('.json')) {
+                    const filePath = path.join(levelsDir, file);
+                    const content = await fs.readFile(filePath, 'utf-8');
+                    const levelData = JSON.parse(content);
+                    const levelId = `level-1-${file.replace('.json', '')}`;
+
+                    // 转换配置格式以匹配LevelConfig类型
+                    const levelConfig: LevelConfig = {
+                        id: levelId,
+                        name: levelData.name || '未命名关卡',
+                        description: levelData.description || '无描述',
+                        difficulty: levelData.difficulty || 1,
+                        crystal: {
+                            position: { x: 400, y: 300 },
+                            maxHp: levelData.crystal_max_hp || 1000
+                        },
+                        beanRatios: Object.entries(levelData.bean_ratio || {}).map(([type, weight]) => ({
+                            type,
+                            weight: Number(weight)
+                        })),
+                        totalBeans: levelData.total_beans || 10,
+                        spawnInterval: levelData.spawn_interval || 2000,
+                        attrFactors: levelData.attr_factors || {
+                            hp: 1,
+                            attack: 1,
+                            defense: 1,
+                            speed: 1
+                        },
+                        victoryCondition: {
+                            type: levelData.victory_condition?.type || 'allDefeated',
+                            value: levelData.victory_condition?.value
+                        },
+                        defeatCondition: {
+                            type: levelData.defeat_condition?.type || 'crystalDestroyed'
+                        },
+                        background: levelData.background || 'grassland',
+                        availableHeroSlots: levelData.available_hero_slots || 1
+                    };
+
+                    this.levels.set(levelId, levelConfig);
                 }
             }
-            
-            console.log('[ConfigLoader] 关卡配置加载完成');
+            console.log('[ConfigLoader] 已加载关卡配置:', Array.from(this.levels.keys()));
         } catch (error) {
             console.error('[ConfigLoader] 加载关卡配置失败:', error);
             throw error;
         }
     }
 
+    /**
+     * 加载豆豆配置
+     */
     private async loadBeans(): Promise<void> {
         try {
-            const response = await fetch('/src/data/beans.json');
-            if (response.ok) {
-                const { beans } = await response.json();
-            beans.forEach((bean: CharacterBean) => {
+            const beansPath = path.join(__dirname, '../../data/beans.json');
+            const content = await fs.readFile(beansPath, 'utf-8');
+            const beans = JSON.parse(content) as CharacterBean[];
+            
+            beans.forEach(bean => {
                 this.beans.set(bean.id, bean);
             });
-            }
+            console.log('[ConfigLoader] 已加载豆豆配置:', Array.from(this.beans.keys()));
         } catch (error) {
-            console.error('加载豆豆配置失败:', error);
+            console.error('[ConfigLoader] 加载豆豆配置失败:', error);
+            throw error;
         }
     }
 
-    public getHero(id: number): Hero | undefined {
-        return this.heroes.get(id);
+    /**
+     * 加载英雄配置
+     */
+    private async loadHeroes(): Promise<void> {
+        try {
+            const heroesDir = path.join(__dirname, '../../data/heroes');
+            const files = await fs.readdir(heroesDir);
+            
+            for (const file of files) {
+                if (file.endsWith('.json')) {
+                    const filePath = path.join(heroesDir, file);
+                    const content = await fs.readFile(filePath, 'utf-8');
+                    const heroConfig = JSON.parse(content) as Hero;
+                    this.heroes.set(heroConfig.id, heroConfig);
+                }
+            }
+            console.log('[ConfigLoader] 已加载英雄配置:', Array.from(this.heroes.keys()));
+        } catch (error) {
+            console.error('[ConfigLoader] 加载英雄配置失败:', error);
+            throw error;
+        }
     }
 
-    public getAllHeroes(): Hero[] {
-        return Array.from(this.heroes.values());
+    /**
+     * 获取关卡配置
+     */
+    public getLevel(levelId: string): LevelConfig | undefined {
+        return this.levels.get(levelId);
     }
 
-    public getLevel(id: number): LevelConfig | undefined {
-        return this.levels.get(id);
-    }
-
+    /**
+     * 获取所有关卡配置
+     */
     public getAllLevels(): LevelConfig[] {
         return Array.from(this.levels.values());
     }
 
-    public getBean(id: number): CharacterBean | undefined {
-        const config = this.beans.get(id);
-        if (!config) return undefined;
-        
-        return config;
+    /**
+     * 获取豆豆配置
+     */
+    public getBean(beanId: number): CharacterBean | undefined {
+        return this.beans.get(beanId);
     }
 
-    public getAllBeanConfigs(): CharacterBean[] {
+    /**
+     * 获取所有豆豆配置
+     */
+    public getAllBeans(): CharacterBean[] {
         return Array.from(this.beans.values());
+    }
+
+    /**
+     * 获取英雄配置
+     */
+    public getHeroConfig(heroId: number): Hero | undefined {
+        return this.heroes.get(heroId);
+    }
+
+    /**
+     * 获取所有英雄配置
+     */
+    public getAllHeroConfigs(): Hero[] {
+        return Array.from(this.heroes.values());
     }
 } 

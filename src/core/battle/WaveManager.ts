@@ -1,23 +1,22 @@
-import { EventManager } from './EventManager';
+import { EventManager } from '../EventManager';
 import { ConfigLoader } from '../ConfigLoader';
-import type { BeanConfig } from '../../types/Beans';
+import { CharacterBean } from '../../types/CharacterBean';
+import { LevelConfig } from '../../types/Level';
+import { BattleBean } from './types';
 
 /**
  * 波次管理器
- * 负责管理战斗中的敌人波次生成
+ * 负责控制怪物的生成和波次进度
  */
 export class WaveManager {
     private static instance: WaveManager;
     private eventManager: EventManager;
     private configLoader: ConfigLoader;
-    private eventListeners = new Map<string, Function[]>();
-    
-    /** 当前波次 */
-    private currentWave: number = 0;
-    /** 当前关卡 */
-    private currentLevel: number = 1;
-    /** 当前章节 */
-    private currentChapter: number = 1;
+    private currentLevel: string = '';
+    private levelConfig: LevelConfig | null = null;
+    private spawnInterval: NodeJS.Timeout | null = null;
+    private beansSpawned: number = 0;
+    private isPaused: boolean = false;
 
     private constructor() {
         this.eventManager = EventManager.getInstance();
@@ -31,112 +30,98 @@ export class WaveManager {
         return WaveManager.instance;
     }
 
-    /**
-     * 开始新的波次
-     */
-    public startNewWave(): void {
-        this.currentWave++;
-        
-        // 获取当前波次的配置
-        const waveConfig = this.getWaveConfig();
-        
-        // 发出波次开始事件
-        this.eventManager.emit('waveStart', {
-            wave: this.currentWave,
-            level: this.currentLevel,
-            chapter: this.currentChapter,
-            config: waveConfig
-        });
+    public init(level: string): void {
+        this.currentLevel = level;
+        const config = this.configLoader.getLevel(level);
+        if (!config) {
+            throw new Error(`Invalid level configuration for level ${level}`);
+        }
+        this.levelConfig = config;
+        this.beansSpawned = 0;
+        this.isPaused = false;
     }
 
-    /**
-     * 获取当前波次配置
-     */
-    private getWaveConfig() {
-        // TODO: 从配置加载器获取波次配置
+    public start(): void {
+        if (!this.levelConfig) {
+            throw new Error('Level configuration not initialized');
+        }
+
+        this.spawnInterval = setInterval(() => {
+            if (this.isPaused) return;
+            if (this.beansSpawned >= this.levelConfig!.totalBeans) {
+                this.stop();
+                return;
+            }
+            this.spawnBean();
+        }, this.levelConfig.spawnInterval * 1000);
+    }
+
+    private spawnBean(): void {
+        if (!this.levelConfig) return;
+
+        const beanTypes = this.levelConfig.beanRatios.map(ratio => ratio.type);
+        const weights = this.levelConfig.beanRatios.map(ratio => ratio.weight);
+        const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+        let random = Math.random() * totalWeight;
+        
+        let selectedType = beanTypes[0];
+        for (let i = 0; i < weights.length; i++) {
+            if (random <= weights[i]) {
+                selectedType = beanTypes[i];
+                break;
+            }
+            random -= weights[i];
+        }
+
+        const beanConfig = this.configLoader.getBean(1); // 暂时使用ID为1的豆豆配置
+
+        if (!beanConfig) {
+            console.error(`No bean configuration found`);
+            return;
+        }
+
+        const battleBean: BattleBean = {
+            id: Date.now(), // 临时使用时间戳作为ID
+            type: selectedType,
+            name: beanConfig.name,
+            currentHp: beanConfig.stats.hp,
+            maxHp: beanConfig.stats.hp,
+            stats: beanConfig.stats,
+            skill: beanConfig.skill,
+            position: this.generateRandomPosition()
+        };
+
+        this.beansSpawned++;
+        this.eventManager.emit('bean_spawned', battleBean);
+    }
+
+    private generateRandomPosition(): { x: number, y: number } {
+        // 生成一个在屏幕边缘的随机位置
+        const radius = 500; // 假设这是游戏区域的半径
+        const angle = Math.random() * Math.PI * 2;
         return {
-            beanCount: Math.min(5 + this.currentWave * 2, 20),
-            beanTypes: this.getBeanTypes(),
-            interval: Math.max(2000 - this.currentWave * 100, 500)
+            x: Math.cos(angle) * radius + 400, // 400是假设的屏幕中心x坐标
+            y: Math.sin(angle) * radius + 300  // 300是假设的屏幕中心y坐标
         };
     }
 
-    /**
-     * 获取当前波次可用的豆豆类型
-     */
-    private getBeanTypes(): number[] {
-        const allBeans = this.configLoader.getAllBeanConfigs();
-        // 根据当前波次解锁不同类型的豆豆
-        return allBeans
-            .filter(bean => bean.unlockWave <= this.currentWave)
-            .map(bean => bean.id);
+    public pause(): void {
+        this.isPaused = true;
     }
 
-    /**
-     * 重置波次
-     */
-    public reset(): void {
-        this.currentWave = 0;
-        this.eventManager.emit('waveReset', {});
+    public resume(): void {
+        this.isPaused = false;
     }
 
-    /**
-     * 获取当前波次信息
-     */
-    public getCurrentWaveInfo() {
-        return {
-            wave: this.currentWave,
-            level: this.currentLevel,
-            chapter: this.currentChapter
-        };
-    }
-
-    /**
-     * 注册事件监听器
-     */
-    public on(event: string, callback: Function): void {
-        if (!this.eventListeners.has(event)) {
-            this.eventListeners.set(event, []);
-        }
-        this.eventListeners.get(event)?.push(callback);
-    }
-
-    /**
-     * 触发事件
-     */
-    private emit(event: string, data: any): void {
-        const callbacks = this.eventListeners.get(event);
-        if (callbacks) {
-            callbacks.forEach(callback => callback(data));
+    public stop(): void {
+        if (this.spawnInterval) {
+            clearInterval(this.spawnInterval);
+            this.spawnInterval = null;
         }
     }
 
-    /**
-     * 生成豆豆
-     * @param types - 允许的豆豆类型
-     * @param centerX - 场景中心X坐标
-     * @param centerY - 场景中心Y坐标
-     */
-    public spawnBeans(types: string[], centerX: number, centerY: number): void {
-        // 获取所有豆豆配置
-        const allBeans = this.configLoader.getAllBeanConfigs();
-        // 过滤出当前关卡允许的类型
-        const availableBeans = allBeans.filter((bean: BeanConfig) => types.includes(bean.type));
-        if (availableBeans.length === 0) return;
-
-        // 随机选择一个豆豆配置
-        const beanConfig = availableBeans[Phaser.Math.Between(0, availableBeans.length - 1)];
-        
-        const angle = Phaser.Math.Between(0, 360);
-        const distance = 400;
-        const x = centerX + Math.cos(angle) * distance;
-        const y = centerY + Math.sin(angle) * distance;
-
-        this.eventManager.emit('spawnBean', {
-            id: `bean_${Date.now()}`,
-            config: this.configLoader.getBean(beanConfig.id)!,
-            position: { x, y }
-        });
+    public getProgress(): number {
+        if (!this.levelConfig) return 0;
+        return this.beansSpawned / this.levelConfig.totalBeans;
     }
-
 } 

@@ -1,8 +1,9 @@
-import { EventManager } from './EventManager';
+import { EventManager, DamageEventData } from '../EventManager';
+import { BattleHero, BattleBean } from './types';
 
 /**
  * 伤害管理器
- * 负责处理战斗中的伤害计算和应用
+ * 负责处理战斗中的伤害计算和效果
  */
 export class DamageManager {
     private static instance: DamageManager;
@@ -10,7 +11,6 @@ export class DamageManager {
 
     private constructor() {
         this.eventManager = EventManager.getInstance();
-        this.setupEventListeners();
     }
 
     public static getInstance(): DamageManager {
@@ -20,108 +20,81 @@ export class DamageManager {
         return DamageManager.instance;
     }
 
-    private setupEventListeners() {
-        this.eventManager.on('damageRequest', this.handleDamageRequest.bind(this));
-    }
-
     /**
-     * 处理伤害请求
+     * 处理伤害事件
+     * @param data 伤害事件数据
      */
-    private handleDamageRequest(data: {
-        target: any;
-        amount: number;
-        source: string;
-        skillId?: number;
-    }) {
-        const { target, amount, source, skillId } = data;
-        
-        // 计算最终伤害
-        const finalDamage = this.calculateDamage(amount, target);
-        
-        // 发出伤害事件
-        this.eventManager.emit('damageDealt', {
-            target,
-            amount: finalDamage,
-            source,
-            skillId
-        });
-    }
+    public handleDamage(data: DamageEventData): void {
+        const { source, target, damage, isCritical } = data;
 
-    /**
-     * 计算伤害值
-     * 考虑目标防御力和其他减伤效果
-     */
-    private calculateDamage(baseDamage: number, target: any): number {
-        let finalDamage = baseDamage;
-
-        // 如果目标有防御属性
-        if (target.defense) {
-            // 防御减伤公式：实际伤害 = 基础伤害 * (100 / (100 + 防御))
-            finalDamage = baseDamage * (100 / (100 + target.defense));
-        }
-
-        // 如果目标有减伤效果
-        if (target.damageReduction) {
-            finalDamage *= (1 - target.damageReduction);
-        }
-
-        // 确保伤害不小于1
-        return Math.max(1, Math.round(finalDamage));
-    }
-
-    /**
-     * 处理伤害
-     * @param targetType - 目标类型
-     * @param targetId - 目标ID
-     * @param damage - 伤害值
-     * @param currentHealth - 当前生命值
-     * @param defense - 防御力
-     */
-    public handleDamage(params: {
-        targetType: 'hero' | 'bean' | 'crystal',
-        targetId: string,
-        damage: number,
-        currentHealth: number,
-        defense?: number
-    }): number {
-        const { targetType, targetId, damage, currentHealth, defense = 0 } = params;
-        
         // 计算实际伤害
-        const actualDamage = Math.max(0, damage - defense);
-        const newHealth = Math.max(0, currentHealth - actualDamage);
+        const actualDamage = this.calculateDamage(source, target, damage, isCritical);
 
-        // 发出伤害事件
-        this.eventManager.emit('damageDealt', {
-            targetType,
-            targetId,
-            damage: actualDamage,
-            currentHealth: newHealth
-        });
+        // 应用伤害
+        this.applyDamage(target, actualDamage);
 
-        // 如果生命值降为0，发出死亡事件
-        if (newHealth <= 0) {
-            this.handleDeath(targetType, targetId);
-        }
-
-        return newHealth;
+        // 检查目标是否死亡
+        this.checkDeath(target);
     }
 
     /**
-     * 处理死亡
-     * @param targetType - 目标类型
-     * @param targetId - 目标ID
+     * 计算实际伤害
+     * @param source 伤害来源
+     * @param target 伤害目标
+     * @param baseDamage 基础伤害
+     * @param isCritical 是否暴击
      */
-    private handleDeath(targetType: 'hero' | 'bean' | 'crystal', targetId: string): void {
-        switch(targetType) {
-            case 'hero':
-                this.eventManager.emit('heroDied', { heroId: targetId });
-                break;
-            case 'bean':
-                this.eventManager.emit('beanDefeated', { beanId: targetId });
-                break;
-            case 'crystal':
-                this.eventManager.emit('gameOver', { victory: false });
-                break;
+    private calculateDamage(
+        source: BattleHero | BattleBean,
+        target: BattleHero | BattleBean,
+        baseDamage: number,
+        isCritical: boolean
+    ): number {
+        // 基础伤害计算
+        let damage = baseDamage * (source.stats.attack / 100);
+
+        // 防御减伤
+        const damageReduction = target.stats.defense / (target.stats.defense + 100);
+        damage *= (1 - damageReduction);
+
+        // 暴击加成
+        if (isCritical) {
+            damage *= 1.5;
         }
+
+        // 确保伤害至少为1
+        return Math.max(1, Math.floor(damage));
+    }
+
+    /**
+     * 应用伤害到目标
+     * @param target 伤害目标
+     * @param damage 伤害值
+     */
+    private applyDamage(target: BattleHero | BattleBean, damage: number): void {
+        target.currentHp = Math.max(0, target.currentHp - damage);
+    }
+
+    /**
+     * 检查目标是否死亡
+     * @param target 检查目标
+     */
+    private checkDeath(target: BattleHero | BattleBean): void {
+        if (target.currentHp <= 0) {
+            // 根据目标类型触发不同的死亡事件
+            if (this.isHero(target)) {
+                this.eventManager.emit('hero_died', target.id);
+            } else {
+                this.eventManager.emit('bean_defeated', target.id);
+            }
+        }
+    }
+
+    /**
+     * 判断目标是否为英雄
+     * @param target 判断目标
+     */
+    private isHero(target: BattleHero | BattleBean): target is BattleHero {
+        return 'level' in target;
     }
 } 

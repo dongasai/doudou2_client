@@ -1,36 +1,38 @@
-import { EventManager } from './EventManager';
-import { DamageManager } from './DamageManager';
-import { WaveManager } from './WaveManager';
+import { EventManager } from '../EventManager';
 import { ConfigLoader } from '../ConfigLoader';
-import { Position, HeroData, BeanData, CrystalData } from '../../types/battle';
+import { WaveManager } from './WaveManager';
+import { DamageManager } from './DamageManager';
+import { Hero } from '../../types/GameHero';
+import { LevelConfig } from '../../types/Level';
+import { BattleHero, BattleBean, BattleCrystal } from './types';
+import { BaseStats } from '../../types/BaseStats';
 
 /**
  * 战斗管理器
- * 负责整体战斗流程控制
+ * 负责控制整个战斗流程
  */
 export class BattleManager {
     private static instance: BattleManager;
     private eventManager: EventManager;
-    private damageManager: DamageManager;
-    private waveManager: WaveManager;
     private configLoader: ConfigLoader;
-
-    /** 战斗状态 */
-    private battleState: 'prepare' | 'fighting' | 'pause' | 'victory' | 'defeat' = 'prepare';
-    
-    /** 战斗数据 */
-    private battleData = {
-        heroes: new Map<string, HeroData>(),
-        beans: new Map<string, BeanData>(),
-        crystal: null as CrystalData | null
-    };
+    private waveManager: WaveManager;
+    private damageManager: DamageManager;
+    private currentLevel: string = '';
+    private heroes: Map<number, BattleHero>;
+    private beans: Map<number, BattleBean>;
+    private crystal: BattleCrystal | null;
+    private isPaused: boolean;
 
     private constructor() {
         this.eventManager = EventManager.getInstance();
-        this.damageManager = DamageManager.getInstance();
-        this.waveManager = WaveManager.getInstance();
         this.configLoader = ConfigLoader.getInstance();
-        this.init();
+        this.waveManager = WaveManager.getInstance();
+        this.damageManager = DamageManager.getInstance();
+        this.heroes = new Map();
+        this.beans = new Map();
+        this.crystal = null;
+        this.isPaused = false;
+        this.setupEventListeners();
     }
 
     public static getInstance(): BattleManager {
@@ -40,160 +42,161 @@ export class BattleManager {
         return BattleManager.instance;
     }
 
-    /**
-     * 初始化战斗管理器
-     */
-    private init() {
+    private setupEventListeners(): void {
+        this.eventManager.on('damage_dealt', (data: any) => {
+            console.log('Damage dealt:', data);
+            // 处理伤害事件
+            this.damageManager.handleDamage(data);
+        });
+
+        this.eventManager.on('hero_died', (heroId: number) => {
+            console.log('Hero died:', heroId);
+            this.heroes.delete(heroId);
+            this.checkGameOver();
+        });
+
+        this.eventManager.on('bean_defeated', (beanId: number) => {
+            console.log('Bean defeated:', beanId);
+            this.beans.delete(beanId);
+            this.checkWaveComplete();
+        });
+
+        this.eventManager.on('bean_spawned', (bean: BattleBean) => {
+            console.log('Bean spawned:', bean);
+            this.beans.set(bean.id, bean);
+        });
+    }
+
+    public async initBattle(level: string, heroId: number): Promise<void> {
+        this.currentLevel = level;
+        await this.configLoader.loadAllConfigs();
+
+        const levelConfig = this.configLoader.getLevel(level);
+        const heroConfig = this.configLoader.getHeroConfig(heroId);
+
+        if (!levelConfig || !heroConfig) {
+            throw new Error('Invalid level or hero configuration');
+        }
+
         this.resetBattleData();
-        this.setupEventListeners();
+        this.createHero(heroConfig);
+        this.createCrystal(levelConfig);
+        this.waveManager.init(level);
+
+        console.log('Battle initialized with:', {
+            level: levelConfig,
+            hero: heroConfig,
+            crystal: this.crystal
+        });
     }
 
-    /**
-     * 重置战斗数据
-     */
-    private resetBattleData() {
-        this.battleData.heroes.clear();
-        this.battleData.beans.clear();
-        this.battleData.crystal = null;
-        this.waveManager.reset();
-        this.battleState = 'prepare';
+    private resetBattleData(): void {
+        this.heroes.clear();
+        this.beans.clear();
+        this.crystal = null;
+        this.isPaused = false;
     }
 
-    /**
-     * 设置事件监听
-     */
-    private setupEventListeners() {
-        this.eventManager.on('damageDealt', this.onDamageDealt.bind(this));
-        this.eventManager.on('heroDied', this.onHeroDied.bind(this));
-        this.eventManager.on('beanDefeated', this.onBeanDefeated.bind(this));
-        this.eventManager.on('gameOver', this.onGameOver.bind(this));
-    }
-
-    /**
-     * 开始战斗
-     */
-    public startBattle() {
-        if (this.battleState !== 'prepare') return;
-        
-        this.battleState = 'fighting';
-        this.waveManager.startNewWave();
-        this.eventManager.emit('battleStart', {});
-    }
-
-    /**
-     * 暂停战斗
-     */
-    public pauseBattle() {
-        if (this.battleState !== 'fighting') return;
-        
-        this.battleState = 'pause';
-        this.eventManager.emit('battlePause', {});
-    }
-
-    /**
-     * 继续战斗
-     */
-    public resumeBattle() {
-        if (this.battleState !== 'pause') return;
-        
-        this.battleState = 'fighting';
-        this.eventManager.emit('battleResume', {});
-    }
-
-    /**
-     * 创建英雄
-     */
-    public createHero(heroId: number, position: Position): string {
-        const config = this.configLoader.getHeroConfig(heroId);
-        if (!config) throw new Error(`未找到英雄配置: ${heroId}`);
-
-        const id = `hero_${Date.now()}`;
-        const heroData: HeroData = {
-            id,
-            type: heroId,
-            position,
-            health: config.baseHealth,
-            maxHealth: config.baseHealth,
+    private createHero(config: Hero): void {
+        const battleHero: BattleHero = {
+            id: config.id,
+            type: config.type,
+            name: config.name,
+            currentHp: config.stats?.hp || 100,
+            maxHp: config.stats?.hp || 100,
+            stats: config.stats || {
+                hp: 100,
+                attack: 10,
+                defense: 5,
+                speed: 5
+            },
+            skills: config.skills || [],
+            position: {
+                x: 400,
+                y: 300
+            },
             level: 1,
-            experience: 0
+            exp: 0,
+            gold: 0
         };
-
-        this.battleData.heroes.set(id, heroData);
-        this.eventManager.emit('heroCreated', heroData);
-        return id;
+        this.heroes.set(config.id, battleHero);
     }
 
-    /**
-     * 创建水晶
-     */
-    public createCrystal(position: Position): void {
-        const crystalData: CrystalData = {
-            position,
-            health: 1000,
-            maxHealth: 1000
+    private createCrystal(config: LevelConfig): void {
+        const baseStats: BaseStats = {
+            hp: config.crystal.maxHp,
+            attack: 0,
+            defense: config.attrFactors.defense,
+            speed: 0
         };
-        this.battleData.crystal = crystalData;
-        this.eventManager.emit('crystalCreated', crystalData);
+
+        this.crystal = {
+            id: 1,
+            name: '主水晶',
+            currentHp: config.crystal.maxHp,
+            maxHp: config.crystal.maxHp,
+            stats: baseStats,
+            position: config.crystal.position,
+            defenseBonus: 0
+        };
     }
 
-    // 事件处理方法
-    private onDamageDealt(data: any) {
-        const { targetType, targetId, currentHealth } = data;
-        if (targetType === 'hero') {
-            const hero = this.battleData.heroes.get(targetId);
-            if (hero) hero.health = currentHealth;
-        } else if (targetType === 'bean') {
-            const bean = this.battleData.beans.get(targetId);
-            if (bean) bean.health = currentHealth;
-        } else if (targetType === 'crystal' && this.battleData.crystal) {
-            this.battleData.crystal.health = currentHealth;
+    public startBattle(): void {
+        console.log('Battle started');
+        this.isPaused = false;
+        this.waveManager.start();
+        this.eventManager.emit('battle_started', null);
+    }
+
+    public pauseBattle(): void {
+        console.log('Battle paused');
+        this.isPaused = true;
+        this.waveManager.pause();
+        this.eventManager.emit('battle_paused', null);
+    }
+
+    public resumeBattle(): void {
+        console.log('Battle resumed');
+        this.isPaused = false;
+        this.waveManager.resume();
+        this.eventManager.emit('battle_resumed', null);
+    }
+
+    private checkWaveComplete(): void {
+        if (this.beans.size === 0) {
+            console.log('Wave complete');
+            this.eventManager.emit('wave_complete', null);
+            // 可以在这里添加关卡完成的逻辑
         }
     }
 
-    private onHeroDied(data: any) {
-        const { heroId } = data;
-        this.battleData.heroes.delete(heroId);
-        this.checkGameOver();
-    }
-
-    private onBeanDefeated(data: any) {
-        const { beanId } = data;
-        this.battleData.beans.delete(beanId);
-        this.checkWaveComplete();
-    }
-
-    private onGameOver(data: any) {
-        this.battleState = data.victory ? 'victory' : 'defeat';
-    }
-
-    /**
-     * 检查波次是否完成
-     */
-    private checkWaveComplete() {
-        if (this.battleData.beans.size === 0) {
-            this.waveManager.startNewWave();
+    private checkGameOver(): void {
+        if (this.heroes.size === 0 || (this.crystal && this.crystal.currentHp <= 0)) {
+            console.log('Game over');
+            this.eventManager.emit('game_over', {
+                victory: false,
+                reason: this.heroes.size === 0 ? 'all_heroes_died' : 'crystal_destroyed'
+            });
         }
     }
 
-    /**
-     * 检查游戏是否结束
-     */
-    private checkGameOver() {
-        if (this.battleData.heroes.size === 0) {
-            this.eventManager.emit('gameOver', { victory: false });
-        }
+    public getHeroes(): BattleHero[] {
+        return Array.from(this.heroes.values());
     }
 
-    /**
-     * 获取战斗状态
-     */
-    public getBattleState() {
-        return {
-            state: this.battleState,
-            wave: this.waveManager.getCurrentWaveInfo(),
-            heroes: Array.from(this.battleData.heroes.values()),
-            beans: Array.from(this.battleData.beans.values()),
-            crystal: this.battleData.crystal
-        };
+    public getBeans(): BattleBean[] {
+        return Array.from(this.beans.values());
+    }
+
+    public getCrystal(): BattleCrystal | null {
+        return this.crystal;
+    }
+
+    public getCurrentLevel(): string {
+        return this.currentLevel;
+    }
+
+    public isPausedState(): boolean {
+        return this.isPaused;
     }
 } 
