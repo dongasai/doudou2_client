@@ -1,0 +1,56 @@
+{
+    "id": "battle_cry",
+    "name": "战吼",
+    "type": "buff",
+    "targetType": "self",
+    "range": 0,
+    "cooldown": 12000,
+    "duration": 6000,
+    "effectValue": 30,
+    "emoji": "😤",
+    "description": "发出震慑敌人的怒吼，提升自身攻击力",
+    "level": 1,
+    "maxLevel": 5,
+    "upgrades": [
+        {
+            "level": 2,
+            "effectValue": 35,
+            "duration": 6500,
+            "cost": 150
+        },
+        {
+            "level": 3,
+            "effectValue": 40,
+            "duration": 7000,
+            "cost": 300
+        },
+        {
+            "level": 4,
+            "effectValue": 45,
+            "duration": 7500,
+            "cost": 600
+        },
+        {
+            "level": 5,
+            "effectValue": 50,
+            "duration": 8000,
+            "cost": 1200,
+            "effects": {
+                "intimidate": {
+                    "type": "debuff",
+                    "value": -10,
+                    "duration": 3000,
+                    "range": 300
+                }
+            }
+        }
+    ],
+    "effects": {
+        "attack_boost": {
+            "type": "buff",
+            "attribute": "attack",
+            "value": 30,
+            "duration": 6000
+        }
+    }
+} 

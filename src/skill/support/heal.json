@@ -1,0 +1,50 @@
+{
+    "id": "heal",
+    "name": "治疗术",
+    "type": "heal",
+    "targetType": "single",
+    "range": 300,
+    "cooldown": 5000,
+    "baseHeal": 100,
+    "criticalRate": 0.2,
+    "criticalMultiplier": 1.5,
+    "emoji": "💚",
+    "description": "为目标恢复生命值",
+    "level": 1,
+    "maxLevel": 5,
+    "upgrades": [
+        {
+            "level": 2,
+            "baseHeal": 120,
+            "criticalRate": 0.22,
+            "cost": 100
+        },
+        {
+            "level": 3,
+            "baseHeal": 145,
+            "criticalRate": 0.25,
+            "cost": 200
+        },
+        {
+            "level": 4,
+            "baseHeal": 175,
+            "criticalRate": 0.28,
+            "cost": 400
+        },
+        {
+            "level": 5,
+            "baseHeal": 210,
+            "criticalRate": 0.3,
+            "criticalMultiplier": 1.8,
+            "cost": 800
+        }
+    ],
+    "effects": {
+        "regeneration": {
+            "type": "hot",
+            "heal": 10,
+            "interval": 1000,
+            "duration": 3000
+        }
+    }
+} 

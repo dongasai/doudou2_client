@@ -1,0 +1,61 @@
+{
+    "id": "frost_nova",
+    "name": "冰霜新星",
+    "type": "control",
+    "targetType": "area",
+    "range": 250,
+    "cooldown": 12000,
+    "duration": 2000,
+    "effectValue": 0.5,
+    "emoji": "❄️",
+    "description": "释放冰霜能量，减缓范围内敌人的移动速度",
+    "level": 1,
+    "maxLevel": 5,
+    "upgrades": [
+        {
+            "level": 2,
+            "effectValue": 0.55,
+            "duration": 2300,
+            "cost": 150
+        },
+        {
+            "level": 3,
+            "effectValue": 0.6,
+            "duration": 2600,
+            "cost": 300
+        },
+        {
+            "level": 4,
+            "effectValue": 0.65,
+            "duration": 2900,
+            "cost": 600
+        },
+        {
+            "level": 5,
+            "effectValue": 0.7,
+            "duration": 3000,
+            "cost": 1200,
+            "effects": {
+                "freeze": {
+                    "type": "control",
+                    "chance": 0.2,
+                    "duration": 1000
+                }
+            }
+        }
+    ],
+    "effects": {
+        "slow": {
+            "type": "debuff",
+            "attribute": "speed",
+            "value": -50,
+            "duration": 2000
+        },
+        "chill": {
+            "type": "debuff",
+            "attribute": "attack_speed",
+            "value": -20,
+            "duration": 2000
+        }
+    }
+} 

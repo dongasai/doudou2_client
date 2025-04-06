@@ -1,0 +1,56 @@
+{
+    "id": "speed_boost",
+    "name": "加速",
+    "type": "buff",
+    "targetType": "single",
+    "range": 300,
+    "cooldown": 10000,
+    "duration": 5000,
+    "effectValue": 50,
+    "emoji": "⚡",
+    "description": "提升目标的移动速度",
+    "level": 1,
+    "maxLevel": 5,
+    "upgrades": [
+        {
+            "level": 2,
+            "effectValue": 60,
+            "duration": 5500,
+            "cost": 150
+        },
+        {
+            "level": 3,
+            "effectValue": 70,
+            "duration": 6000,
+            "cost": 300
+        },
+        {
+            "level": 4,
+            "effectValue": 80,
+            "duration": 6500,
+            "cost": 600
+        },
+        {
+            "level": 5,
+            "effectValue": 100,
+            "duration": 7000,
+            "cost": 1200,
+            "effects": {
+                "energize": {
+                    "type": "buff",
+                    "attribute": "attack_speed",
+                    "value": 20,
+                    "duration": 3000
+                }
+            }
+        }
+    ],
+    "effects": {
+        "speed_boost": {
+            "type": "buff",
+            "attribute": "speed",
+            "value": 50,
+            "duration": 5000
+        }
+    }
+} 

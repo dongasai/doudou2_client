@@ -1,0 +1,53 @@
+{
+    "id": "quick_shot",
+    "name": "快速射击",
+    "type": "damage",
+    "targetType": "single",
+    "range": 500,
+    "cooldown": 2000,
+    "baseDamage": 60,
+    "criticalRate": 0.3,
+    "criticalMultiplier": 1.8,
+    "emoji": "🏹",
+    "description": "快速射出一箭，有较高的暴击率",
+    "level": 1,
+    "maxLevel": 5,
+    "upgrades": [
+        {
+            "level": 2,
+            "baseDamage": 70,
+            "criticalRate": 0.32,
+            "cost": 100
+        },
+        {
+            "level": 3,
+            "baseDamage": 85,
+            "criticalRate": 0.35,
+            "cooldown": 1800,
+            "cost": 200
+        },
+        {
+            "level": 4,
+            "baseDamage": 100,
+            "criticalRate": 0.38,
+            "cooldown": 1600,
+            "cost": 400
+        },
+        {
+            "level": 5,
+            "baseDamage": 120,
+            "criticalRate": 0.4,
+            "criticalMultiplier": 2.0,
+            "cooldown": 1500,
+            "cost": 800
+        }
+    ],
+    "effects": {
+        "swift": {
+            "type": "buff",
+            "attribute": "speed",
+            "value": 10,
+            "duration": 1000
+        }
+    }
+} 
