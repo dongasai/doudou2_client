@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const SKILL_DIR = path.join(__dirname, '../src/skill');
+const SKILL_DIR = path.join(__dirname, '../src/skill_core');
 const CATEGORIES = ['mage', 'warrior', 'archer', 'support', 'control'];
 const OUTPUT_FILE = path.join(SKILL_DIR, 'generate_skill_index.json');
 

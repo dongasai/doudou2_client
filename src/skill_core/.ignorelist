@@ -1,0 +1,22 @@
+# 忽略列表文件
+# 每行定义一个忽略规则，支持glob模式
+
+# 忽略测试文件
+*.test.*
+*_test.*
+test/
+
+# 忽略临时文件
+*.tmp
+*.bak
+
+# 忽略特定配置文件
+local.config.*
+
+# 技术要求忽略的文件
+BaseSkillConfig.ts
+ChainEffect.ts
+Skill.ts
+SkillEffects.ts
+SkillUpgrades.ts
+Index.ts
