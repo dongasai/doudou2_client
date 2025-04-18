@@ -23,5 +23,6 @@
         "baseDamage": "基础伤害值",
         "stun.duration": "眩晕持续时间(ms)",
         "range": "射程范围"
-    }
+    },
+    "fixedParams": ["cooldown", "cost"]
 }

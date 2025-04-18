@@ -1,0 +1,28 @@
+{
+    "id": "speed_boost",
+    "name": "加速",
+    "type": "buff",
+    "targetType": "single",
+    "range": 300,
+    "cooldown": 10000,
+    "duration": 5000,
+    "effectValue": 50,
+    "emoji": "⚡",
+    "description": "提升目标的移动速度",
+    "level": 1,
+    "maxLevel": 5,
+    "effects": {
+        "speed_boost": {
+            "type": "buff",
+            "attribute": "speed",
+            "value": 50,
+            "duration": 5000
+        }
+    },
+    "buffCalculation": "基础效果: effectValue, 持续时间: duration",
+    "adjustableParams": {
+        "effectValue": "效果数值",
+        "duration": "持续时间(ms)"
+    },
+    "fixedParams": ["cooldown", "cost"]
+}

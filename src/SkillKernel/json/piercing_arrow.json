@@ -21,5 +21,7 @@
         "range": "攻击范围",
         "bleed.value": "流血伤害值",
         "chainEffect.maxTargets": "最大连锁目标数"
-    }
+    },
+    "fixedParams": ["cooldown", "cost"]
+
 }

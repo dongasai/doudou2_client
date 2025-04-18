@@ -26,5 +26,7 @@
         "range": "作用范围",
         "slow.value": "减速效果值",
         "duration": "持续时间(ms)"
-    }
+    },
+    "fixedParams": ["cooldown", "cost"]
+
 }

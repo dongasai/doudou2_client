@@ -21,33 +21,11 @@
             "value": -20
         }
     },
-    "upgrades": [
-        {
-            "level": 2,
-            "cost": 100,
-            "cooldown": 2.5
-        },
-        {
-            "level": 3,
-            "cost": 200,
-            "cooldown": 2
-        },
-        {
-            "level": 4,
-            "cost": 300,
-            "cooldown": 1.5
-        },
-        {
-            "level": 5,
-            "cost": 400,
-            "cooldown": 1
-        }
-    ],
     "controlCalculation": "眩晕时间: effects.stun.duration, 防御减益: effects.defense_debuff.value",
     "adjustableParams": {
         "cooldown": "冷却时间(秒)",
         "duration": "控制持续时间(秒)",
         "value": "减益效果数值"
     },
-    "fixedParams": ["cost"]
+    "fixedParams": ["cooldown", "cost"]
 } 
