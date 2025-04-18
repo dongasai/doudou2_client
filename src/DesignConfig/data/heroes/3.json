@@ -1,44 +1,50 @@
 {
   "id": 3,
-  "name": "疾风",
-  "emoji": "🏹",
-  "type": "射手",
-  "style": "特长型",
-  "specialty": "远程输出",
+  "name": "神圣牧师",
+  "emoji": "✨",
+  "type": "healer",
   "skills": [
     {
-      "name": "快射",
-      "type": "伤害",
-      "description": "连续发射三箭",
-      "cooldown": 5,
-      "cost": 45
+      "id": "heal",
+      "cooldown": 5000,
+      "cost": 50,
+      "range": 300,
+      "baseHeal": 150,
+      "criticalRate": 0.25,
+      "criticalMultiplier": 1.5
     },
     {
-      "name": "精准射击",
-      "type": "伤害",
-      "description": "瞄准射击造成额外伤害",
-      "cooldown": 8,
-      "cost": 50
+      "id": "speed_boost",
+      "cooldown": 10000,
+      "cost": 40,
+      "range": 300,
+      "effectValue": 50,
+      "duration": 5000
+    }
+  ],
+  "skills_desc": [
+    {
+      "id": "heal",
+      "name": "治疗术",
+      "type": "治疗",
+      "range": "300像素",
+      "description": "为目标恢复150点生命值，有25%几率触发1.5倍暴击治疗"
     },
     {
-      "name": "穿云",
-      "type": "伤害",
-      "description": "发射穿透箭",
-      "cooldown": 10,
-      "cost": 65
-    },
-    {
-      "name": "箭雨",
-      "type": "伤害",
-      "description": "召唤箭雨打击范围目标",
-      "cooldown": 15,
-      "cost": 90
+      "id": "speed_boost",
+      "name": "加速",
+      "type": "增益",
+      "range": "300像素",
+      "description": "提升目标50点移动速度，持续5秒"
     }
   ],
   "stats": {
-    "hp": 700,
-    "attack": 100,
-    "defense": 30,
-    "speed": 80
+    "hp": 900,
+    "mp": 220,
+    "attack": 40,
+    "defense": 60,
+    "magicAttack": 90,
+    "magicDefense": 100,
+    "speed": 45
   }
 }

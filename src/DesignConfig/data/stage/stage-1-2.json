@@ -1,0 +1,30 @@
+{
+  "id": "stage-1-2",
+  "name": "第一章-第二关",
+  "description": "初级难度关卡，主要敌人：暴躁豆(60%)、毒豆(30%)和精英豆(10%)。精英豆拥有更高的血量和攻击力。",
+  "difficulty": 1.2,
+  "crystal": {
+    "maxHp": 950
+  },
+  "beanRatios": [
+    {"type": "暴躁豆", "weight": 2},
+    {"type": "毒豆", "weight": 1},
+    {"type": "闪电豆", "weight": 1}
+  ],
+  "totalBeans": 35,
+  "spawnInterval": 950,
+  "attrFactors": {
+    "hp": 1.1,
+    "attack": 1.1,
+    "defense": 1.0,
+    "speed": 1.0
+  },
+  "victoryCondition": {
+    "type": "allDefeated"
+  },
+  "defeatCondition": {
+    "type": "crystalDestroyed"
+  },
+  "background": "grassland",
+  "availableHeroSlots": 3
+}

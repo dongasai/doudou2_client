@@ -1,0 +1,31 @@
+{
+  "id": "stage-1-8",
+  "name": "第一章-第八关",
+  "description": "高强度挑战关卡，敌人组合：炸弹豆(33%)、冰霜豆(33%)、铁甲豆(17%)和狂暴豆(17%)。敌人属性全面提升，狂暴豆会随时间增强攻击力。",
+  "difficulty": 1.8,
+  "crystal": {
+    "maxHp": 650
+  },
+  "beanRatios": [
+    {"type": "炸弹豆", "weight": 2},
+    {"type": "冰霜豆", "weight": 2},
+    {"type": "铁甲豆", "weight": 1},
+    {"type": "狂暴豆", "weight": 1}
+  ],
+  "totalBeans": 65,
+  "spawnInterval": 650,
+  "attrFactors": {
+    "hp": 1.6,
+    "attack": 1.5,
+    "defense": 1.4,
+    "speed": 1.3
+  },
+  "victoryCondition": {
+    "type": "allDefeated"
+  },
+  "defeatCondition": {
+    "type": "crystalDestroyed"
+  },
+  "background": "ruins",
+  "availableHeroSlots": 3
+}

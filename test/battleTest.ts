@@ -1,5 +1,5 @@
 import { BattleManager } from '@/battle/BattleManager';
-import { EventManager } from '@/core/EventManager';
+import { EventManager } from '@/Core/EventManager';
 
 /**
  * 战斗系统测试脚本
