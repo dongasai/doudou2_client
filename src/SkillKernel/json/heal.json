@@ -8,7 +8,6 @@
     "baseHeal": 100,
     "criticalRate": 0.2,
     "criticalMultiplier": 1.5,
-    "emoji": "💚",
     "description": "为目标恢复生命值",
     "level": 1,
     "maxLevel": 5,
@@ -29,4 +28,4 @@
         "interval": "治疗间隔(ms)"
     },
     "fixedParams": ["cooldown", "cost"]
-} 
+}

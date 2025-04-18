@@ -3,7 +3,7 @@ import path from 'path';
 import { minimatch } from 'minimatch';
 import * as fse from 'fs-extra';
 
-const SOURCE_DIR = path.join(__dirname, '../src/skill_core');
+const SOURCE_DIR = path.join(__dirname, '../src/SkillKernel');
 
 // 读取忽略规则
 function loadIgnorePatterns(): string[] {
@@ -38,7 +38,7 @@ function shouldIgnore(filePath: string, patterns: string[]): boolean {
     })
   );
 }
-const TARGET_DIR = path.join(__dirname, '../../doudou2/src/skill');
+const TARGET_DIR = path.join(__dirname, '../../doudou2/DesignConfig/skill');
 
 // 清理目标目录(保留.gitkeep等特殊文件)
 async function cleanTargetDir(dirPath: string) {

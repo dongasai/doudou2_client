@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test:logger": "ts-node test/Loggertest.ts",
     "skill:validate": "ts-node src/skill/validate.ts",
-    "skill:index": "ts-node scripts/generate_skill_index.ts"
+    "skill:index": "ts-node scripts/generate_skill_index.ts",
+    "skill:sync2doudou2": "ts-node scripts/sync_skill_core.ts"
+
   },
   "dependencies": {
     "phaser": "^3.60.0"

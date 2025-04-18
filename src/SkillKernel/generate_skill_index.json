@@ -1,1 +1,67 @@
-{}
+{
+  "skills": {
+    "battle_cry": {
+      "id": "battle_cry",
+      "name": "战吼",
+      "type": "buff",
+      "targetType": "self"
+    },
+    "fireball": {
+      "id": "fireball",
+      "name": "火球术",
+      "type": "damage",
+      "targetType": "single"
+    },
+    "flame_storm": {
+      "id": "flame_storm",
+      "name": "烈焰风暴",
+      "type": "damage",
+      "targetType": "area"
+    },
+    "frost_nova": {
+      "id": "frost_nova",
+      "name": "冰霜新星",
+      "type": "control",
+      "targetType": "area"
+    },
+    "heal": {
+      "id": "heal",
+      "name": "治疗术",
+      "type": "heal",
+      "targetType": "single",
+      "description": "为目标恢复生命值"
+    },
+    "piercing_arrow": {
+      "id": "piercing_arrow",
+      "name": "穿透箭",
+      "type": "damage",
+      "targetType": "multiple"
+    },
+    "quick_shot": {
+      "id": "quick_shot",
+      "name": "快速远程攻击",
+      "type": "damage",
+      "targetType": "single"
+    },
+    "shield_bash": {
+      "id": "shield_bash",
+      "name": "盾击",
+      "type": "control",
+      "targetType": "single",
+      "description": "用盾牌击打目标，造成伤害并有一定几率击晕"
+    },
+    "speed_boost": {
+      "id": "speed_boost",
+      "name": "加速",
+      "type": "buff",
+      "targetType": "single",
+      "description": "提升目标的移动速度"
+    },
+    "stun_shot": {
+      "id": "stun_shot",
+      "name": "眩晕射击",
+      "type": "control",
+      "targetType": "single"
+    }
+  }
+}
