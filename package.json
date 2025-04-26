@@ -11,7 +11,8 @@
     "test:logger": "ts-node test/Loggertest.ts",
     "skill:validate": "ts-node src/skill/validate.ts",
     "skill:index": "ts-node scripts/generate_skill_index.ts",
-    "skill:sync2doudou2": "ts-node scripts/sync_skill_core.ts"
+    "skill:sync2doudou2": "ts-node scripts/sync_skill_core.ts",
+    "test": "tsx test/battleTest.ts"
   },
   "dependencies": {
     "phaser": "^3.60.0",
@@ -27,6 +28,7 @@
     "glob": "^11.0.1",
     "minimatch": "^10.0.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5.8.3",
     "vite": "^5.0.10"
   }
