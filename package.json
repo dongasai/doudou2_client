@@ -12,16 +12,17 @@
     "skill:validate": "ts-node src/skill/validate.ts",
     "skill:index": "ts-node scripts/generate_skill_index.ts",
     "skill:sync2doudou2": "ts-node scripts/sync_skill_core.ts"
-
   },
   "dependencies": {
-    "phaser": "^3.60.0"
+    "phaser": "^3.60.0",
+    "seedrandom": "^3.0.5"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
     "@types/fs-extra": "^11.0.4",
     "@types/minimatch": "^5.1.2",
     "@types/node": "^20.17.30",
+    "@types/seedrandom": "^3.0.8",
     "fs-extra": "^11.3.0",
     "glob": "^11.0.1",
     "minimatch": "^10.0.1",
