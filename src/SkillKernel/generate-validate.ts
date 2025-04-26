@@ -1,4 +1,4 @@
-import { validateAllSkills } from './validator';
+import { validateAllSkills } from './generate-validator';
 
 console.log('开始验证技能配置...\n');
 
