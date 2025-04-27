@@ -1,0 +1,299 @@
+{
+  "timestamp": 1745770403479,
+  "duration": 19942,
+  "status": "completed",
+  "result": "defeat",
+  "stats": {
+    "beansSpawned": 19,
+    "beansDefeated": 2,
+    "damageDealt": 620,
+    "damageTaken": 1016
+  },
+  "commands": [
+    {
+      "timestamp": 1745770384541,
+      "command": {
+        "type": "castSkill",
+        "data": {
+          "heroId": 1,
+          "skillId": 1,
+          "targetId": 1
+        }
+      }
+    },
+    {
+      "timestamp": 1745770387552,
+      "command": {
+        "type": "castSkill",
+        "data": {
+          "heroId": 1,
+          "skillId": 2,
+          "targetPos": 1510.5977344641065
+        }
+      }
+    },
+    {
+      "timestamp": 1745770390558,
+      "command": {
+        "type": "castSkill",
+        "data": {
+          "heroId": 1,
+          "skillId": 1,
+          "targetId": 2
+        }
+      }
+    },
+    {
+      "timestamp": 1745770393660,
+      "command": {
+        "type": "castSkill",
+        "data": {
+          "heroId": 1,
+          "skillId": 1,
+          "targetId": 2
+        }
+      }
+    }
+  ],
+  "finalState": {
+    "frame": 199,
+    "time": 19942,
+    "status": "completed",
+    "result": "defeat",
+    "stats": {
+      "beansSpawned": 19,
+      "beansDefeated": 2,
+      "damageDealt": 620,
+      "damageTaken": 1016
+    },
+    "hero": {
+      "id": "hero_1",
+      "name": "烈焰法师",
+      "hp": 800,
+      "maxHp": 800,
+      "mp": 0,
+      "position": {
+        "x": 1500,
+        "y": 1500
+      },
+      "alive": true
+    },
+    "crystal": {
+      "id": "crystal_1",
+      "hp": 0,
+      "maxHp": 1000,
+      "alive": false
+    },
+    "beans": [
+      {
+        "id": "bean_1",
+        "type": "普通豆",
+        "hp": 0,
+        "maxHp": 200,
+        "position": {
+          "x": 1510.0384872628345,
+          "y": 1410.8131664791615
+        },
+        "alive": false
+      },
+      {
+        "id": "bean_2",
+        "type": "普通豆",
+        "hp": 0,
+        "maxHp": 200,
+        "position": {
+          "x": 1480.650783531428,
+          "y": 1454.4384172569446
+        },
+        "alive": false
+      },
+      {
+        "id": "bean_3",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1517.4554842989464,
+          "y": 1453.6264238182014
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_4",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1499.3029602734412,
+          "y": 1549.3950820995342
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_5",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1480.1641618343538,
+          "y": 1545.3518414650011
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_6",
+        "type": "毒豆",
+        "hp": 150,
+        "maxHp": 150,
+        "position": {
+          "x": 1442.979296455727,
+          "y": 1418.3616770914773
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_7",
+        "type": "毒豆",
+        "hp": 150,
+        "maxHp": 150,
+        "position": {
+          "x": 1449.8032514509146,
+          "y": 1414.0667885209666
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_8",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1485.866673027364,
+          "y": 1452.508405283833
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_9",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1450.3511514629297,
+          "y": 1499.6618595807718
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_10",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1549.051647177397,
+          "y": 1491.9983808398363
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_11",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1537.0800573478214,
+          "y": 1466.981946649111
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_12",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1467.4623484514902,
+          "y": 1537.50231635123
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_13",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1451.493873796929,
+          "y": 1489.640669868572
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_14",
+        "type": "毒豆",
+        "hp": 150,
+        "maxHp": 150,
+        "position": {
+          "x": 1493.080782451408,
+          "y": 1400.600533057187
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_15",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1475.56838405239,
+          "y": 1543.1654507932983
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_16",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1501.418704325462,
+          "y": 1549.629726757631
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_17",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1454.3857109214227,
+          "y": 1411.2903661835066
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_18",
+        "type": "毒豆",
+        "hp": 150,
+        "maxHp": 150,
+        "position": {
+          "x": 1609.5785152880483,
+          "y": 1430.388353077468
+        },
+        "alive": true
+      },
+      {
+        "id": "bean_19",
+        "type": "普通豆",
+        "hp": 200,
+        "maxHp": 200,
+        "position": {
+          "x": 1439.5031654176985,
+          "y": 1309.4740358756274
+        },
+        "alive": true
+      }
+    ]
+  }
+}

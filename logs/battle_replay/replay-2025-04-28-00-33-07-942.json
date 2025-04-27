@@ -1,0 +1,3215 @@
+{
+  "replayId": "replay_1745771567938",
+  "randomSeed": 12345,
+  "initParams": {
+    "crystal": {
+      "id": 1,
+      "name": "水晶",
+      "stats": {
+        "hp": 1000,
+        "attack": 0,
+        "defense": 50,
+        "speed": 0
+      }
+    },
+    "players": [
+      {
+        "id": "player1",
+        "name": "玩家1",
+        "hero": {
+          "id": 1,
+          "stats": {
+            "hp": 800,
+            "attack": 50,
+            "defense": 40,
+            "speed": 50,
+            "level": 1
+          },
+          "position": 1
+        }
+      }
+    ],
+    "level": {
+      "chapter": 1,
+      "stage": 1
+    }
+  },
+  "commands": [
+    {
+      "frame": 49,
+      "playerId": "player1",
+      "type": "castSkill",
+      "data": {
+        "heroId": 1,
+        "skillId": 1,
+        "targetId": 1
+      }
+    },
+    {
+      "frame": 99,
+      "playerId": "player1",
+      "type": "castSkill",
+      "data": {
+        "heroId": 1,
+        "skillId": 2,
+        "targetPos": 1600
+      }
+    },
+    {
+      "frame": 149,
+      "playerId": "player1",
+      "type": "castSkill",
+      "data": {
+        "heroId": 1,
+        "skillId": 1,
+        "targetId": 3
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "battleStart",
+      "data": {
+        "time": 1745771567940,
+        "params": {
+          "crystal": {
+            "id": 1,
+            "name": "水晶",
+            "stats": {
+              "hp": 1000,
+              "attack": 0,
+              "defense": 50,
+              "speed": 0
+            }
+          },
+          "players": [
+            {
+              "id": "player1",
+              "name": "玩家1",
+              "hero": {
+                "id": 1,
+                "stats": {
+                  "hp": 800,
+                  "attack": 50,
+                  "defense": 40,
+                  "speed": 50,
+                  "level": 1
+                },
+                "position": 1
+              }
+            }
+          ],
+          "level": {
+            "chapter": 1,
+            "stage": 1
+          }
+        },
+        "seed": 12345
+      },
+      "frame": 0,
+      "time": 0
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_1",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1451.3839537658976,
+          "y": 1508.7658455703856
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 40
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771584891,
+        "alive": true
+      },
+      "frame": 10,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_2",
+        "type": "bean",
+        "beanType": "毒豆",
+        "name": "毒豆",
+        "position": {
+          "x": 1437.5135613604284,
+          "y": 1577.6887056536723
+        },
+        "stats": {
+          "hp": 150,
+          "attack": 20,
+          "defense": 15,
+          "speed": 60,
+          "attackInterval": 2500,
+          "attackRange": 100,
+          "poisonDamage": 5,
+          "poisonDuration": 4000,
+          "currentHp": 150
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771584891,
+        "alive": true
+      },
+      "frame": 20,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_3",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1545.7939604793871,
+          "y": 1518.660538138339
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 0
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771582883,
+        "alive": false
+      },
+      "frame": 30,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_4",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1547.8233269265781,
+          "y": 1487.420973739058
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 60
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771585894,
+        "alive": true
+      },
+      "frame": 40,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_2",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1437.5135613604284,
+            "y": 1577.6887056536723
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 44,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_1",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1451.3839537658976,
+            "y": 1508.7658455703856
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 40
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 49,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_5",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1482.6459776359131,
+          "y": 1453.748536155202
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 200
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771584891,
+        "alive": true
+      },
+      "frame": 50,
+      "time": null
+    },
+    {
+      "type": "skillCast",
+      "data": {
+        "casterId": "hero_1",
+        "skillId": 1,
+        "skillName": "火球术",
+        "targets": [
+          "bean_1"
+        ]
+      },
+      "frame": 50,
+      "time": null
+    },
+    {
+      "type": "skillHit",
+      "data": {
+        "skillId": 1,
+        "casterId": "hero_1",
+        "targetId": "bean_1",
+        "damage": 160
+      },
+      "frame": 50,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_6",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1470.5315107381198,
+          "y": 1460.165208163935
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 200
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771585894,
+        "alive": true
+      },
+      "frame": 60,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_1",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1451.3839537658976,
+            "y": 1508.7658455703856
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 40
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 69,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_2",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1437.5135613604284,
+            "y": 1577.6887056536723
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 69,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_3",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1545.7939604793871,
+            "y": 1518.660538138339
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 0
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771582883,
+          "alive": false
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 69,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_7",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1474.0465216826785,
+          "y": 1542.1505274371827
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 200
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771584891,
+        "alive": true
+      },
+      "frame": 70,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_4",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1547.8233269265781,
+            "y": 1487.420973739058
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 60
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 79,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_8",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1462.4732798467242,
+          "y": 1532.3565723545885
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 200
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771585894,
+        "alive": true
+      },
+      "frame": 80,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_1",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1451.3839537658976,
+            "y": 1508.7658455703856
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 40
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 89,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_3",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1545.7939604793871,
+            "y": 1518.660538138339
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 0
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771582883,
+          "alive": false
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 89,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_5",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1482.6459776359131,
+            "y": 1453.748536155202
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 89,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_9",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1490.8518650154,
+          "y": 1451.250932046822
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 200
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771584891,
+        "alive": true
+      },
+      "frame": 90,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_2",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1437.5135613604284,
+            "y": 1577.6887056536723
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 94,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_4",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1547.8233269265781,
+            "y": 1487.420973739058
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 60
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 99,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_6",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1470.5315107381198,
+            "y": 1460.165208163935
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 99,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_10",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1519.2613935711029,
+          "y": 1545.4902046346162
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 60
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771585894,
+        "alive": true
+      },
+      "frame": 100,
+      "time": null
+    },
+    {
+      "type": "skillCast",
+      "data": {
+        "casterId": "hero_1",
+        "skillId": 2,
+        "skillName": "烈焰风暴",
+        "targets": [
+          "bean_3",
+          "bean_4",
+          "bean_10"
+        ]
+      },
+      "frame": 100,
+      "time": null
+    },
+    {
+      "type": "skillHit",
+      "data": {
+        "skillId": 2,
+        "casterId": "hero_1",
+        "targetId": "bean_3",
+        "damage": 140
+      },
+      "frame": 100,
+      "time": null
+    },
+    {
+      "type": "skillHit",
+      "data": {
+        "skillId": 2,
+        "casterId": "hero_1",
+        "targetId": "bean_4",
+        "damage": 140
+      },
+      "frame": 100,
+      "time": null
+    },
+    {
+      "type": "skillHit",
+      "data": {
+        "skillId": 2,
+        "casterId": "hero_1",
+        "targetId": "bean_10",
+        "damage": 140
+      },
+      "frame": 100,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_1",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1451.3839537658976,
+            "y": 1508.7658455703856
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 40
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 109,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_3",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1545.7939604793871,
+            "y": 1518.660538138339
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 0
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771582883,
+          "alive": false
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 109,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_5",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1482.6459776359131,
+            "y": 1453.748536155202
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 109,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_7",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1474.0465216826785,
+            "y": 1542.1505274371827
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 109,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_11",
+        "type": "bean",
+        "beanType": "毒豆",
+        "name": "毒豆",
+        "position": {
+          "x": 1535.8551316384498,
+          "y": 1407.099053098532
+        },
+        "stats": {
+          "hp": 150,
+          "attack": 20,
+          "defense": 15,
+          "speed": 60,
+          "attackInterval": 2500,
+          "attackRange": 100,
+          "poisonDamage": 5,
+          "poisonDuration": 4000,
+          "currentHp": 150
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771583887,
+        "alive": true
+      },
+      "frame": 110,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_2",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1437.5135613604284,
+            "y": 1577.6887056536723
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 119,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_4",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1547.8233269265781,
+            "y": 1487.420973739058
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 60
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 119,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_6",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1470.5315107381198,
+            "y": 1460.165208163935
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 119,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_8",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1462.4732798467242,
+            "y": 1532.3565723545885
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 119,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_12",
+        "type": "bean",
+        "beanType": "毒豆",
+        "name": "毒豆",
+        "position": {
+          "x": 1509.752720399845,
+          "y": 1599.040975584869
+        },
+        "stats": {
+          "hp": 150,
+          "attack": 20,
+          "defense": 15,
+          "speed": 60,
+          "attackInterval": 2500,
+          "attackRange": 100,
+          "poisonDamage": 5,
+          "poisonDuration": 4000,
+          "currentHp": 150
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771584891,
+        "alive": true
+      },
+      "frame": 120,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_1",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1451.3839537658976,
+            "y": 1508.7658455703856
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 40
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 129,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_3",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1545.7939604793871,
+            "y": 1518.660538138339
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 0
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771582883,
+          "alive": false
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 129,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_5",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1482.6459776359131,
+            "y": 1453.748536155202
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 129,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_7",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1474.0465216826785,
+            "y": 1542.1505274371827
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 129,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_9",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1490.8518650154,
+            "y": 1451.250932046822
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 129,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_13",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1451.9373850452766,
+          "y": 1510.749304336292
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 200
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771584891,
+        "alive": true
+      },
+      "frame": 130,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_11",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1535.8551316384498,
+            "y": 1407.099053098532
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771583887,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 134,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_4",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1547.8233269265781,
+            "y": 1487.420973739058
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 60
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 139,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_6",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1470.5315107381198,
+            "y": 1460.165208163935
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 139,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_8",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1462.4732798467242,
+            "y": 1532.3565723545885
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 139,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_10",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1519.2613935711029,
+            "y": 1545.4902046346162
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 60
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 139,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_14",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1532.1898047706904,
+          "y": 1537.4064027784696
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 200
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 1745771585894,
+        "alive": true
+      },
+      "frame": 140,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_2",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1437.5135613604284,
+            "y": 1577.6887056536723
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 144,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_12",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1509.752720399845,
+            "y": 1599.040975584869
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 144,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_1",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1451.3839537658976,
+            "y": 1508.7658455703856
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 40
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 149,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_3",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1545.7939604793871,
+            "y": 1518.660538138339
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 0
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771582883,
+          "alive": false
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 149,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_5",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1482.6459776359131,
+            "y": 1453.748536155202
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 149,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_7",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1474.0465216826785,
+            "y": 1542.1505274371827
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 149,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_9",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1490.8518650154,
+            "y": 1451.250932046822
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 149,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_15",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1596.9420906537828,
+          "y": 1477.8069028823465
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 200
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 0,
+        "alive": true
+      },
+      "frame": 150,
+      "time": null
+    },
+    {
+      "type": "skillCast",
+      "data": {
+        "casterId": "hero_1",
+        "skillId": 1,
+        "skillName": "火球术",
+        "targets": [
+          "bean_3"
+        ]
+      },
+      "frame": 150,
+      "time": null
+    },
+    {
+      "type": "skillHit",
+      "data": {
+        "skillId": 1,
+        "casterId": "hero_1",
+        "targetId": "bean_3",
+        "damage": 160
+      },
+      "frame": 150,
+      "time": null
+    },
+    {
+      "type": "entityDeath",
+      "data": {
+        "entity": {
+          "id": "bean_3",
+          "type": "普通豆"
+        },
+        "position": {
+          "x": 1545.7939604793871,
+          "y": 1518.660538138339
+        }
+      },
+      "frame": 150,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_4",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1547.8233269265781,
+            "y": 1487.420973739058
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 60
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 159,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_6",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1470.5315107381198,
+            "y": 1460.165208163935
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 159,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_8",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1462.4732798467242,
+            "y": 1532.3565723545885
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 159,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_10",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1519.2613935711029,
+            "y": 1545.4902046346162
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 60
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 159,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_11",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1535.8551316384498,
+            "y": 1407.099053098532
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771583887,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 159,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_16",
+        "type": "bean",
+        "beanType": "普通豆",
+        "name": "普通豆",
+        "position": {
+          "x": 1644.1260568604694,
+          "y": 1459.7159804158891
+        },
+        "stats": {
+          "hp": 200,
+          "attack": 30,
+          "defense": 20,
+          "speed": 50,
+          "attackInterval": 2000,
+          "attackRange": 50,
+          "currentHp": 200
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 0,
+        "alive": true
+      },
+      "frame": 160,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_1",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1451.3839537658976,
+            "y": 1508.7658455703856
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 40
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 169,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_2",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1437.5135613604284,
+            "y": 1577.6887056536723
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 169,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_5",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1482.6459776359131,
+            "y": 1453.748536155202
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 169,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_7",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1474.0465216826785,
+            "y": 1542.1505274371827
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 169,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_9",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1490.8518650154,
+            "y": 1451.250932046822
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 169,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_12",
+          "type": "bean",
+          "beanType": "毒豆",
+          "name": "毒豆",
+          "position": {
+            "x": 1509.752720399845,
+            "y": 1599.040975584869
+          },
+          "stats": {
+            "hp": 150,
+            "attack": 20,
+            "defense": 15,
+            "speed": 60,
+            "attackInterval": 2500,
+            "attackRange": 100,
+            "poisonDamage": 5,
+            "poisonDuration": 4000,
+            "currentHp": 150
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 13,
+        "type": "physical"
+      },
+      "frame": 169,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_13",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1451.9373850452766,
+            "y": 1510.749304336292
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771584891,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 169,
+      "time": null
+    },
+    {
+      "type": "beanSpawned",
+      "data": {
+        "id": "bean_17",
+        "type": "bean",
+        "beanType": "毒豆",
+        "name": "毒豆",
+        "position": {
+          "x": 1334.7010724815973,
+          "y": 1406.683886915142
+        },
+        "stats": {
+          "hp": 150,
+          "attack": 20,
+          "defense": 15,
+          "speed": 60,
+          "attackInterval": 2500,
+          "attackRange": 100,
+          "poisonDamage": 5,
+          "poisonDuration": 4000,
+          "currentHp": 150
+        },
+        "target": "crystal_1",
+        "lastAttackTime": 0,
+        "alive": true
+      },
+      "frame": 170,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_4",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1547.8233269265781,
+            "y": 1487.420973739058
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 60
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 179,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_6",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1470.5315107381198,
+            "y": 1460.165208163935
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 179,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_8",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1462.4732798467242,
+            "y": 1532.3565723545885
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 179,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_10",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1519.2613935711029,
+            "y": 1545.4902046346162
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 60
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 179,
+      "time": null
+    },
+    {
+      "type": "damageDealt",
+      "data": {
+        "source": {
+          "id": "bean_14",
+          "type": "bean",
+          "beanType": "普通豆",
+          "name": "普通豆",
+          "position": {
+            "x": 1532.1898047706904,
+            "y": 1537.4064027784696
+          },
+          "stats": {
+            "hp": 200,
+            "attack": 30,
+            "defense": 20,
+            "speed": 50,
+            "attackInterval": 2000,
+            "attackRange": 50,
+            "currentHp": 200
+          },
+          "target": "crystal_1",
+          "lastAttackTime": 1745771585894,
+          "alive": true
+        },
+        "target": {
+          "id": "crystal_1",
+          "type": "crystal",
+          "name": "水晶",
+          "position": {
+            "x": 1500,
+            "y": 1500
+          },
+          "stats": {
+            "hp": 1000,
+            "currentHp": 0,
+            "defense": 50
+          },
+          "alive": false
+        },
+        "damage": 20,
+        "type": "physical"
+      },
+      "frame": 179,
+      "time": null
+    },
+    {
+      "type": "battleEnd",
+      "data": {
+        "time": 1745771587942,
+        "result": "defeat",
+        "duration": 20002
+      },
+      "frame": 179,
+      "time": 20002
+    }
+  ],
+  "metadata": {
+    "recordTime": 1745771567938,
+    "battleDuration": 20002,
+    "chapter": 1,
+    "stage": 1,
+    "players": [
+      "player1"
+    ],
+    "version": "1.0.0"
+  }
+}

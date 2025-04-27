@@ -46,53 +46,53 @@ export class BattleManager {
   private skillManager: SkillManager;
   private waveManager: WaveManager;
   private randomManager: RandomManager;
-  
+
   // 战斗状态
   private state: BattleState = BattleState.IDLE;
   private result: BattleResult = BattleResult.NONE;
-  
+
   // 战斗配置
   private battleParams: BattleInitParams | null = null;
   private randomSeed: number = 0;
-  
+
   // 战斗数据
   private heroes: Map<string, Hero> = new Map();
   private crystal: Crystal | null = null;
   private beans: Map<string, Bean> = new Map();
-  
+
   // 回放数据
   private replayData: BattleReplayData | null = null;
   private isReplayMode: boolean = false;
-  
+
   // 战斗统计
   private battleStartTime: number = 0;
   private battleEndTime: number = 0;
   private totalDamageDealt: number = 0;
   private totalDamageTaken: number = 0;
   private totalEnemiesDefeated: number = 0;
-  
+
   /**
    * 构造函数
    */
   constructor() {
     // 创建事件管理器（需要先创建，因为其他管理器依赖它）
     this.eventManager = new EventManager(true);
-    
+
     // 创建随机数管理器
     this.randomSeed = Date.now();
     this.randomManager = new RandomManager(this.randomSeed);
-    
+
     // 创建帧管理器
     this.frameManager = new FrameManager();
     this.frameManager.setUpdateCallback(this.onFrameUpdate.bind(this));
     this.frameManager.setCommandProcessCallback(this.processCommands.bind(this));
-    
+
     // 创建实体管理器
     this.entityManager = new EntityManager();
-    
+
     // 创建伤害管理器
     this.damageManager = new DamageManager(this.randomManager, this.eventManager);
-    
+
     // 创建技能管理器
     this.skillManager = new SkillManager(
       this.entityManager,
@@ -100,17 +100,17 @@ export class BattleManager {
       this.damageManager,
       this.randomManager
     );
-    
+
     // 创建波次管理器
     this.waveManager = new WaveManager(
       this.randomManager,
       this.entityManager,
       this.eventManager
     );
-    
+
     // 注册事件监听
     this.registerEventListeners();
-    
+
     logger.info('战斗管理器初始化完成');
   }
 
@@ -124,10 +124,10 @@ export class BattleManager {
       logger.warn(`无法初始化战斗，当前状态: ${this.state}`);
       return;
     }
-    
+
     this.state = BattleState.INITIALIZING;
     this.battleParams = params;
-    
+
     // 设置随机种子
     if (seed !== undefined) {
       this.randomSeed = seed;
@@ -136,26 +136,26 @@ export class BattleManager {
       this.randomSeed = Date.now();
       this.randomManager.reset(this.randomSeed);
     }
-    
+
     logger.info(`初始化战斗，随机种子: ${this.randomSeed}`);
-    
+
     // 清空现有数据
     this.reset();
-    
+
     // 创建水晶
     this.createCrystal(params.crystal);
-    
+
     // 创建英雄
     for (const player of params.players) {
       this.createHero(player.hero.id, player.id, player.hero.stats, player.hero.position);
     }
-    
+
     // 加载关卡配置
     this.loadLevelConfig(params.level.chapter, params.level.stage);
-    
+
     // 初始化回放数据
     this.initReplayData();
-    
+
     this.state = BattleState.IDLE;
     logger.info('战斗初始化完成');
   }
@@ -168,19 +168,19 @@ export class BattleManager {
       logger.warn(`无法开始战斗，当前状态: ${this.state}`);
       return;
     }
-    
+
     this.state = BattleState.RUNNING;
     this.result = BattleResult.NONE;
     this.battleStartTime = Date.now();
-    
+
     // 启动帧管理器
     this.frameManager.start();
-    
+
     // 启动波次管理器
     this.waveManager.startBattle();
-    
+
     logger.info('战斗开始');
-    
+
     // 触发战斗开始事件
     this.eventManager.emit('battleStart', {
       time: this.battleStartTime,
@@ -196,12 +196,12 @@ export class BattleManager {
     if (this.state !== BattleState.RUNNING) {
       return;
     }
-    
+
     this.state = BattleState.PAUSED;
     this.frameManager.pause();
-    
+
     logger.info('战斗暂停');
-    
+
     // 触发战斗暂停事件
     this.eventManager.emit('battlePause', {
       time: Date.now()
@@ -215,12 +215,12 @@ export class BattleManager {
     if (this.state !== BattleState.PAUSED) {
       return;
     }
-    
+
     this.state = BattleState.RUNNING;
     this.frameManager.resume();
-    
+
     logger.info('战斗恢复');
-    
+
     // 触发战斗恢复事件
     this.eventManager.emit('battleResume', {
       time: Date.now()
@@ -234,16 +234,16 @@ export class BattleManager {
     if (this.state !== BattleState.RUNNING && this.state !== BattleState.PAUSED) {
       return;
     }
-    
+
     this.frameManager.stop();
     this.state = BattleState.COMPLETED;
     this.battleEndTime = Date.now();
-    
+
     // 完成回放数据
     this.finalizeReplayData();
-    
+
     logger.info('战斗停止');
-    
+
     // 触发战斗结束事件
     this.eventManager.emit('battleEnd', {
       time: this.battleEndTime,
@@ -260,25 +260,25 @@ export class BattleManager {
     // 停止帧管理器
     this.frameManager.stop();
     this.frameManager.reset();
-    
+
     // 清空实体
     this.entityManager.clearAllEntities();
-    
+
     // 清空效果
     this.skillManager.clearAllEffects();
-    
+
     // 重置数据
     this.heroes.clear();
     this.beans.clear();
     this.crystal = null;
-    
+
     // 重置状态
     this.state = BattleState.IDLE;
     this.result = BattleResult.NONE;
     this.totalDamageDealt = 0;
     this.totalDamageTaken = 0;
     this.totalEnemiesDefeated = 0;
-    
+
     logger.info('战斗重置');
   }
 
@@ -304,6 +304,13 @@ export class BattleManager {
   }
 
   /**
+   * 获取事件管理器
+   */
+  public getEventManager(): EventManager {
+    return this.eventManager;
+  }
+
+  /**
    * 加载回放
    * @param replayData 回放数据
    */
@@ -312,19 +319,19 @@ export class BattleManager {
       logger.warn(`无法加载回放，当前状态: ${this.state}`);
       return;
     }
-    
+
     this.isReplayMode = true;
     this.replayData = replayData;
-    
+
     // 初始化战斗
     this.initBattle(replayData.initParams, replayData.randomSeed);
-    
+
     // 加载所有指令
     this.frameManager.addCommands(replayData.commands);
-    
+
     // 设置模拟模式
     this.frameManager.setSimulationMode(true, 1.0);
-    
+
     logger.info('回放加载完成');
   }
 
@@ -336,7 +343,7 @@ export class BattleManager {
     if (!this.isReplayMode) {
       return;
     }
-    
+
     this.frameManager.setSimulationMode(true, speed);
   }
 
@@ -349,15 +356,15 @@ export class BattleManager {
       logger.warn(`无法发送指令，当前状态: ${this.state}`);
       return;
     }
-    
+
     // 设置指令帧号（如果未指定）
     if (command.frame <= this.frameManager.getCurrentLogicFrame()) {
       command.frame = this.frameManager.getCurrentLogicFrame() + 1;
     }
-    
+
     // 添加到帧管理器
     this.frameManager.addCommand(command);
-    
+
     logger.debug(`发送指令: 类型=${command.type}, 帧号=${command.frame}, 玩家=${command.playerId}`);
   }
 
@@ -368,7 +375,7 @@ export class BattleManager {
     const duration = this.battleEndTime > 0
       ? this.battleEndTime - this.battleStartTime
       : Date.now() - this.battleStartTime;
-    
+
     return {
       duration,
       totalDamageDealt: this.totalDamageDealt,
@@ -400,18 +407,18 @@ export class BattleManager {
    */
   private onFrameUpdate(frameType: FrameType, frameNumber: number, deltaTime: number): void {
     const currentTime = Date.now();
-    
+
     // 更新实体
     this.entityManager.updateAllEntities(deltaTime, frameNumber);
-    
+
     // 更新技能
     this.skillManager.update(deltaTime, currentTime);
-    
+
     // 更新波次
     if (frameType === FrameType.LOGIC) {
       this.waveManager.update(currentTime);
     }
-    
+
     // 检查胜负条件
     this.checkBattleResult();
   }
@@ -426,15 +433,15 @@ export class BattleManager {
         case 'castSkill':
           this.processCastSkillCommand(command as CastSkillCommand);
           break;
-          
+
         case 'learnSkill':
           this.processLearnSkillCommand(command as LearnSkillCommand);
           break;
-          
+
         case 'changePosition':
           this.processChangePositionCommand(command as ChangePositionCommand);
           break;
-          
+
         case 'useItem':
           this.processUseItemCommand(command as UseItemCommand);
           break;
@@ -448,7 +455,7 @@ export class BattleManager {
    */
   private processCastSkillCommand(command: CastSkillCommand): void {
     const { heroId, skillId, targetType, targetId, targetPos } = command.data;
-    
+
     // 查找英雄
     let hero: Hero | undefined;
     for (const h of this.heroes.values()) {
@@ -457,12 +464,12 @@ export class BattleManager {
         break;
       }
     }
-    
+
     if (!hero) {
       logger.warn(`施放技能失败: 找不到英雄 ${heroId}`);
       return;
     }
-    
+
     // 查找目标
     let target: Entity | undefined;
     if (targetId !== undefined) {
@@ -472,14 +479,14 @@ export class BattleManager {
         target = this.entityManager.getEntity(`hero_${targetId}`);
       }
     }
-    
+
     // 转换目标位置
     let position: Vector2D | undefined;
     if (targetPos !== undefined) {
       // 这里简化处理，实际应该根据游戏坐标系统转换
       position = { x: targetPos, y: targetPos };
     }
-    
+
     // 施放技能
     this.skillManager.castSkill(
       hero,
@@ -495,7 +502,7 @@ export class BattleManager {
    */
   private processLearnSkillCommand(command: LearnSkillCommand): void {
     const { heroId, skillId } = command.data;
-    
+
     // 查找英雄
     let hero: Hero | undefined;
     for (const h of this.heroes.values()) {
@@ -504,15 +511,15 @@ export class BattleManager {
         break;
       }
     }
-    
+
     if (!hero) {
       logger.warn(`学习技能失败: 找不到英雄 ${heroId}`);
       return;
     }
-    
+
     // 学习技能（简化处理）
     hero.learnSkill(skillId);
-    
+
     logger.debug(`英雄${heroId}学习技能${skillId}`);
   }
 
@@ -522,7 +529,7 @@ export class BattleManager {
    */
   private processChangePositionCommand(command: ChangePositionCommand): void {
     const { heroId, newPos } = command.data;
-    
+
     // 查找英雄
     let hero: Hero | undefined;
     for (const h of this.heroes.values()) {
@@ -531,15 +538,15 @@ export class BattleManager {
         break;
       }
     }
-    
+
     if (!hero) {
       logger.warn(`更换位置失败: 找不到英雄 ${heroId}`);
       return;
     }
-    
+
     // 更换位置（简化处理）
     hero.changePosition(newPos);
-    
+
     logger.debug(`英雄${heroId}更换位置到${newPos}`);
   }
 
@@ -549,7 +556,7 @@ export class BattleManager {
    */
   private processUseItemCommand(command: UseItemCommand): void {
     const { itemId, target } = command.data;
-    
+
     // 简化处理，实际应该有更复杂的道具系统
     logger.debug(`使用道具${itemId}，目标: ${target}`);
   }
@@ -570,15 +577,15 @@ export class BattleManager {
       },
       this.frameManager.getCurrentLogicFrame()
     );
-    
+
     // 添加到实体管理器
     this.entityManager.addEntity(this.crystal);
-    
+
     // 设置波次管理器的中心点
     this.waveManager.setCenterPosition({ x: 1500, y: 1500 });
-    
+
     logger.info(`创建水晶: HP=${crystalConfig.maxHp}`);
-    
+
     // 触发水晶创建事件
     this.eventManager.emit('crystalCreated', {
       id: this.crystal.getId(),
@@ -597,7 +604,7 @@ export class BattleManager {
   private createHero(heroId: number, playerId: string, stats: any, position: number): void {
     // 计算英雄位置（简化处理）
     const heroPosition = this.calculateHeroPosition(position);
-    
+
     // 创建英雄实体
     const hero = new Hero(
       `hero_${heroId}`,
@@ -614,15 +621,15 @@ export class BattleManager {
       playerId,
       heroId
     );
-    
+
     // 添加到实体管理器
     this.entityManager.addEntity(hero);
-    
+
     // 添加到英雄映射
     this.heroes.set(hero.getId(), hero);
-    
+
     logger.info(`创建英雄: ID=${heroId}, 玩家=${playerId}, 位置=${position}`);
-    
+
     // 触发英雄创建事件
     this.eventManager.emit('heroCreated', {
       id: hero.getId(),
@@ -643,10 +650,10 @@ export class BattleManager {
     const baseX = 1500;
     const baseY = 1500;
     const radius = 100;
-    
+
     // 计算角度（均匀分布在半圆上）
     const angle = Math.PI * (0.5 + (positionIndex - 1) / 4);
-    
+
     return {
       x: baseX + Math.cos(angle) * radius,
       y: baseY + Math.sin(angle) * radius
@@ -661,7 +668,7 @@ export class BattleManager {
   private loadLevelConfig(chapter: number, stage: number): void {
     // 简化处理，实际应该从配置文件加载
     logger.info(`加载关卡配置: 章节=${chapter}, 关卡=${stage}`);
-    
+
     // 设置波次配置（示例）
     this.waveManager.setWaves([
       {
@@ -712,17 +719,17 @@ export class BattleManager {
     if (this.result !== BattleResult.NONE) {
       return;
     }
-    
+
     // 检查失败条件：水晶被摧毁
     if (this.crystal && !this.crystal.isAlive()) {
       this.result = BattleResult.DEFEAT;
       this.endBattle();
       return;
     }
-    
+
     // 检查胜利条件：所有波次完成
     const waveInfo = this.waveManager.getCurrentWaveInfo();
-    if (waveInfo.index === this.waveManager.getTotalWaves() - 1 && 
+    if (waveInfo.index === this.waveManager.getTotalWaves() - 1 &&
         waveInfo.status === 'completed') {
       this.result = BattleResult.VICTORY;
       this.endBattle();
@@ -735,9 +742,9 @@ export class BattleManager {
    */
   private endBattle(): void {
     this.stopBattle();
-    
+
     logger.info(`战斗结束，结果: ${this.result}`);
-    
+
     // 触发游戏结束事件
     this.eventManager.emit('gameOver', {
       result: this.result,
@@ -754,7 +761,7 @@ export class BattleManager {
     if (!this.battleParams) {
       return;
     }
-    
+
     this.replayData = {
       replayId: `replay_${Date.now()}`,
       randomSeed: this.randomSeed,
@@ -776,13 +783,13 @@ export class BattleManager {
     if (!this.replayData) {
       return;
     }
-    
+
     // 更新指令列表
     this.replayData.commands = this.frameManager.getProcessedCommands();
-    
+
     // 更新元数据
     this.replayData.metadata.battleDuration = this.battleEndTime - this.battleStartTime;
-    
+
     logger.debug(`回放数据完成，指令数: ${this.replayData.commands.length}`);
   }
 
@@ -796,13 +803,13 @@ export class BattleManager {
         // 英雄造成伤害
         this.totalDamageDealt += event.actualAmount;
       }
-      
+
       if (event.target && this.heroes.has(event.target.getId())) {
         // 英雄受到伤害
         this.totalDamageTaken += event.actualAmount;
       }
     });
-    
+
     // 监听实体死亡事件
     this.eventManager.on('entityDeath', (event) => {
       if (event.entity.getType() === EntityType.BEAN) {
