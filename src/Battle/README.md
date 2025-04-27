@@ -145,18 +145,91 @@ const battleStats = battleEngine.getBattleStats();
 
 ### 回放功能
 
+#### 记录和保存回放
+
 ```typescript
 // 获取回放数据
 const replayData = battleEngine.getReplayData();
 
-// 加载回放
+// 保存回放数据到文件
+// 文件保存在logs/battle_replay/目录下，文件名格式为replay-年-月-日-时-分-秒-毫秒.json[.gz]
+battleEngine.saveReplayToFile();
+
+// 自定义文件名和目录
+battleEngine.saveReplayToFile('my-replay.json', 'custom/directory/');
+
+// 保存压缩的回放文件
+battleEngine.saveReplayToFile(undefined, undefined, true); // 默认就是压缩的
+```
+
+#### 加载和播放回放
+
+```typescript
+// 加载回放数据
 battleEngine.loadReplay(replayData);
+
+// 从文件加载回放
+battleEngine.loadReplayFromFile('logs/battle_replay/replay-2023-01-01-12-00-00-000.json');
+
+// 获取回放文件列表
+const replayFiles = battleEngine.getReplayFileList();
 
 // 设置回放速度（2倍速）
 battleEngine.setReplaySpeed(2.0);
 
 // 开始回放
-battleEngine.startBattle();
+battleEngine.startReplay();
+
+// 暂停回放
+battleEngine.pauseReplay();
+
+// 恢复回放
+battleEngine.resumeReplay();
+
+// 停止回放
+battleEngine.stopReplay();
+
+// 跳转到指定时间（毫秒）
+battleEngine.seekToTime(10000);
+
+// 跳转到指定帧
+battleEngine.seekToFrame(100);
+```
+
+#### 监听回放事件
+
+```typescript
+import { ReplayEventType } from './Battle/Events/ReplayEvents';
+
+// 获取事件管理器
+const eventManager = battleEngine.getEventManager();
+
+// 监听回放状态变化
+eventManager.on(ReplayEventType.STATE_CHANGED, (data) => {
+  console.log(`回放状态变化: ${data.state}`);
+});
+
+// 监听回放时间更新
+eventManager.on(ReplayEventType.TIME_UPDATED, (data) => {
+  console.log(`回放时间更新: ${data.currentTime}ms / ${data.totalDuration}ms`);
+  console.log(`进度: ${data.progress}%`);
+});
+
+// 监听回放事件触发
+eventManager.on(ReplayEventType.EVENT_TRIGGERED, (data) => {
+  console.log(`回放事件触发: ${data.event.type}, 时间: ${data.time}ms`);
+});
+
+// 监听回放加载完成
+eventManager.on(ReplayEventType.REPLAY_LOADED, (data) => {
+  console.log(`回放加载完成: ${data.replayData.replayId}`);
+  console.log(`总时长: ${data.totalDuration}ms`);
+});
+
+// 监听回放完成
+eventManager.on(ReplayEventType.REPLAY_COMPLETED, (data) => {
+  console.log(`回放完成, 结果: ${data.result}`);
+});
 ```
 
 ## 无界面调试
@@ -200,6 +273,7 @@ logger.saveLogsToFile();
   - `WaveManager.ts` - 波次管理器
   - `EventManager.ts` - 事件管理器
   - `RandomManager.ts` - 随机数管理器
+  - `ReplayManager.ts` - 回放管理器
   - `Logger.ts` - 日志系统
 
 - `Entities/` - 实体类
@@ -211,5 +285,11 @@ logger.saveLogsToFile();
 - `Types/` - 类型定义
   - `Vector2D.ts` - 二维向量
 
+- `Events/` - 事件定义
+  - `ReplayEvents.ts` - 回放事件定义
+
 - `Test/` - 测试脚本
   - `BattleTest.ts` - 战斗引擎测试脚本
+  - `FullReplayTest.js` - 完整回放测试
+  - `LoadReplayTest.js` - 回放加载测试
+  - `SaveReplayTest.js` - 回放保存测试

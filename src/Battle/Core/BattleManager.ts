@@ -8,7 +8,7 @@ import { FrameManager, FrameType } from './FrameManager';
 import { EntityManager } from './EntityManager';
 import { EventManager } from './EventManager';
 import { DamageManager } from './DamageManager';
-import { SkillManager } from './SkillManager';
+import { SkillManager } from './SkillManager'; // 使用兼容层
 import { WaveManager } from './WaveManager';
 import { RandomManager } from './RandomManager';
 import { BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '../../DesignConfig/types/BattleCommand';
