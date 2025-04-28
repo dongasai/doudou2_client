@@ -3,12 +3,12 @@
  * 作为战斗系统的入口，整合所有子系统
  */
 
-import { logger, LogLevel } from './Logger';
-import { BattleManager, BattleState, BattleResult } from './BattleManager';
-import { ReplayManager } from './ReplayManager';
-import { BattleCommand } from '../../DesignConfig/types/BattleCommand';
-import { BattleInitParams } from '../../DesignConfig/types/BattleInitParams';
-import { BattleReplayData, ReplayEvent, ReplayState } from '../../DesignConfig/types/BattleReplay';
+import { logger, LogLevel } from '@/Battle/Core/Logger';
+import { BattleManager, BattleState, BattleResult } from '@/Battle/Core/BattleManager';
+import { ReplayManager } from '@/Battle/Core/ReplayManager';
+import { BattleCommand } from '@/DesignConfig/types/BattleCommand';
+import { BattleInitParams } from '@/DesignConfig/types/BattleInitParams';
+import { BattleReplayData, ReplayEvent, ReplayState } from '@/DesignConfig/types/BattleReplay';
 
 export class BattleEngine {
   private battleManager: BattleManager;
@@ -20,20 +20,58 @@ export class BattleEngine {
    * 构造函数
    */
   constructor() {
-    // 初始化日志系统
-    logger.setLogLevel(LogLevel.INFO);
-    logger.setConsoleOutput(true);
+    console.log('[DEBUG] BattleEngine 构造函数开始');
 
-    // 创建战斗管理器
-    this.battleManager = new BattleManager();
+    try {
+      // 初始化日志系统
+      logger.setLogLevel(LogLevel.DEBUG); // 将日志级别设置为DEBUG以获取更多信息
+      logger.setConsoleOutput(true);
+      console.log('[DEBUG] 日志系统初始化完成');
 
-    // 创建回放管理器
-    this.replayManager = new ReplayManager(this.battleManager.getEventManager());
+      // 创建战斗管理器
+      console.log('[DEBUG] 创建BattleManager...');
+      this.battleManager = new BattleManager();
+      console.log('[DEBUG] BattleManager创建成功:', this.battleManager);
 
-    // 设置回放事件回调
-    this.replayManager.setEventCallback(this.onReplayEvent.bind(this));
+      // 创建回放管理器
+      console.log('[DEBUG] 创建ReplayManager...');
+      this.replayManager = new ReplayManager(this.battleManager.getEventManager());
+      console.log('[DEBUG] ReplayManager创建成功:', this.replayManager);
 
-    logger.info('战斗引擎初始化完成');
+      // 设置回放事件回调
+      this.replayManager.setEventCallback(this.onReplayEvent.bind(this));
+
+      logger.info('战斗引擎初始化完成');
+      console.log('[DEBUG] BattleEngine 构造函数完成');
+    } catch (error) {
+      console.error('[ERROR] BattleEngine 构造函数出错:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取事件管理器
+   * @returns 事件管理器
+   */
+  public getEventManager() {
+    return this.battleManager.getEventManager();
+  }
+
+  /**
+   * 获取战斗状态
+   * @returns 战斗状态
+   */
+  public getState(): BattleState {
+    console.log('[DEBUG] BattleEngine.getState 被调用');
+    try {
+      const state = this.battleManager.getState();
+      console.log('[DEBUG] 当前战斗状态:', state);
+      return state;
+    } catch (error) {
+      console.error('[ERROR] 获取战斗状态失败:', error);
+      // 如果出错，返回一个默认状态
+      return BattleState.RUNNING;
+    }
   }
 
   /**
@@ -43,33 +81,60 @@ export class BattleEngine {
    * @param recordReplay 是否记录回放（默认为true）
    */
   public initBattle(params: BattleInitParams, seed?: number, recordReplay: boolean = true): void {
-    // 获取随机种子（如果未提供）
-    const actualSeed = seed !== undefined ? seed : Date.now();
+    console.log('[DEBUG] BattleEngine.initBattle 开始，参数:', { params, seed, recordReplay });
 
-    // 初始化战斗管理器
-    this.battleManager.initBattle(params, actualSeed);
-    this.initialized = true;
-    this.isReplayMode = false;
+    try {
+      // 获取随机种子（如果未提供）
+      const actualSeed = seed !== undefined ? seed : Date.now();
+      console.log('[DEBUG] 使用随机种子:', actualSeed);
 
-    // 如果需要记录回放，初始化回放管理器
-    if (recordReplay) {
-      this.replayManager.startRecording(params, actualSeed);
+      // 初始化战斗管理器
+      console.log('[DEBUG] 调用 battleManager.initBattle...');
+      this.battleManager.initBattle(params, actualSeed);
+      console.log('[DEBUG] battleManager.initBattle 调用成功');
+
+      this.initialized = true;
+      this.isReplayMode = false;
+
+      // 如果需要记录回放，初始化回放管理器
+      if (recordReplay) {
+        console.log('[DEBUG] 调用 replayManager.startRecording...');
+        this.replayManager.startRecording(params, actualSeed);
+        console.log('[DEBUG] replayManager.startRecording 调用成功');
+      }
+
+      logger.info(`战斗初始化完成，随机种子: ${actualSeed}, 记录回放: ${recordReplay}`);
+      console.log('[DEBUG] BattleEngine.initBattle 完成');
+    } catch (error) {
+      console.error('[ERROR] BattleEngine.initBattle 出错:', error);
+      throw error;
     }
-
-    logger.info(`战斗初始化完成，随机种子: ${actualSeed}, 记录回放: ${recordReplay}`);
   }
 
   /**
    * 开始战斗
    */
   public startBattle(): void {
-    if (!this.initialized) {
-      logger.error('无法开始战斗，尚未初始化');
-      return;
-    }
+    console.log('[DEBUG] BattleEngine.startBattle 开始');
 
-    this.battleManager.startBattle();
-    logger.info('战斗开始');
+    try {
+      if (!this.initialized) {
+        const errorMsg = '无法开始战斗，尚未初始化';
+        logger.error(errorMsg);
+        console.error('[ERROR] ' + errorMsg);
+        return;
+      }
+
+      console.log('[DEBUG] 调用 battleManager.startBattle...');
+      this.battleManager.startBattle();
+      console.log('[DEBUG] battleManager.startBattle 调用成功');
+
+      logger.info('战斗开始');
+      console.log('[DEBUG] BattleEngine.startBattle 完成');
+    } catch (error) {
+      console.error('[ERROR] BattleEngine.startBattle 出错:', error);
+      throw error;
+    }
   }
 
   /**

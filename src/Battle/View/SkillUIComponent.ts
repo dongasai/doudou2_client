@@ -4,7 +4,7 @@
  */
 
 import Phaser from 'phaser';
-import { getSkillVisualConfig, SkillUIConfig } from './SkillVisualConfig';
+import { getSkillVisualConfig, SkillUIConfig } from '@/Battle/View/SkillVisualConfig';
 
 export class SkillUIComponent {
   private scene: Phaser.Scene;
@@ -47,14 +47,17 @@ export class SkillUIComponent {
     // 创建容器
     this.container = scene.add.container(x, y);
 
+    // 计算按钮大小（根据屏幕宽度调整）
+    const buttonSize = Math.min(35, scene.cameras.main.width / 12);
+
     // 创建背景（使用圆形图形）
-    this.background = scene.add.circle(0, 0, 30, 0x333333, 0.8);
+    this.background = scene.add.circle(0, 0, buttonSize, 0x333333, 0.8);
     this.background.setStrokeStyle(2, 0xffffff);
     this.container.add(this.background);
 
     // 创建图标（使用Emoji文本）
     this.icon = scene.add.text(0, 0, this.uiConfig.emoji, {
-      fontSize: '32px',
+      fontSize: `${Math.floor(buttonSize * 1.1)}px`,
       fontFamily: 'Arial, sans-serif'
     });
     this.icon.setOrigin(0.5);
@@ -64,9 +67,12 @@ export class SkillUIComponent {
     this.cooldownOverlay = scene.add.graphics();
     this.container.add(this.cooldownOverlay);
 
+    // 获取按钮大小
+    const buttonRadius = (this.background as Phaser.GameObjects.Arc).radius;
+
     // 创建冷却文本
     this.cooldownText = scene.add.text(0, 0, '', {
-      fontSize: '24px',
+      fontSize: `${Math.floor(buttonRadius * 0.8)}px`,
       color: '#ffffff',
       stroke: '#000000',
       strokeThickness: 3
@@ -76,8 +82,8 @@ export class SkillUIComponent {
     this.container.add(this.cooldownText);
 
     // 创建消耗文本
-    this.costText = scene.add.text(15, 15, this.uiConfig.cost.toString(), {
-      fontSize: '16px',
+    this.costText = scene.add.text(buttonRadius / 2, buttonRadius / 2, this.uiConfig.cost.toString(), {
+      fontSize: `${Math.floor(buttonRadius * 0.5)}px`,
       color: '#00ffff',
       stroke: '#000000',
       strokeThickness: 2
@@ -100,13 +106,19 @@ export class SkillUIComponent {
    * 创建提示框
    */
   private createTooltip(): void {
+    // 获取按钮大小
+    const buttonRadius = (this.background as Phaser.GameObjects.Arc).radius;
+
     // 创建提示框容器
-    this.tooltip = this.scene.add.container(0, -80);
+    this.tooltip = this.scene.add.container(0, -buttonRadius * 3);
     this.tooltip.setVisible(false);
     this.container.add(this.tooltip);
 
+    // 计算提示框宽度（根据屏幕宽度调整）
+    const tooltipWidth = Math.min(220, this.scene.cameras.main.width / 2);
+
     // 创建背景
-    const tooltipBg = this.scene.add.rectangle(0, 0, 200, 100, 0x000000, 0.8);
+    const tooltipBg = this.scene.add.rectangle(0, 0, tooltipWidth, 110, 0x000000, 0.8);
     tooltipBg.setStrokeStyle(2, 0xffffff);
     this.tooltip.add(tooltipBg);
 
@@ -123,7 +135,7 @@ export class SkillUIComponent {
     const description = this.scene.add.text(0, 0, this.uiConfig.description, {
       fontSize: '14px',
       color: '#cccccc',
-      wordWrap: { width: 180 }
+      wordWrap: { width: tooltipWidth - 20 }
     });
     description.setOrigin(0.5);
     this.tooltip.add(description);
@@ -179,7 +191,12 @@ export class SkillUIComponent {
   private applyCustomStyle(): void {
     // 设置边框颜色
     if (this.uiConfig.borderColor) {
-      this.background.setTint(Phaser.Display.Color.HexStringToColor(this.uiConfig.borderColor).color);
+      // Arc对象没有setTint方法，我们需要使用setStrokeStyle来设置边框颜色
+      const color = Phaser.Display.Color.HexStringToColor(this.uiConfig.borderColor).color;
+      this.background.setStrokeStyle(2, color);
+
+      // 同时也可以设置填充颜色
+      this.background.fillColor = color;
     }
 
     // 设置图标颜色
@@ -215,12 +232,15 @@ export class SkillUIComponent {
     // 计算冷却比例
     const ratio = this.currentCooldown / this.maxCooldown;
 
+    // 获取按钮大小
+    const buttonRadius = (this.background as Phaser.GameObjects.Arc).radius;
+
     // 更新冷却遮罩
     this.cooldownOverlay.clear();
     this.cooldownOverlay.fillStyle(0x000000, 0.7);
     this.cooldownOverlay.beginPath();
     this.cooldownOverlay.moveTo(0, 0);
-    this.cooldownOverlay.arc(0, 0, 30, 0, Math.PI * 2 * ratio);
+    this.cooldownOverlay.arc(0, 0, buttonRadius, 0, Math.PI * 2 * ratio);
     this.cooldownOverlay.lineTo(0, 0);
     this.cooldownOverlay.closePath();
     this.cooldownOverlay.fillPath();
