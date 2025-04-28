@@ -62,10 +62,9 @@ export class BattleEngine {
    * @returns 战斗状态
    */
   public getState(): BattleState {
-    console.log('[DEBUG] BattleEngine.getState 被调用');
+    // 移除频繁的调试日志输出
     try {
       const state = this.battleManager.getState();
-      console.log('[DEBUG] 当前战斗状态:', state);
       return state;
     } catch (error) {
       console.error('[ERROR] 获取战斗状态失败:', error);

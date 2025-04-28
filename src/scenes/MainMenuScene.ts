@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { gameState } from '@/main';
+import { BattleParamsService } from '@/services/BattleParamsService';
 
 /**
  * 主菜单场景
@@ -9,6 +10,7 @@ export class MainMenuScene extends Phaser.Scene {
   // UI元素
   private title: Phaser.GameObjects.Text;
   private startButton: Phaser.GameObjects.Text;
+  private quickStartButton: Phaser.GameObjects.Text;
   private settingsButton: Phaser.GameObjects.Text;
   private creditsButton: Phaser.GameObjects.Text;
 
@@ -172,8 +174,19 @@ export class MainMenuScene extends Phaser.Scene {
     this.startButton.on('pointerover', () => this.startButton.setTint(0xffff00));
     this.startButton.on('pointerout', () => this.startButton.clearTint());
 
+    // 快速开始按钮（第一关，1号英雄）
+    this.quickStartButton = this.add.text(centerX, 420, '快速开始 ⚡', {
+      ...buttonStyle,
+      backgroundColor: '#4a7a4a', // 绿色背景，区别于其他按钮
+    });
+    this.quickStartButton.setOrigin(0.5);
+    this.quickStartButton.setInteractive({ useHandCursor: true });
+    this.quickStartButton.on('pointerdown', this.onQuickStartButtonClick, this);
+    this.quickStartButton.on('pointerover', () => this.quickStartButton.setTint(0xffff00));
+    this.quickStartButton.on('pointerout', () => this.quickStartButton.clearTint());
+
     // 设置按钮
-    this.settingsButton = this.add.text(centerX, 450, '设置 ⚙️', buttonStyle);
+    this.settingsButton = this.add.text(centerX, 490, '设置 ⚙️', buttonStyle);
     this.settingsButton.setOrigin(0.5);
     this.settingsButton.setInteractive({ useHandCursor: true });
     this.settingsButton.on('pointerdown', this.onSettingsButtonClick, this);
@@ -181,7 +194,7 @@ export class MainMenuScene extends Phaser.Scene {
     this.settingsButton.on('pointerout', () => this.settingsButton.clearTint());
 
     // 制作人员按钮
-    this.creditsButton = this.add.text(centerX, 550, '制作人员 👥', buttonStyle);
+    this.creditsButton = this.add.text(centerX, 560, '制作人员 👥', buttonStyle);
     this.creditsButton.setOrigin(0.5);
     this.creditsButton.setInteractive({ useHandCursor: true });
     this.creditsButton.on('pointerdown', this.onCreditsButtonClick, this);
@@ -212,6 +225,31 @@ export class MainMenuScene extends Phaser.Scene {
     // 切换到关卡选择场景
     this.scene.start('LevelSelectScene');
   }
+
+  /**
+   * 快速开始按钮点击事件（直接选择第一关和1号英雄）
+   */
+  private onQuickStartButtonClick(): void {
+    // 重置游戏状态
+    gameState.resetState();
+
+    // 设置选中的关卡ID（第一关）
+    gameState.selectedLevel = { id: 'level-1-1' };
+
+    // 设置选中的英雄（1号英雄）
+    gameState.selectedHeroes = [1];
+
+    // 准备战斗参数
+    const battleParams = BattleParamsService.prepareBattleParams();
+
+    // 切换到战斗场景
+    this.scene.start('BattleScene', {
+      battleParams: battleParams,
+      seed: Date.now() // 使用当前时间作为随机种子
+    });
+  }
+
+
 
   /**
    * 设置按钮点击事件

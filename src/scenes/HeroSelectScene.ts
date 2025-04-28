@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { gameState } from '@/main';
 import { BattleInitParams } from '@/DesignConfig/types/BattleInitParams';
+import { BattleParamsService } from '@/services/BattleParamsService';
 
 /**
  * 英雄选择场景
@@ -491,7 +492,7 @@ export class HeroSelectScene extends Phaser.Scene {
     gameState.selectedHeroes = this.selectedHeroes;
 
     // 准备战斗参数
-    const battleParams: BattleInitParams = this.prepareBattleParams();
+    const battleParams: BattleInitParams = BattleParamsService.prepareBattleParams();
 
     // 切换到战斗场景
     this.scene.start('BattleScene', {
@@ -500,71 +501,7 @@ export class HeroSelectScene extends Phaser.Scene {
     });
   }
 
-  /**
-   * 准备战斗参数
-   */
-  private prepareBattleParams(): BattleInitParams {
-    // 获取选中的关卡
-    const level = gameState.selectedLevel;
 
-    // 创建玩家数组
-    const players = this.selectedHeroes.map((heroId, index) => {
-      const hero = this.heroes.find(h => h.id === heroId);
-      if (!hero) {
-        throw new Error(`找不到英雄: ${heroId}`);
-      }
-
-      return {
-        id: `player${index + 1}`,
-        name: `玩家${index + 1}`,
-        hero: {
-          id: heroId,
-          stats: {
-            hp: hero.stats.hp,
-            mp: hero.stats.magicAttack || 100, // 使用魔法攻击作为MP，或默认值
-            attack: hero.stats.attack,
-            defense: hero.stats.defense,
-            magicAttack: hero.stats.magicAttack || 0,
-            magicDefense: hero.stats.magicDefense || 0,
-            speed: hero.stats.speed || 50, // 添加速度属性
-            level: 1,
-            exp: 0,
-            gold: 0,
-            equippedItems: [],
-            learnedSkills: hero.skills.map(s => s.id)
-          },
-          position: index + 1 // 位置从1开始
-        }
-      };
-    });
-
-    // 创建战斗参数
-    return {
-      crystal: {
-        id: 1,
-        name: '水晶',
-        stats: {
-          hp: level.crystal.maxHp,
-          mp: 0,
-          attack: 0,
-          defense: 100,
-          magicAttack: 0,
-          magicDefense: 100,
-          speed: 0,
-          currentHP: level.crystal.maxHp,
-          maxHP: level.crystal.maxHp
-        },
-        status: 'normal',
-        positionIndex: 0,
-        defenseBonus: 0
-      },
-      players: players,
-      level: {
-        chapter: 1,
-        stage: parseInt(level.id.split('-')[2])
-      }
-    };
-  }
 
   /**
    * 更新开始按钮
