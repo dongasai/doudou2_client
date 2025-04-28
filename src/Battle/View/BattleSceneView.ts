@@ -35,7 +35,9 @@ export class BattleSceneView {
   // UI元素
   private statusBar: Phaser.GameObjects.Container;
   private waveIndicator: Phaser.GameObjects.Text;
+  private pauseButton: Phaser.GameObjects.Text;
   private skillButtonsContainer: Phaser.GameObjects.Container;
+  private isPaused: boolean = false;
 
   // 伤害数字组
   private damageTexts: Phaser.GameObjects.Group;
@@ -117,6 +119,11 @@ export class BattleSceneView {
       console.log('[DEBUG] 调用 createWaveIndicator...');
       this.createWaveIndicator();
       console.log('[DEBUG] createWaveIndicator 调用成功');
+
+      // 创建暂停/继续按钮 (位于屏幕右上角，波次指示器下方)
+      console.log('[DEBUG] 调用 createPauseButton...');
+      this.createPauseButton();
+      console.log('[DEBUG] createPauseButton 调用成功');
 
       // 创建技能按钮 (位于屏幕底部中央)
       console.log('[DEBUG] 调用 createSkillButtons...');
@@ -253,6 +260,92 @@ export class BattleSceneView {
     this.waveIndicator.setOrigin(1, 0); // 设置原点为右上角，使文本右对齐
 
     console.log(`[DEBUG] 创建波次指示器: 屏幕宽度=${screenWidth}, 字体大小=${fontSize}`);
+  }
+
+  /**
+   * 创建暂停/继续按钮
+   *
+   * 位置：屏幕右上角，波次指示器下方
+   * 样式：文本按钮，带背景色
+   * 功能：点击切换暂停/继续状态
+   */
+  private createPauseButton(): void {
+    // 获取屏幕尺寸
+    const screenWidth = this.scene.cameras.main.width;
+
+    // 计算按钮位置 (右上角，波次指示器下方)
+    const x = screenWidth - 20; // 距离右边缘20像素
+    const y = 80; // 波次指示器下方
+
+    // 创建暂停按钮
+    this.pauseButton = this.scene.add.text(
+      x,
+      y,
+      '⏸️ 暂停',
+      {
+        fontSize: '20px',
+        color: '#ffffff',
+        backgroundColor: '#4a668d',
+        padding: {
+          left: 10,
+          right: 10,
+          top: 5,
+          bottom: 5
+        }
+      }
+    );
+
+    // 设置原点为右上角，使按钮右对齐
+    this.pauseButton.setOrigin(1, 0);
+
+    // 设置为交互式
+    this.pauseButton.setInteractive();
+
+    // 添加点击效果
+    this.pauseButton.on('pointerover', () => {
+      this.pauseButton.setStyle({ backgroundColor: '#5a769d' });
+    });
+
+    this.pauseButton.on('pointerout', () => {
+      this.pauseButton.setStyle({ backgroundColor: '#4a668d' });
+    });
+
+    // 点击暂停/继续按钮
+    this.pauseButton.on('pointerdown', () => {
+      this.togglePause();
+    });
+
+    console.log(`[DEBUG] 创建暂停按钮: 位置=(${x}, ${y})`);
+  }
+
+  /**
+   * 切换暂停/继续状态
+   */
+  private togglePause(): void {
+    try {
+      // 切换暂停状态
+      this.isPaused = !this.isPaused;
+
+      if (this.isPaused) {
+        // 暂停游戏
+        this.battleEngine.pause();
+
+        // 更新按钮文本
+        this.pauseButton.setText('▶️ 继续');
+
+        console.log('[DEBUG] 游戏已暂停');
+      } else {
+        // 继续游戏
+        this.battleEngine.resume();
+
+        // 更新按钮文本
+        this.pauseButton.setText('⏸️ 暂停');
+
+        console.log('[DEBUG] 游戏已继续');
+      }
+    } catch (error) {
+      console.error('[ERROR] 切换暂停状态失败:', error);
+    }
   }
 
   /**
