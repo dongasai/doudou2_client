@@ -65,7 +65,14 @@ export class BattleScene extends Phaser.Scene {
    * 预加载资源
    */
   preload(): void {
-    // 不需要加载图片资源，使用Emoji和Phaser图形API
+    // 创建白色粒子纹理
+    const graphics = this.add.graphics();
+    graphics.fillStyle(0xffffff);
+    graphics.fillCircle(4, 4, 4);
+    graphics.generateTexture('white', 8, 8);
+    graphics.destroy();
+
+    console.log('预加载资源完成');
   }
 
   /**

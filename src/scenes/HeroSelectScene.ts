@@ -482,23 +482,54 @@ export class HeroSelectScene extends Phaser.Scene {
   /**
    * 开始战斗按钮点击事件
    */
-  private onStartButtonClick(): void {
+  private async onStartButtonClick(): Promise<void> {
     if (this.selectedHeroes.length === 0) {
       this.showToast('请至少选择一名英雄');
       return;
     }
 
-    // 保存选中的英雄
-    gameState.selectedHeroes = this.selectedHeroes;
+    // 显示加载提示
+    const loadingText = this.add.text(
+      this.cameras.main.width / 2,
+      this.cameras.main.height / 2,
+      '加载中...',
+      {
+        fontSize: '24px',
+        color: '#ffffff',
+        backgroundColor: '#000000',
+        padding: {
+          left: 20,
+          right: 20,
+          top: 10,
+          bottom: 10
+        }
+      }
+    );
+    loadingText.setOrigin(0.5);
 
-    // 准备战斗参数
-    const battleParams: BattleInitParams = BattleParamsService.prepareBattleParams();
+    try {
+      // 保存选中的英雄
+      gameState.selectedHeroes = this.selectedHeroes;
 
-    // 切换到战斗场景
-    this.scene.start('BattleScene', {
-      battleParams: battleParams,
-      seed: Date.now() // 使用当前时间作为随机种子
-    });
+      // 准备战斗参数
+      const battleParams = await BattleParamsService.prepareBattleParams();
+
+      // 切换到战斗场景
+      this.scene.start('BattleScene', {
+        battleParams: battleParams,
+        seed: Date.now() // 使用当前时间作为随机种子
+      });
+    } catch (error) {
+      console.error('开始战斗失败:', error);
+
+      // 显示错误提示
+      loadingText.setText('加载失败，请重试');
+
+      // 3秒后隐藏错误提示
+      this.time.delayedCall(3000, () => {
+        loadingText.destroy();
+      });
+    }
   }
 
 

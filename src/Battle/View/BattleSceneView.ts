@@ -471,48 +471,70 @@ export class BattleSceneView {
    * @param data 事件数据
    */
   private onEntityCreated(data: any): void {
-    // 创建实体精灵
-    const entityId = data.id;
-    const entityType = data.type;
-    const position = data.position;
+    console.log('[DEBUG] onEntityCreated 被调用，数据:', data);
 
-    // 转换为屏幕坐标
-    const screenPos = this.worldToScreenPosition(position);
+    try {
+      // 创建实体精灵
+      const entityId = data.id;
+      const entityType = data.type;
+      const position = data.position;
 
-    let sprite: Phaser.GameObjects.Sprite;
+      // 转换为屏幕坐标
+      const screenPos = this.worldToScreenPosition(position);
 
-    switch (entityType) {
-      case EntityType.HERO:
-        sprite = this.scene.add.sprite(screenPos.x, screenPos.y, 'hero');
-        sprite.play('hero_idle');
+      // 使用Text对象显示Emoji而不是Sprite
+      let sprite: Phaser.GameObjects.Text;
 
-        // 如果是英雄，立即聚焦摄像机
-        this.focusCameraOnHero(position);
-        break;
+      switch (entityType) {
+        case EntityType.HERO:
+          // 使用英雄Emoji
+          sprite = this.scene.add.text(screenPos.x, screenPos.y, '🧙', {
+            fontSize: '48px'
+          });
+          sprite.setOrigin(0.5);
 
-      case EntityType.BEAN:
-        sprite = this.scene.add.sprite(screenPos.x, screenPos.y, 'bean');
-        sprite.play('bean_idle');
-        break;
+          // 如果是英雄，立即聚焦摄像机
+          this.focusCameraOnHero(position);
+          console.log('[DEBUG] 英雄创建成功:', entityId, '位置:', screenPos);
+          break;
 
-      case EntityType.CRYSTAL:
-        sprite = this.scene.add.sprite(screenPos.x, screenPos.y, 'crystal');
-        sprite.play('crystal_idle');
-        break;
+        case EntityType.BEAN:
+          // 使用豆豆Emoji
+          sprite = this.scene.add.text(screenPos.x, screenPos.y, '🟢', {
+            fontSize: '32px'
+          });
+          sprite.setOrigin(0.5);
+          console.log('[DEBUG] 豆豆创建成功:', entityId, '位置:', screenPos);
+          break;
 
-      default:
-        return;
+        case EntityType.CRYSTAL:
+          // 使用水晶Emoji
+          sprite = this.scene.add.text(screenPos.x, screenPos.y, '💎', {
+            fontSize: '48px'
+          });
+          sprite.setOrigin(0.5);
+          console.log('[DEBUG] 水晶创建成功:', entityId, '位置:', screenPos);
+          break;
+
+        default:
+          console.warn('[WARN] 未知实体类型:', entityType);
+          return;
+      }
+
+      // 添加到映射
+      this.entitySprites.set(entityId, sprite as any);
+
+      // 创建生命值条
+      const healthBar = this.scene.add.graphics();
+      this.entityHealthBars.set(entityId, healthBar);
+
+      // 更新生命值条
+      this.updateHealthBar(entityId, data.stats.hp, data.stats.maxHp);
+
+      console.log('[DEBUG] 实体创建完成:', entityId);
+    } catch (error) {
+      console.error('[ERROR] onEntityCreated 出错:', error);
     }
-
-    // 添加到映射
-    this.entitySprites.set(entityId, sprite);
-
-    // 创建生命值条
-    const healthBar = this.scene.add.graphics();
-    this.entityHealthBars.set(entityId, healthBar);
-
-    // 更新生命值条
-    this.updateHealthBar(entityId, data.stats.hp, data.stats.maxHp);
   }
 
   /**
@@ -520,30 +542,39 @@ export class BattleSceneView {
    * @param data 事件数据
    */
   private onEntityMoved(data: any): void {
-    const entityId = data.id;
-    const position = data.position;
+    console.log('[DEBUG] onEntityMoved 被调用，数据:', data);
 
-    // 获取实体精灵
-    const sprite = this.entitySprites.get(entityId);
-    if (!sprite) {
-      return;
-    }
+    try {
+      const entityId = data.id;
+      const position = data.position;
 
-    // 转换为屏幕坐标
-    const screenPos = this.worldToScreenPosition(position);
+      // 获取实体精灵
+      const sprite = this.entitySprites.get(entityId);
+      if (!sprite) {
+        console.warn('[WARN] 找不到实体精灵:', entityId);
+        return;
+      }
 
-    // 移动精灵
-    this.scene.tweens.add({
-      targets: sprite,
-      x: screenPos.x,
-      y: screenPos.y,
-      duration: 100,
-      ease: 'Linear'
-    });
+      // 转换为屏幕坐标
+      const screenPos = this.worldToScreenPosition(position);
 
-    // 如果是英雄，聚焦摄像机
-    if (entityId.startsWith('hero_')) {
-      this.focusCameraOnHero(position);
+      // 移动精灵
+      this.scene.tweens.add({
+        targets: sprite,
+        x: screenPos.x,
+        y: screenPos.y,
+        duration: 100,
+        ease: 'Linear'
+      });
+
+      // 如果是英雄，聚焦摄像机
+      if (entityId.startsWith('hero_')) {
+        this.focusCameraOnHero(position);
+      }
+
+      console.log('[DEBUG] 实体移动完成:', entityId, '新位置:', screenPos);
+    } catch (error) {
+      console.error('[ERROR] onEntityMoved 出错:', error);
     }
   }
 
@@ -581,48 +612,95 @@ export class BattleSceneView {
    * @param data 事件数据
    */
   private onSkillCast(data: any): void {
-    const skillId = data.skillId;
-    const casterId = data.casterId;
-    const targetIds = data.targetIds;
-    const position = data.position;
+    console.log('[DEBUG] onSkillCast 被调用，数据:', data);
 
-    // 获取施法者精灵
-    const casterSprite = this.entitySprites.get(casterId);
-    if (!casterSprite) {
-      return;
-    }
+    try {
+      const skillId = data.skillId;
+      const casterId = data.casterId;
+      const targetIds = data.targetIds;
+      const position = data.position;
 
-    // 播放施法动画
-    if (casterSprite.anims.exists('hero_attack')) {
-      casterSprite.play('hero_attack');
-    }
-
-    // 触发技能UI冷却
-    const skillUI = this.skillUIComponents.get(`skill_${skillId}`);
-    if (skillUI) {
-      skillUI.triggerCooldown();
-    }
-
-    // 如果有目标，播放技能效果
-    if (targetIds && targetIds.length > 0) {
-      for (const targetId of targetIds) {
-        const targetSprite = this.entitySprites.get(targetId);
-        if (targetSprite) {
-          this.skillEffectView.playSkillEffect(
-            `skill_${skillId}`,
-            { x: casterSprite.x, y: casterSprite.y },
-            { x: targetSprite.x, y: targetSprite.y }
-          );
-        }
+      // 获取施法者精灵
+      const casterSprite = this.entitySprites.get(casterId);
+      if (!casterSprite) {
+        console.warn('[WARN] 找不到施法者精灵:', casterId);
+        return;
       }
-    } else if (position) {
-      // 如果有位置，播放技能效果到位置
-      const screenPos = this.worldToScreenPosition(position);
-      this.skillEffectView.playSkillEffect(
-        `skill_${skillId}`,
-        { x: casterSprite.x, y: casterSprite.y },
-        screenPos
-      );
+
+      // 播放施法动画（使用缩放效果代替动画）
+      this.scene.tweens.add({
+        targets: casterSprite,
+        scaleX: 1.2,
+        scaleY: 1.2,
+        duration: 100,
+        yoyo: true,
+        ease: 'Power1'
+      });
+
+      // 触发技能UI冷却
+      const skillUI = this.skillUIComponents.get(`skill_${skillId}`);
+      if (skillUI) {
+        skillUI.triggerCooldown();
+      }
+
+      // 如果有目标，播放技能效果
+      if (targetIds && targetIds.length > 0) {
+        for (const targetId of targetIds) {
+          const targetSprite = this.entitySprites.get(targetId);
+          if (targetSprite) {
+            // 创建简单的技能效果（发光粒子）
+            const particles = this.scene.add.particles(0, 0, 'white', {
+              speed: { min: 50, max: 100 },
+              angle: { min: 0, max: 360 },
+              scale: { start: 0.5, end: 0 },
+              lifespan: 500,
+              blendMode: 'ADD',
+              emitting: false
+            });
+
+            // 设置粒子发射器位置
+            particles.setPosition(casterSprite.x, casterSprite.y);
+
+            // 发射粒子
+            particles.explode(20, targetSprite.x, targetSprite.y);
+
+            // 一段时间后销毁粒子发射器
+            this.scene.time.delayedCall(1000, () => {
+              particles.destroy();
+            });
+
+            console.log('[DEBUG] 播放技能效果:', skillId, '从', casterId, '到', targetId);
+          }
+        }
+      } else if (position) {
+        // 如果有位置，播放技能效果到位置
+        const screenPos = this.worldToScreenPosition(position);
+
+        // 创建简单的技能效果（发光粒子）
+        const particles = this.scene.add.particles(0, 0, 'white', {
+          speed: { min: 50, max: 100 },
+          angle: { min: 0, max: 360 },
+          scale: { start: 0.5, end: 0 },
+          lifespan: 500,
+          blendMode: 'ADD',
+          emitting: false
+        });
+
+        // 设置粒子发射器位置
+        particles.setPosition(casterSprite.x, casterSprite.y);
+
+        // 发射粒子
+        particles.explode(20, screenPos.x, screenPos.y);
+
+        // 一段时间后销毁粒子发射器
+        this.scene.time.delayedCall(1000, () => {
+          particles.destroy();
+        });
+
+        console.log('[DEBUG] 播放技能效果:', skillId, '从', casterId, '到位置', screenPos);
+      }
+    } catch (error) {
+      console.error('[ERROR] onSkillCast 出错:', error);
     }
   }
 
@@ -701,36 +779,47 @@ export class BattleSceneView {
    * @param data 事件数据
    */
   private onWaveChanged(data: any): void {
-    const waveNumber = data.number;
+    console.log('[DEBUG] onWaveChanged 被调用，数据:', data);
 
-    // 更新波次指示器
-    this.waveIndicator.setText(`Wave: ${waveNumber}`);
+    try {
+      // 确保 data.number 存在，如果不存在则使用 data.waveIndex + 1 或默认值 1
+      const waveNumber = data.number || (data.waveIndex !== undefined ? data.waveIndex + 1 : 1);
 
-    // 显示波次提示
-    const waveText = this.scene.add.text(
-      this.scene.cameras.main.width / 2,
-      this.scene.cameras.main.height / 2,
-      `第 ${waveNumber} 波`,
-      {
-        fontSize: '48px',
-        color: '#ffffff',
-        stroke: '#000000',
-        strokeThickness: 6
-      }
-    );
-    waveText.setOrigin(0.5);
+      console.log('[DEBUG] 波次变化为:', waveNumber);
 
-    // 添加动画
-    this.scene.tweens.add({
-      targets: waveText,
-      alpha: 0,
-      scale: 2,
-      duration: 2000,
-      ease: 'Power2',
-      onComplete: () => {
-        waveText.destroy();
-      }
-    });
+      // 更新波次指示器
+      this.waveIndicator.setText(`Wave: ${waveNumber}`);
+
+      // 显示波次提示
+      const waveText = this.scene.add.text(
+        this.scene.cameras.main.width / 2,
+        this.scene.cameras.main.height / 2,
+        `第 ${waveNumber} 波`,
+        {
+          fontSize: '48px',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 6
+        }
+      );
+      waveText.setOrigin(0.5);
+
+      // 添加动画
+      this.scene.tweens.add({
+        targets: waveText,
+        alpha: 0,
+        scale: 2,
+        duration: 2000,
+        ease: 'Power2',
+        onComplete: () => {
+          waveText.destroy();
+        }
+      });
+
+      console.log('[DEBUG] 波次提示显示完成');
+    } catch (error) {
+      console.error('[ERROR] onWaveChanged 出错:', error);
+    }
   }
 
   /**

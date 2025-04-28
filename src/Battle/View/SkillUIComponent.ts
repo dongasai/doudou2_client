@@ -161,7 +161,8 @@ export class SkillUIComponent {
     // 鼠标悬停
     this.background.on('pointerover', () => {
       if (this.isAvailable) {
-        this.background.setTint(0xaaaaaa);
+        // Arc对象没有setTint方法，使用fillColor代替
+        this.background.fillColor = 0xaaaaaa;
       }
       this.tooltip.setVisible(true);
     });
@@ -169,7 +170,8 @@ export class SkillUIComponent {
     // 鼠标离开
     this.background.on('pointerout', () => {
       if (this.isAvailable) {
-        this.background.clearTint();
+        // Arc对象没有clearTint方法，使用fillColor代替
+        this.background.fillColor = 0x333333;
       }
       this.tooltip.setVisible(false);
     });
@@ -264,14 +266,16 @@ export class SkillUIComponent {
       this.cooldownText.setVisible(false);
 
       // 恢复正常外观
-      this.background.clearTint();
+      // Arc对象没有clearTint方法，使用fillColor代替
+      this.background.fillColor = 0x333333;
       this.icon.clearTint();
       if (this.uiConfig.color) {
         this.icon.setTint(Phaser.Display.Color.HexStringToColor(this.uiConfig.color).color);
       }
     } else {
       // 设置灰色外观
-      this.background.setTint(0x666666);
+      // Arc对象没有setTint方法，使用fillColor代替
+      this.background.fillColor = 0x666666;
       this.icon.setTint(0x666666);
     }
   }
@@ -285,16 +289,21 @@ export class SkillUIComponent {
 
     if (selected) {
       // 设置选中外观
-      this.background.setTint(0xffff00);
+      // Arc对象没有setTint方法，使用fillColor代替
+      this.background.fillColor = 0xffff00;
     } else {
       // 恢复正常外观
       if (this.isAvailable) {
-        this.background.clearTint();
+        // Arc对象没有clearTint方法，使用fillColor代替
+        this.background.fillColor = 0x333333;
         if (this.uiConfig.borderColor) {
-          this.background.setTint(Phaser.Display.Color.HexStringToColor(this.uiConfig.borderColor).color);
+          // 使用borderColor作为fillColor
+          const color = Phaser.Display.Color.HexStringToColor(this.uiConfig.borderColor).color;
+          this.background.fillColor = color;
         }
       } else {
-        this.background.setTint(0x666666);
+        // Arc对象没有setTint方法，使用fillColor代替
+        this.background.fillColor = 0x666666;
       }
     }
   }

@@ -220,7 +220,7 @@ export class FrameManager {
     if (!this.running || this.paused) {
       return;
     }
-
+    // console.log('tick 帧循环 ')
     // 计算时间增量
     const currentTime = Date.now();
     let deltaTime = currentTime - this.lastFrameTime;
@@ -266,15 +266,15 @@ export class FrameManager {
     const commands = this.pendingCommands.get(this.currentLogicFrame) || [];
     if (commands.length > 0) {
       logger.debug(`处理帧${this.currentLogicFrame}的指令，数量: ${commands.length}`);
-      
+
       // 调用指令处理回调
       if (this.commandProcessCallback) {
         this.commandProcessCallback(commands);
       }
-      
+
       // 将处理过的指令添加到历史记录
       this.processedCommands.push(...commands);
-      
+
       // 从待处理队列中移除
       this.pendingCommands.delete(this.currentLogicFrame);
     }

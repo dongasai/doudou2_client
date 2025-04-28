@@ -229,24 +229,55 @@ export class MainMenuScene extends Phaser.Scene {
   /**
    * 快速开始按钮点击事件（直接选择第一关和1号英雄）
    */
-  private onQuickStartButtonClick(): void {
-    // 重置游戏状态
-    gameState.resetState();
+  private async onQuickStartButtonClick(): Promise<void> {
+    // 显示加载提示
+    const loadingText = this.add.text(
+      this.cameras.main.width / 2,
+      this.cameras.main.height / 2,
+      '加载中...',
+      {
+        fontSize: '24px',
+        color: '#ffffff',
+        backgroundColor: '#000000',
+        padding: {
+          left: 20,
+          right: 20,
+          top: 10,
+          bottom: 10
+        }
+      }
+    );
+    loadingText.setOrigin(0.5);
 
-    // 设置选中的关卡ID（第一关）
-    gameState.selectedLevel = { id: 'level-1-1' };
+    try {
+      // 重置游戏状态
+      gameState.resetState();
 
-    // 设置选中的英雄（1号英雄）
-    gameState.selectedHeroes = [1];
+      // 设置选中的关卡ID（第一关）
+      gameState.selectedLevel = { id: 'level-1-1' };
 
-    // 准备战斗参数
-    const battleParams = BattleParamsService.prepareBattleParams();
+      // 设置选中的英雄（1号英雄）
+      gameState.selectedHeroes = [1];
 
-    // 切换到战斗场景
-    this.scene.start('BattleScene', {
-      battleParams: battleParams,
-      seed: Date.now() // 使用当前时间作为随机种子
-    });
+      // 准备战斗参数
+      const battleParams = await BattleParamsService.prepareBattleParams();
+
+      // 切换到战斗场景
+      this.scene.start('BattleScene', {
+        battleParams: battleParams,
+        seed: Date.now() // 使用当前时间作为随机种子
+      });
+    } catch (error) {
+      console.error('快速开始失败:', error);
+
+      // 显示错误提示
+      loadingText.setText('加载失败，请重试');
+
+      // 3秒后隐藏错误提示
+      this.time.delayedCall(3000, () => {
+        loadingText.destroy();
+      });
+    }
   }
 
 

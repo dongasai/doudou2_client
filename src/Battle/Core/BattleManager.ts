@@ -669,14 +669,17 @@ export class BattleManager {
     // 简化处理，实际应该从配置文件加载
     logger.info(`加载关卡配置: 章节=${chapter}, 关卡=${stage}`);
 
+    // 立即创建一些豆豆，用于测试
+    this.createTestBeans();
+
     // 设置波次配置（示例）
     this.waveManager.setWaves([
       {
         id: 'wave_1',
         name: '第一波',
         enemyTypes: [
-          { type: '普通豆', weight: 3 },
-          { type: '快速豆', weight: 1 }
+          { type: '暴躁豆', weight: 3 },
+          { type: '毒豆', weight: 1 }
         ],
         totalEnemies: 10,
         spawnInterval: 1000
@@ -685,9 +688,9 @@ export class BattleManager {
         id: 'wave_2',
         name: '第二波',
         enemyTypes: [
-          { type: '普通豆', weight: 2 },
-          { type: '快速豆', weight: 2 },
-          { type: '强壮豆', weight: 1 }
+          { type: '暴躁豆', weight: 2 },
+          { type: '毒豆', weight: 2 },
+          { type: '闪电豆', weight: 1 }
         ],
         totalEnemies: 15,
         spawnInterval: 800,
@@ -697,18 +700,70 @@ export class BattleManager {
         id: 'wave_3',
         name: '第三波',
         enemyTypes: [
-          { type: '普通豆', weight: 1 },
-          { type: '快速豆', weight: 2 },
-          { type: '强壮豆', weight: 2 }
+          { type: '暴躁豆', weight: 1 },
+          { type: '毒豆', weight: 2 },
+          { type: '闪电豆', weight: 2 }
         ],
         totalEnemies: 20,
         spawnInterval: 700,
         delay: 3000,
         specialEnemies: [
-          { type: 'BOSS豆', count: 1, spawnTime: 10000 }
+          { type: '铁甲豆', count: 1, spawnTime: 10000 }
         ]
       }
     ]);
+  }
+
+  /**
+   * 创建测试豆豆
+   * 用于测试，直接创建一些豆豆
+   */
+  private createTestBeans(): void {
+    logger.info('创建测试豆豆');
+
+    // 创建5个测试豆豆
+    for (let i = 0; i < 5; i++) {
+      // 计算位置（围绕水晶的随机位置）
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 200 + Math.random() * 300;
+      const position = {
+        x: 1500 + Math.cos(angle) * distance,
+        y: 1500 + Math.sin(angle) * distance
+      };
+
+      // 创建豆豆
+      const beanId = `bean_test_${i + 1}`;
+      const bean = new Bean(
+        beanId,
+        `测试豆${i + 1}`,
+        position,
+        {
+          hp: 100,
+          maxHp: 100,
+          attack: 10,
+          defense: 5,
+          speed: 30 + Math.random() * 20
+        },
+        this.frameManager.getCurrentLogicFrame(),
+        '暴躁豆'
+      );
+
+      // 添加到实体管理器
+      this.entityManager.addEntity(bean);
+
+      // 添加到豆豆映射
+      this.beans.set(bean.getId(), bean);
+
+      logger.info(`创建测试豆豆: ID=${beanId}, 位置=(${position.x}, ${position.y})`);
+
+      // 触发豆豆创建事件
+      this.eventManager.emit('entityCreated', {
+        id: bean.getId(),
+        type: EntityType.BEAN,
+        position: bean.getPosition(),
+        stats: bean.getStats()
+      });
+    }
   }
 
   /**
