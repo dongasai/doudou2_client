@@ -17,8 +17,24 @@ import { BattleReplayData } from '../../DesignConfig/types/BattleReplay';
 import { Entity, EntityType } from '../Entities/Entity';
 import { Vector2D } from '../Types/Vector2D';
 import { Hero } from '../Entities/Hero';
-import { Bean } from '../Entities/Bean';
+import { Bean, BeanType, BeanState } from '../Entities/Bean';
 import { Crystal } from '../Entities/Crystal';
+import {
+  BattleStartEventData,
+  BattlePauseEventData,
+  BattleResumeEventData,
+  BattleEndEventData,
+  GameOverEventData,
+  EntityCreatedEventData,
+  EntityDeathEventData,
+  DamageDealtEventData,
+  EnemySpawnEventData,
+  WaveStartEventData,
+  WaveProgressEventData,
+  WaveCompletedEventData,
+  AllWavesCompletedEventData
+} from '../Types/EventData';
+import { BattleParamsService } from '../../services/BattleParamsService';
 
 // 战斗状态枚举
 export enum BattleState {
@@ -111,7 +127,47 @@ export class BattleManager {
     // 注册事件监听
     this.registerEventListeners();
 
+    // 注册波次管理器事件监听
+    this.registerWaveManagerEvents();
+
     logger.info('战斗管理器初始化完成');
+  }
+
+  /**
+   * 注册波次管理器事件监听
+   * 这是一个关键方法，用于监听波次管理器发出的事件，并创建相应的豆豆实体
+   */
+  private registerWaveManagerEvents(): void {
+    // 监听敌人生成事件
+    this.eventManager.on('enemySpawn', (data: EnemySpawnEventData) => {
+      this.createBeanFromWaveManager(
+        data.type,
+        data.position,
+        data.attrFactors,
+        data.isSpecial,
+        data.waveIndex
+      );
+    });
+
+    // 监听波次开始事件
+    this.eventManager.on('waveStart', (data: WaveStartEventData) => {
+      logger.info(`波次开始: 第${data.waveIndex + 1}波 - ${data.waveName}`);
+    });
+
+    // 监听波次进度事件
+    this.eventManager.on('waveProgress', (data: WaveProgressEventData) => {
+      logger.debug(`波次进度: 第${data.waveIndex + 1}波, 进度=${Math.floor(data.progress * 100)}%`);
+    });
+
+    // 监听波次完成事件
+    this.eventManager.on('waveCompleted', (data: WaveCompletedEventData) => {
+      logger.info(`波次完成: 第${data.waveIndex + 1}波 - ${data.waveName}, 用时: ${data.duration}ms`);
+    });
+
+    // 监听所有波次完成事件
+    this.eventManager.on('allWavesCompleted', (data: AllWavesCompletedEventData) => {
+      logger.info(`所有波次完成，总波次: ${data.totalWaves}, 总用时: ${data.totalDuration || '未知'}ms`);
+    });
   }
 
   /**
@@ -182,11 +238,12 @@ export class BattleManager {
     logger.info('战斗开始');
 
     // 触发战斗开始事件
-    this.eventManager.emit('battleStart', {
+    const battleStartData: BattleStartEventData = {
       time: this.battleStartTime,
       params: this.battleParams,
       seed: this.randomSeed
-    });
+    };
+    this.eventManager.emit('battleStart', battleStartData);
   }
 
   /**
@@ -203,9 +260,10 @@ export class BattleManager {
     logger.info('战斗暂停');
 
     // 触发战斗暂停事件
-    this.eventManager.emit('battlePause', {
+    const battlePauseData: BattlePauseEventData = {
       time: Date.now()
-    });
+    };
+    this.eventManager.emit('battlePause', battlePauseData);
   }
 
   /**
@@ -222,9 +280,10 @@ export class BattleManager {
     logger.info('战斗恢复');
 
     // 触发战斗恢复事件
-    this.eventManager.emit('battleResume', {
+    const battleResumeData: BattleResumeEventData = {
       time: Date.now()
-    });
+    };
+    this.eventManager.emit('battleResume', battleResumeData);
   }
 
   /**
@@ -245,12 +304,13 @@ export class BattleManager {
     logger.info('战斗停止');
 
     // 触发战斗结束事件
-    this.eventManager.emit('battleEnd', {
+    const battleEndData: BattleEndEventData = {
       time: this.battleEndTime,
       result: this.result,
       duration: this.battleEndTime - this.battleStartTime,
       stats: this.getBattleStats()
-    });
+    };
+    this.eventManager.emit('battleEnd', battleEndData);
   }
 
   /**
@@ -308,6 +368,13 @@ export class BattleManager {
    */
   public getEventManager(): EventManager {
     return this.eventManager;
+  }
+
+  /**
+   * 获取波次管理器
+   */
+  public getWaveManager() {
+    return this.waveManager;
   }
 
   /**
@@ -666,20 +733,134 @@ export class BattleManager {
    * @param stage 关卡
    */
   private loadLevelConfig(chapter: number, stage: number): void {
-    // 简化处理，实际应该从配置文件加载
+    // 从配置表加载关卡数据
     logger.info(`加载关卡配置: 章节=${chapter}, 关卡=${stage}`);
 
-    // 立即创建一些豆豆，用于测试
-    this.createTestBeans();
+    try {
+      // 尝试从BattleParamsService获取关卡配置
+      const levelConfig = this.getLevelConfigFromService(chapter, stage);
 
-    // 设置波次配置（示例）
+      if (levelConfig && levelConfig.waves) {
+        // 使用从配置表获取的波次数据
+        logger.info(`成功从配置表加载关卡${chapter}-${stage}的波次数据`);
+        this.waveManager.setWaves(levelConfig.waves);
+      } else {
+        // 如果找不到配置，使用默认配置
+        logger.warn(`未找到关卡${chapter}-${stage}的配置，使用默认配置`);
+        this.setDefaultWaves();
+      }
+    } catch (error) {
+      // 出错时使用默认配置
+      logger.error(`加载关卡配置出错: ${error}，使用默认配置`);
+      this.setDefaultWaves();
+    }
+  }
+
+  /**
+   * 从服务获取关卡配置
+   * @param chapter 章节
+   * @param stage 关卡
+   * @returns 关卡配置
+   */
+  private getLevelConfigFromService(chapter: number, stage: number): any {
+    try {
+      // 构造关卡ID
+      const levelId = `level-${chapter}-${stage}`;
+
+      // 从BattleParamsService获取关卡数据
+      const levelData = BattleParamsService.getLevelData(levelId);
+
+      if (!levelData) {
+        logger.warn(`未找到关卡数据: ${levelId}`);
+        return null;
+      }
+
+      // 将关卡数据转换为波次配置
+      const waves = this.convertLevelDataToWaves(levelData);
+
+      return {
+        waves: waves
+      };
+    } catch (error) {
+      logger.error(`获取关卡配置失败: ${error}`);
+      return null;
+    }
+  }
+
+  /**
+   * 将关卡数据转换为波次配置
+   * @param levelData 关卡数据
+   * @returns 波次配置
+   */
+  private convertLevelDataToWaves(levelData: any): any[] {
+    // 如果关卡数据中已经有波次配置，直接返回
+    if (levelData.waves && Array.isArray(levelData.waves)) {
+      return levelData.waves;
+    }
+
+    // 否则，根据关卡数据生成波次配置
+    // 这里简化处理，将豆豆分成3波
+    const totalBeans = levelData.totalBeans || 30;
+    const beansPerWave = Math.ceil(totalBeans / 3);
+
+    // 创建波次配置
+    const waves = [
+      {
+        id: 'wave_1',
+        name: '第一波',
+        enemyTypes: levelData.beanRatios.map((ratio: any) => ({
+          type: ratio.type,
+          weight: ratio.weight
+        })),
+        totalEnemies: beansPerWave,
+        spawnInterval: levelData.spawnInterval || 1000
+      },
+      {
+        id: 'wave_2',
+        name: '第二波',
+        enemyTypes: levelData.beanRatios.map((ratio: any) => ({
+          type: ratio.type,
+          weight: ratio.weight
+        })),
+        totalEnemies: beansPerWave,
+        spawnInterval: Math.max(800, (levelData.spawnInterval || 1000) * 0.8),
+        delay: 3000
+      },
+      {
+        id: 'wave_3',
+        name: '第三波',
+        enemyTypes: levelData.beanRatios.map((ratio: any) => ({
+          type: ratio.type,
+          weight: ratio.weight
+        })),
+        totalEnemies: totalBeans - beansPerWave * 2,
+        spawnInterval: Math.max(700, (levelData.spawnInterval || 1000) * 0.7),
+        delay: 3000,
+        specialEnemies: [
+          {
+            type: BeanType.ARMORED,
+            count: 1,
+            spawnTime: 10000
+          }
+        ]
+      }
+    ];
+
+    return waves;
+  }
+
+  /**
+   * 设置默认波次配置
+   */
+  private setDefaultWaves(): void {
+    // 设置默认波次配置
     this.waveManager.setWaves([
       {
         id: 'wave_1',
         name: '第一波',
         enemyTypes: [
-          { type: '暴躁豆', weight: 3 },
-          { type: '毒豆', weight: 1 }
+          { type: BeanType.RAGE, weight: 3 },
+          { type: BeanType.POISON, weight: 1 }
         ],
         totalEnemies: 10,
         spawnInterval: 1000
@@ -688,9 +869,9 @@ export class BattleManager {
         id: 'wave_2',
         name: '第二波',
         enemyTypes: [
-          { type: '暴躁豆', weight: 2 },
-          { type: '毒豆', weight: 2 },
-          { type: '闪电豆', weight: 1 }
+          { type: BeanType.RAGE, weight: 2 },
+          { type: BeanType.POISON, weight: 2 },
+          { type: BeanType.FAST, weight: 1 }
         ],
         totalEnemies: 15,
         spawnInterval: 800,
@@ -700,53 +881,123 @@ export class BattleManager {
         id: 'wave_3',
         name: '第三波',
         enemyTypes: [
-          { type: '暴躁豆', weight: 1 },
-          { type: '毒豆', weight: 2 },
-          { type: '闪电豆', weight: 2 }
+          { type: BeanType.RAGE, weight: 1 },
+          { type: BeanType.POISON, weight: 2 },
+          { type: BeanType.FAST, weight: 2 }
         ],
         totalEnemies: 20,
         spawnInterval: 700,
         delay: 3000,
         specialEnemies: [
-          { type: '铁甲豆', count: 1, spawnTime: 10000 }
+          { type: BeanType.ARMORED, count: 1, spawnTime: 10000 }
         ]
       }
     ]);
   }
 
   /**
-   * 创建测试豆豆
-   * 用于测试，直接创建一些豆豆
+   * 将中文豆豆名称映射到BeanType枚举
+   * @param chineseName 中文豆豆名称
+   * @returns 对应的BeanType枚举值，如果找不到则返回NORMAL
    */
-  private createTestBeans(): void {
-    logger.info('创建测试豆豆');
+  private mapChineseNameToBeanType(chineseName: string): BeanType {
+    // 中文名称到BeanType的映射表
+    const nameToTypeMap: { [key: string]: BeanType } = {
+      '普通豆': BeanType.NORMAL,
+      '快速豆': BeanType.FAST,
+      '强壮豆': BeanType.STRONG,
+      '毒豆': BeanType.POISON,
+      '炸弹豆': BeanType.EXPLOSIVE,
+      '冰霜豆': BeanType.FROST,
+      '铁甲豆': BeanType.ARMORED,
+      '暴躁豆': BeanType.RAGE,
+      '狂暴豆': BeanType.RAGE,  // 同时支持"暴躁豆"和"狂暴豆"映射到RAGE
+      'BOSS豆': BeanType.BOSS,
+      'Boss豆': BeanType.BOSS
+    };
 
-    // 创建5个测试豆豆
-    for (let i = 0; i < 5; i++) {
-      // 计算位置（围绕水晶的随机位置）
-      const angle = Math.random() * Math.PI * 2;
-      const distance = 200 + Math.random() * 300;
-      const position = {
-        x: 1500 + Math.cos(angle) * distance,
-        y: 1500 + Math.sin(angle) * distance
-      };
+    // 查找映射
+    return nameToTypeMap[chineseName] || BeanType.NORMAL;
+  }
 
-      // 创建豆豆
-      const beanId = `bean_test_${i + 1}`;
+  /**
+   * 从波次管理器创建豆豆
+   * @param beanType 豆豆类型
+   * @param position 位置
+   * @param attrFactors 属性系数
+   * @param isSpecial 是否特殊敌人
+   * @param waveIndex 波次索引
+   */
+  private createBeanFromWaveManager(
+    beanType: string,
+    position: Vector2D,
+    attrFactors: { [key: string]: number | undefined } = {},
+    isSpecial: boolean = false,
+    waveIndex: number = 0
+  ): void {
+    try {
+      // 将字符串类型转换为BeanType枚举
+      let beanTypeEnum: BeanType;
+
+      // 尝试将字符串类型转换为BeanType枚举
+      if (typeof beanType === 'string') {
+        if (beanType in BeanType) {
+          // 如果是枚举键名（如'RAGE'），直接使用
+          beanTypeEnum = BeanType[beanType as keyof typeof BeanType];
+        } else if (Object.values(BeanType).includes(beanType as BeanType)) {
+          // 如果是枚举值（如'rage'），直接使用
+          beanTypeEnum = beanType as BeanType;
+        } else {
+          // 尝试从中文名称映射
+          beanTypeEnum = this.mapChineseNameToBeanType(beanType);
+
+          // 如果映射失败，记录警告并使用默认值
+          if (beanTypeEnum === BeanType.NORMAL && beanType !== '普通豆') {
+            logger.warn(`未知的豆豆类型: ${beanType}，使用默认类型NORMAL`);
+          }
+        }
+      } else {
+        // 如果已经是BeanType枚举，直接使用
+        beanTypeEnum = beanType as BeanType;
+      }
+
+      // 生成唯一ID
+      const beanId = `bean_${waveIndex + 1}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+      // 获取基础属性
+      const baseStats = this.getBeanBaseStats(beanTypeEnum);
+
+      // 应用属性系数
+      const stats = this.applyAttrFactors(baseStats, attrFactors);
+
+      // 获取豆豆名称
+      const beanName = this.getBeanName(beanTypeEnum);
+
+      // 获取豆豆参数
+      const moveSpeed = this.getBeanMoveSpeed(beanTypeEnum, attrFactors.speed);
+      const attackRange = this.getBeanAttackRange(beanTypeEnum);
+      const attackInterval = this.getBeanAttackInterval(beanTypeEnum);
+
+      // 创建豆豆实体
       const bean = new Bean(
         beanId,
-        `测试豆${i + 1}`,
+        beanName,
         position,
-        {
-          hp: 100,
-          maxHp: 100,
-          attack: 10,
-          defense: 5,
-          speed: 30 + Math.random() * 20
-        },
+        stats,
         this.frameManager.getCurrentLogicFrame(),
-        '暴躁豆'
+        beanTypeEnum,
+        moveSpeed,
+        attackRange,
+        attackInterval,
+        isSpecial,
+        waveIndex
       );
+
+      // 设置豆豆目标为水晶
+      if (this.crystal) {
+        bean.setTarget(this.crystal.getId());
+        bean.setState(BeanState.MOVE); // 设置为移动状态，让豆豆开始移动
+      }
 
       // 添加到实体管理器
       this.entityManager.addEntity(bean);
@@ -754,16 +1005,261 @@ export class BattleManager {
       // 添加到豆豆映射
       this.beans.set(bean.getId(), bean);
 
-      logger.info(`创建测试豆豆: ID=${beanId}, 位置=(${position.x}, ${position.y})`);
+      logger.info(`创建豆豆: 类型=${beanTypeEnum}, ID=${beanId}, 位置=(${position.x}, ${position.y}), 特殊=${isSpecial}`);
 
       // 触发豆豆创建事件
-      this.eventManager.emit('entityCreated', {
+      const entityCreatedData: EntityCreatedEventData = {
         id: bean.getId(),
         type: EntityType.BEAN,
         position: bean.getPosition(),
         stats: bean.getStats()
-      });
+      };
+      this.eventManager.emit('entityCreated', entityCreatedData);
+    } catch (error) {
+      logger.error(`创建豆豆失败: ${error}`);
     }
+  }
+
+  /**
+   * 获取豆豆基础属性
+   * @param beanType 豆豆类型
+   * @returns 基础属性
+   */
+  private getBeanBaseStats(beanType: BeanType): EntityStats {
+    // 根据豆豆类型返回不同的基础属性
+    // 这里应该从配置表读取，目前简化处理
+    switch (beanType) {
+      case BeanType.NORMAL:
+        return {
+          hp: 100,
+          maxHp: 100,
+          attack: 10,
+          defense: 5,
+          speed: 40
+        };
+      case BeanType.FAST:
+        return {
+          hp: 80,
+          maxHp: 80,
+          attack: 8,
+          defense: 3,
+          speed: 60
+        };
+      case BeanType.STRONG:
+        return {
+          hp: 150,
+          maxHp: 150,
+          attack: 15,
+          defense: 8,
+          speed: 35
+        };
+      case BeanType.POISON:
+        return {
+          hp: 90,
+          maxHp: 90,
+          attack: 12,
+          defense: 4,
+          speed: 45
+        };
+      case BeanType.EXPLOSIVE:
+        return {
+          hp: 70,
+          maxHp: 70,
+          attack: 25,
+          defense: 2,
+          speed: 50
+        };
+      case BeanType.FROST:
+        return {
+          hp: 110,
+          maxHp: 110,
+          attack: 10,
+          defense: 7,
+          speed: 40
+        };
+      case BeanType.ARMORED:
+        return {
+          hp: 200,
+          maxHp: 200,
+          attack: 12,
+          defense: 20,
+          speed: 30
+        };
+      case BeanType.RAGE:
+        return {
+          hp: 120,
+          maxHp: 120,
+          attack: 18,
+          defense: 6,
+          speed: 45
+        };
+      case BeanType.BOSS:
+        return {
+          hp: 500,
+          maxHp: 500,
+          attack: 30,
+          defense: 15,
+          speed: 35
+        };
+      default:
+        return {
+          hp: 100,
+          maxHp: 100,
+          attack: 10,
+          defense: 5,
+          speed: 40
+        };
+    }
+  }
+
+  /**
+   * 应用属性系数
+   * @param baseStats 基础属性
+   * @param attrFactors 属性系数
+   * @returns 应用系数后的属性
+   */
+  private applyAttrFactors(
+    baseStats: EntityStats,
+    attrFactors: { [key: string]: number | undefined } = {}
+  ): EntityStats {
+    const result: EntityStats = { ...baseStats };
+
+    // 应用HP系数
+    if (attrFactors.hp !== undefined) {
+      result.hp = Math.floor(result.hp * attrFactors.hp);
+      result.maxHp = Math.floor(result.maxHp * attrFactors.hp);
+    }
+
+    // 应用攻击系数
+    if (attrFactors.attack !== undefined && result.attack !== undefined) {
+      result.attack = Math.floor(result.attack * attrFactors.attack);
+    }
+
+    // 应用防御系数
+    if (attrFactors.defense !== undefined && result.defense !== undefined) {
+      result.defense = Math.floor(result.defense * attrFactors.defense);
+    }
+
+    // 应用速度系数
+    if (attrFactors.speed !== undefined && result.speed !== undefined) {
+      result.speed = Math.floor(result.speed * attrFactors.speed);
+    }
+
+    return result;
+  }
+
+  /**
+   * 获取豆豆名称
+   * @param beanType 豆豆类型
+   * @returns 豆豆名称
+   */
+  private getBeanName(beanType: BeanType): string {
+    // 根据豆豆类型返回不同的名称
+    switch (beanType) {
+      case BeanType.NORMAL:
+        return '普通豆';
+      case BeanType.FAST:
+        return '快速豆';
+      case BeanType.STRONG:
+        return '强壮豆';
+      case BeanType.POISON:
+        return '毒豆';
+      case BeanType.EXPLOSIVE:
+        return '炸弹豆';
+      case BeanType.FROST:
+        return '冰霜豆';
+      case BeanType.ARMORED:
+        return '铁甲豆';
+      case BeanType.RAGE:
+        return '暴躁豆';
+      case BeanType.BOSS:
+        return 'BOSS豆';
+      default:
+        return '未知豆';
+    }
+  }
+
+  /**
+   * 获取豆豆移动速度
+   * @param beanType 豆豆类型
+   * @param speedFactor 速度系数
+   * @returns 移动速度
+   */
+  private getBeanMoveSpeed(beanType: BeanType, speedFactor?: number): number {
+    // 基础移动速度
+    let baseSpeed: number;
+
+    switch (beanType) {
+      case BeanType.FAST:
+        baseSpeed = 70;
+        break;
+      case BeanType.ARMORED:
+        baseSpeed = 30;
+        break;
+      case BeanType.BOSS:
+        baseSpeed = 40;
+        break;
+      default:
+        baseSpeed = 50;
+    }
+
+    // 应用速度系数
+    if (speedFactor !== undefined) {
+      baseSpeed = Math.floor(baseSpeed * speedFactor);
+    }
+
+    // 添加一些随机性
+    return baseSpeed + Math.random() * 10;
+  }
+
+  /**
+   * 获取豆豆攻击范围
+   * @param beanType 豆豆类型
+   * @returns 攻击范围
+   */
+  private getBeanAttackRange(beanType: BeanType): number {
+    // 根据豆豆类型返回不同的攻击范围
+    switch (beanType) {
+      case BeanType.POISON:
+      case BeanType.FROST:
+        return 150; // 远程攻击
+      case BeanType.EXPLOSIVE:
+        return 50;  // 爆炸范围小
+      case BeanType.BOSS:
+        return 120; // BOSS攻击范围大
+      default:
+        return 100; // 默认攻击范围
+    }
+  }
+
+  /**
+   * 获取豆豆攻击间隔
+   * @param beanType 豆豆类型
+   * @returns 攻击间隔（毫秒）
+   */
+  private getBeanAttackInterval(beanType: BeanType): number {
+    // 根据豆豆类型返回不同的攻击间隔
+    switch (beanType) {
+      case BeanType.FAST:
+        return 800;  // 快速豆攻击间隔短
+      case BeanType.STRONG:
+      case BeanType.ARMORED:
+        return 1500; // 强壮豆和铁甲豆攻击间隔长
+      case BeanType.BOSS:
+        return 2000; // BOSS攻击间隔长但伤害高
+      default:
+        return 1000; // 默认攻击间隔
+    }
+  }
+
+  /**
+   * 创建测试豆豆
+   * 用于测试，直接创建一些豆豆
+   * 注意：此方法已废弃，保留仅供参考
+   * @deprecated 使用波次管理器生成豆豆
+   */
+  private createTestBeans(): void {
+    logger.warn('createTestBeans方法已废弃，请使用波次管理器生成豆豆');
   }
 
   /**
@@ -801,12 +1297,13 @@ export class BattleManager {
     logger.info(`战斗结束，结果: ${this.result}`);
 
     // 触发游戏结束事件
-    this.eventManager.emit('gameOver', {
+    const gameOverData: GameOverEventData = {
       result: this.result,
       time: this.battleEndTime,
       duration: this.battleEndTime - this.battleStartTime,
       stats: this.getBattleStats()
-    });
+    };
+    this.eventManager.emit('gameOver', gameOverData);
   }
 
   /**
@@ -853,23 +1350,26 @@ export class BattleManager {
    */
   private registerEventListeners(): void {
     // 监听伤害事件
-    this.eventManager.on('damageDealt', (event) => {
-      if (event.source && this.heroes.has(event.source.getId())) {
+    this.eventManager.on('damageDealt', (event: DamageDealtEventData) => {
+      if (event.source && this.heroes.has(event.source.id)) {
         // 英雄造成伤害
         this.totalDamageDealt += event.actualAmount;
       }
 
-      if (event.target && this.heroes.has(event.target.getId())) {
+      if (event.target && this.heroes.has(event.target.id)) {
         // 英雄受到伤害
         this.totalDamageTaken += event.actualAmount;
       }
     });
 
     // 监听实体死亡事件
-    this.eventManager.on('entityDeath', (event) => {
-      if (event.entity.getType() === EntityType.BEAN) {
+    this.eventManager.on('entityDeath', (event: EntityDeathEventData) => {
+      if (event.entity.type === EntityType.BEAN) {
         // 敌人被击败
         this.totalEnemiesDefeated++;
+
+        // 记录日志
+        logger.info(`敌人被击败: ID=${event.entity.id}, 位置=(${event.entity.position.x}, ${event.entity.position.y})`);
       }
     });
   }

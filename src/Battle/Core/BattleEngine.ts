@@ -58,6 +58,14 @@ export class BattleEngine {
   }
 
   /**
+   * 获取波次管理器
+   * @returns 波次管理器
+   */
+  public getWaveManager() {
+    return this.battleManager.getWaveManager();
+  }
+
+  /**
    * 获取战斗状态
    * @returns 战斗状态
    */

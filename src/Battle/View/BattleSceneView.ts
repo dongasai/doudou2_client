@@ -1,6 +1,10 @@
 /**
  * 战斗场景视图
  * 负责将战斗引擎的状态转换为可视化的游戏场景
+ *
+ * 屏幕适配：
+ * - 目标设备：手机屏幕 (430*930)
+ * - 布局策略：自适应布局，根据屏幕尺寸调整UI元素位置和大小
  */
 
 import Phaser from 'phaser';
@@ -11,6 +15,8 @@ import { SkillUIComponent } from '@/Battle/View/SkillUIComponent';
 import { TouchController } from '@/Battle/View/TouchController';
 import { Vector2D } from '@/Battle/Types/Vector2D';
 import { EntityType } from '@/Battle/Entities/Entity';
+import { gameState } from '@/main';
+import { BattleParamsService } from '@/services/BattleParamsService';
 
 export class BattleSceneView {
   private scene: Phaser.Scene;
@@ -84,22 +90,35 @@ export class BattleSceneView {
 
   /**
    * 创建UI元素
+   *
+   * 屏幕布局说明：
+   * +--------------------------------------------------+
+   * | 状态栏 (左上角)         波次指示器 (右上角)      |
+   * |                                                  |
+   * |                                                  |
+   * |                  游戏主区域                      |
+   * |                                                  |
+   * |                                                  |
+   * |                                                  |
+   * |                                                  |
+   * |                技能按钮 (底部中央)               |
+   * +--------------------------------------------------+
    */
   private createUI(): void {
     console.log('[DEBUG] BattleSceneView.createUI 开始');
 
     try {
-      // 创建状态栏
+      // 创建状态栏 (位于屏幕左上角)
       console.log('[DEBUG] 调用 createStatusBar...');
       this.createStatusBar();
       console.log('[DEBUG] createStatusBar 调用成功');
 
-      // 创建波次指示器
+      // 创建波次指示器 (位于屏幕右上角)
       console.log('[DEBUG] 调用 createWaveIndicator...');
       this.createWaveIndicator();
       console.log('[DEBUG] createWaveIndicator 调用成功');
 
-      // 创建技能按钮
+      // 创建技能按钮 (位于屏幕底部中央)
       console.log('[DEBUG] 调用 createSkillButtons...');
       this.createSkillButtons();
       console.log('[DEBUG] createSkillButtons 调用成功');
@@ -113,98 +132,242 @@ export class BattleSceneView {
 
   /**
    * 创建状态栏
+   *
+   * 状态栏布局 (适配430*930屏幕)：
+   * +---------------------------+
+   * | 头像 | HP: 100/100        |
+   * |      | MP: 100/100        |
+   * +---------------------------+
+   *
+   * 位置：屏幕左上角 (10, 10)
+   * 大小：根据屏幕宽度自适应，最大宽度180像素，高度60像素
    */
   private createStatusBar(): void {
-    // 创建状态栏容器
+    // 获取屏幕宽度
+    const screenWidth = this.scene.cameras.main.width;
+
+    // 计算状态栏宽度 (适配窄屏设备)
+    const barWidth = Math.min(180, screenWidth * 0.4); // 最大宽度180，或屏幕宽度的40%
+    const barHeight = 60;
+
+    // 创建状态栏容器 (位于屏幕左上角，坐标为 10,10)
     this.statusBar = this.scene.add.container(10, 10);
 
-    // 创建背景
-    const bg = this.scene.add.rectangle(0, 0, 200, 60, 0x000000, 0.5);
+    // 创建背景 (黑色半透明矩形)
+    const bg = this.scene.add.rectangle(0, 0, barWidth, barHeight, 0x000000, 0.5);
     bg.setOrigin(0, 0);
     this.statusBar.add(bg);
 
-    // 创建英雄头像
-    const heroIcon = this.scene.add.image(20, 30, 'hero_icon');
-    heroIcon.setScale(0.5);
+    // 计算头像大小和位置 (根据状态栏宽度调整)
+    const iconSize = Math.min(40, barWidth * 0.2); // 头像大小
+    const iconX = 10;
+    const iconY = barHeight / 2;
+
+    // 创建英雄头像 (使用文本Emoji代替图片)
+    const heroIcon = this.scene.add.text(iconX, iconY, '🧙', {
+      fontSize: `${iconSize}px`
+    });
+    heroIcon.setOrigin(0, 0.5);
     this.statusBar.add(heroIcon);
 
+    // 计算生命值条和魔法值条的尺寸和位置
+    const barX = iconX + iconSize + 10; // 条形图X坐标
+    const barLength = barWidth - barX - 10; // 条形图长度
+    const barHeight1 = 12; // 条形图高度
+    const hpY = 20; // 生命值条Y坐标
+    const mpY = 40; // 魔法值条Y坐标
+
     // 创建生命值条背景
-    const hpBarBg = this.scene.add.rectangle(60, 20, 130, 15, 0x333333);
+    const hpBarBg = this.scene.add.rectangle(barX, hpY, barLength, barHeight1, 0x333333);
     hpBarBg.setOrigin(0, 0);
     this.statusBar.add(hpBarBg);
 
     // 创建生命值条
-    const hpBar = this.scene.add.rectangle(60, 20, 130, 15, 0xff0000);
+    const hpBar = this.scene.add.rectangle(barX, hpY, barLength, barHeight1, 0xff0000);
     hpBar.setOrigin(0, 0);
     this.statusBar.add(hpBar);
 
     // 创建魔法值条背景
-    const mpBarBg = this.scene.add.rectangle(60, 40, 130, 15, 0x333333);
+    const mpBarBg = this.scene.add.rectangle(barX, mpY, barLength, barHeight1, 0x333333);
     mpBarBg.setOrigin(0, 0);
     this.statusBar.add(mpBarBg);
 
     // 创建魔法值条
-    const mpBar = this.scene.add.rectangle(60, 40, 130, 15, 0x0000ff);
+    const mpBar = this.scene.add.rectangle(barX, mpY, barLength, barHeight1, 0x0000ff);
     mpBar.setOrigin(0, 0);
     this.statusBar.add(mpBar);
 
+    // 计算文本大小和位置
+    const textSize = Math.min(12, barLength * 0.1); // 文本大小
+    const textX = barX + barLength / 2; // 文本X坐标
+
     // 创建生命值文本
-    const hpText = this.scene.add.text(125, 20, '100/100', {
-      fontSize: '12px',
+    const hpText = this.scene.add.text(textX, hpY, '100/100', {
+      fontSize: `${textSize}px`,
       color: '#ffffff'
     });
     hpText.setOrigin(0.5, 0);
     this.statusBar.add(hpText);
 
     // 创建魔法值文本
-    const mpText = this.scene.add.text(125, 40, '100/100', {
-      fontSize: '12px',
+    const mpText = this.scene.add.text(textX, mpY, '100/100', {
+      fontSize: `${textSize}px`,
       color: '#ffffff'
     });
     mpText.setOrigin(0.5, 0);
     this.statusBar.add(mpText);
+
+    console.log(`[DEBUG] 创建状态栏: 屏幕宽度=${screenWidth}, 状态栏宽度=${barWidth}`);
   }
 
   /**
    * 创建波次指示器
+   *
+   * 位置：屏幕右上角 (屏幕宽度 - 10, 10)
+   * 样式：白色文本，黑色描边
+   * 对齐：右对齐
+   *
+   * 适配430*930屏幕：
+   * - 字体大小根据屏幕宽度自适应
+   * - 位置贴近屏幕右上角
    */
   private createWaveIndicator(): void {
-    // 创建波次指示器
+    // 获取屏幕宽度
+    const screenWidth = this.scene.cameras.main.width;
+
+    // 计算字体大小 (适配窄屏设备)
+    const fontSize = Math.min(24, Math.max(16, screenWidth * 0.05)); // 最小16px，最大24px
+
+    // 创建波次指示器 (位于屏幕右上角，距离右边缘10像素，距离上边缘10像素)
     this.waveIndicator = this.scene.add.text(
-      this.scene.cameras.main.width - 20,
-      20,
+      screenWidth - 10,          // X坐标：屏幕宽度减去10像素
+      10,                        // Y坐标：距离顶部10像素
       'Wave: 1',
       {
-        fontSize: '24px',
-        color: '#ffffff',
-        stroke: '#000000',
-        strokeThickness: 4
+        fontSize: `${fontSize}px`,
+        color: '#ffffff',        // 白色文本
+        stroke: '#000000',       // 黑色描边
+        strokeThickness: Math.max(2, fontSize / 6)  // 描边粗细根据字体大小调整
       }
     );
-    this.waveIndicator.setOrigin(1, 0);
+    this.waveIndicator.setOrigin(1, 0); // 设置原点为右上角，使文本右对齐
+
+    console.log(`[DEBUG] 创建波次指示器: 屏幕宽度=${screenWidth}, 字体大小=${fontSize}`);
   }
 
   /**
    * 创建技能按钮
+   *
+   * 位置：屏幕底部中央 (屏幕宽度/2, 屏幕高度-80)
+   * 布局：水平排列的4个技能按钮
+   *
+   * 技能按钮布局 (适配430*930屏幕)：
+   * +-----+  +-----+  +-----+  +-----+
+   * |  1  |  |  2  |  |  3  |  |  4  |
+   * +-----+  +-----+  +-----+  +-----+
+   *
+   * 适配策略：
+   * - 按钮大小和间距根据屏幕宽度自适应
+   * - 窄屏设备上按钮更小、间距更紧凑
+   * - 按钮位置更靠近屏幕底部
    */
   private createSkillButtons(): void {
-    // 创建技能按钮容器
+    // 获取屏幕尺寸
+    const screenWidth = this.scene.cameras.main.width;
+    const screenHeight = this.scene.cameras.main.height;
+
+    // 计算底部边距 (适配不同屏幕高度)
+    const bottomMargin = Math.min(100, screenHeight * 0.08); // 最大100px，或屏幕高度的8%
+
+    // 创建技能按钮容器 (位于屏幕底部中央)
     this.skillButtonsContainer = this.scene.add.container(
-      this.scene.cameras.main.width / 2,
-      this.scene.cameras.main.height - 100
+      screenWidth / 2,                    // X坐标：屏幕宽度的一半（水平居中）
+      screenHeight - bottomMargin         // Y坐标：距离屏幕底部的距离
     );
 
-    // 创建技能按钮
-    const skillIds = ['skill_1', 'skill_2', 'skill_3', 'skill_4'];
+    // 从英雄数据中获取技能ID
+    // 获取当前选择的英雄
+    let heroId = 1; // 默认使用1号英雄
 
-    // 根据屏幕宽度调整按钮间距
-    const buttonSpacing = Math.min(85, this.scene.cameras.main.width / 5);
-
-    for (let i = 0; i < skillIds.length; i++) {
-      const x = (i - 1.5) * buttonSpacing;
-      const skillUI = new SkillUIComponent(this.scene, x, 0, skillIds[i]);
-      this.skillUIComponents.set(skillIds[i], skillUI);
+    // 尝试从gameState获取选择的英雄
+    try {
+      if (gameState && gameState.selectedHeroes && gameState.selectedHeroes.length > 0) {
+        heroId = gameState.selectedHeroes[0];
+        console.log(`[DEBUG] 从gameState获取英雄ID: ${heroId}`);
+      } else {
+        console.log('[DEBUG] gameState中没有选择的英雄，使用默认英雄ID: 1');
+      }
+    } catch (error) {
+      console.error('[ERROR] 获取选择的英雄失败:', error);
     }
+
+    // 从BattleParamsService获取英雄数据
+    let heroData = null;
+    try {
+      heroData = BattleParamsService.getHeroData(heroId);
+      console.log(`[DEBUG] 获取英雄数据: ${heroId}`, heroData ? '成功' : '失败');
+    } catch (error) {
+      console.error('[ERROR] 获取英雄数据失败:', error);
+    }
+
+    // 获取英雄的技能列表
+    let skillIds: string[] = [];
+    if (heroData && heroData.skills && Array.isArray(heroData.skills)) {
+      try {
+        // 从英雄数据中获取技能ID
+        skillIds = heroData.skills.map((skill: any) => {
+          // 检查skill.id是否存在
+          if (skill && skill.id) {
+            return `skill_${skill.id}`;
+          }
+          return 'skill_1'; // 默认技能
+        });
+        console.log(`[DEBUG] 从英雄数据中获取技能: ${JSON.stringify(skillIds)}`);
+      } catch (error) {
+        console.error('[ERROR] 解析技能数据失败:', error);
+        skillIds = ['skill_1', 'skill_2', 'skill_3', 'skill_4']; // 使用默认技能
+      }
+    } else {
+      // 如果没有找到英雄数据或技能列表，使用默认技能
+      skillIds = ['skill_1', 'skill_2', 'skill_3', 'skill_4'];
+      console.log('[DEBUG] 使用默认技能列表');
+    }
+
+    // 确保至少有一个技能
+    if (skillIds.length === 0) {
+      skillIds = ['skill_1'];
+      console.log('[DEBUG] 技能列表为空，添加默认技能');
+    }
+
+    // 计算按钮大小 (根据屏幕宽度调整)
+    const buttonSize = Math.min(60, Math.max(40, screenWidth / 8));
+
+    // 根据屏幕宽度和按钮大小调整按钮间距，确保按钮不会重叠
+    // 间距应该至少是按钮直径的1.2倍，避免重叠
+    const minSpacing = buttonSize * 2.4; // 确保按钮之间有足够的间距，避免重叠
+    const buttonSpacing = Math.min(120, Math.max(minSpacing, screenWidth / 5));
+
+    // 创建4个技能按钮，水平排列
+    for (let i = 0; i < skillIds.length; i++) {
+      // 计算按钮X坐标，使4个按钮居中排列
+      // i=0时 x=-1.5*spacing, i=1时 x=-0.5*spacing
+      // i=2时 x=0.5*spacing, i=3时 x=1.5*spacing
+      const x = (i - 1.5) * buttonSpacing;
+
+      // 创建技能UI组件 (Y坐标为0，相对于容器)
+      // 传递按钮大小参数，使SkillUIComponent能够适配
+      const skillUI = new SkillUIComponent(this.scene, x, 0, skillIds[i], buttonSize);
+
+      // 将技能UI组件的容器添加到技能按钮容器中
+      this.skillButtonsContainer.add(skillUI.getContainer());
+
+      // 保存技能UI组件的引用
+      this.skillUIComponents.set(skillIds[i], skillUI);
+
+      console.log(`[DEBUG] 创建技能按钮 ${skillIds[i]} 在位置 x=${x}, y=0`);
+    }
+
+    console.log(`[DEBUG] 创建技能按钮: 屏幕尺寸=${screenWidth}x${screenHeight}, 按钮间距=${buttonSpacing}, 按钮大小=${buttonSize}`);
   }
 
   /**
@@ -234,6 +397,9 @@ export class BattleSceneView {
 
     // 监听波次变化事件
     this.eventManager.on('waveChanged', this.onWaveChanged.bind(this));
+
+    // 监听波次完成事件
+    this.eventManager.on('waveCompleted', this.onWaveCompleted.bind(this));
 
     // 监听战斗结束事件
     this.eventManager.on('battleEnd', this.onBattleEnd.bind(this));
@@ -343,11 +509,29 @@ export class BattleSceneView {
 
   /**
    * 更新生命值条
+   *
+   * 生命值条布局 (适配430*930屏幕)：
+   * +--------------------------------------------------+
+   * |                                                  |
+   * |                  [生命值条]                      |  <- 位于实体上方，距离根据实体大小调整
+   * |                     实体                         |
+   * |                                                  |
+   * +--------------------------------------------------+
+   *
+   * 生命值条样式：
+   * - 宽度：根据实体大小自适应
+   * - 高度：根据实体大小自适应
+   * - 背景：半透明黑色
+   * - 前景：绿色（根据生命值比例显示）
+   *
    * @param entityId 实体ID
    * @param currentHp 当前生命值
    * @param maxHp 最大生命值
    */
   private updateHealthBar(entityId: string, currentHp: number, maxHp: number): void {
+    // 获取屏幕尺寸
+    const screenWidth = this.scene.cameras.main.width;
+
     // 获取生命值条
     const healthBar = this.entityHealthBars.get(entityId);
     if (!healthBar) {
@@ -363,18 +547,37 @@ export class BattleSceneView {
     // 计算生命值比例
     const ratio = Math.max(0, Math.min(1, currentHp / maxHp));
 
+    // 计算生命值条尺寸 (根据屏幕宽度和实体类型调整)
+    let barWidth, barHeight, barOffsetY;
+
+    // 根据实体类型调整生命值条尺寸
+    if (entityId.startsWith('hero_') || entityId.startsWith('crystal_')) {
+      // 英雄和水晶使用较大的生命值条
+      barWidth = Math.min(50, Math.max(30, screenWidth * 0.1)); // 宽度
+      barHeight = Math.min(8, Math.max(4, screenWidth * 0.015)); // 高度
+      barOffsetY = Math.min(40, Math.max(25, screenWidth * 0.08)); // 上方偏移
+    } else {
+      // 豆豆使用较小的生命值条
+      barWidth = Math.min(40, Math.max(20, screenWidth * 0.08)); // 宽度
+      barHeight = Math.min(6, Math.max(3, screenWidth * 0.01)); // 高度
+      barOffsetY = Math.min(30, Math.max(20, screenWidth * 0.06)); // 上方偏移
+    }
+
+    // 计算生命值条位置
+    const barX = -barWidth / 2; // 水平居中
+
     // 更新生命值条
     healthBar.clear();
 
-    // 绘制背景
+    // 绘制背景 (半透明黑色矩形)
     healthBar.fillStyle(0x000000, 0.5);
-    healthBar.fillRect(-25, -40, 50, 8);
+    healthBar.fillRect(barX, -barOffsetY, barWidth, barHeight);
 
-    // 绘制生命值
+    // 绘制生命值 (绿色矩形，宽度根据生命值比例变化)
     healthBar.fillStyle(0x00ff00);
-    healthBar.fillRect(-25, -40, 50 * ratio, 8);
+    healthBar.fillRect(barX, -barOffsetY, barWidth * ratio, barHeight);
 
-    // 设置位置
+    // 设置位置 (跟随实体精灵)
     healthBar.x = sprite.x;
     healthBar.y = sprite.y;
   }
@@ -418,33 +621,65 @@ export class BattleSceneView {
 
   /**
    * 世界坐标转屏幕坐标
+   *
+   * 坐标系统说明：
+   * - 世界坐标：游戏逻辑使用的坐标系统，范围是 0-3000 (x和y方向)
+   * - 屏幕坐标：实际显示在屏幕上的像素坐标，范围是 0-屏幕宽高
+   *
+   * 转换方法：
+   * - X坐标：(世界X / 3000) * 屏幕宽度
+   * - Y坐标：(世界Y / 3000) * 屏幕高度
+   *
+   * 示例：
+   * - 世界坐标 (1500, 1500) -> 屏幕坐标 (屏幕宽度/2, 屏幕高度/2)
+   * - 世界坐标 (0, 0) -> 屏幕坐标 (0, 0)
+   * - 世界坐标 (3000, 3000) -> 屏幕坐标 (屏幕宽度, 屏幕高度)
+   *
    * @param position 世界坐标
    * @returns 屏幕坐标
    */
   private worldToScreenPosition(position: Vector2D): Vector2D {
-    // 假设世界坐标范围是 0-3000，屏幕坐标范围是 0-屏幕宽高
+    // 获取屏幕尺寸
     const screenWidth = this.scene.cameras.main.width;
     const screenHeight = this.scene.cameras.main.height;
 
+    // 执行坐标转换
     return {
-      x: (position.x / 3000) * screenWidth,
-      y: (position.y / 3000) * screenHeight
+      x: (position.x / 3000) * screenWidth,  // 世界X坐标映射到屏幕宽度
+      y: (position.y / 3000) * screenHeight  // 世界Y坐标映射到屏幕高度
     };
   }
 
   /**
    * 屏幕坐标转世界坐标
+   *
+   * 坐标系统说明：
+   * - 屏幕坐标：实际显示在屏幕上的像素坐标，范围是 0-屏幕宽高
+   * - 世界坐标：游戏逻辑使用的坐标系统，范围是 0-3000 (x和y方向)
+   *
+   * 转换方法：
+   * - X坐标：(屏幕X / 屏幕宽度) * 3000
+   * - Y坐标：(屏幕Y / 屏幕高度) * 3000
+   *
+   * 示例：
+   * - 屏幕坐标 (屏幕宽度/2, 屏幕高度/2) -> 世界坐标 (1500, 1500)
+   * - 屏幕坐标 (0, 0) -> 世界坐标 (0, 0)
+   * - 屏幕坐标 (屏幕宽度, 屏幕高度) -> 世界坐标 (3000, 3000)
+   *
+   * 注意：此方法主要用于处理用户输入，将屏幕点击位置转换为游戏世界位置
+   *
    * @param screenPos 屏幕坐标
    * @returns 世界坐标
    */
   private screenToWorldPosition(screenPos: Vector2D): Vector2D {
-    // 假设世界坐标范围是 0-3000，屏幕坐标范围是 0-屏幕宽高
+    // 获取屏幕尺寸
     const screenWidth = this.scene.cameras.main.width;
     const screenHeight = this.scene.cameras.main.height;
 
+    // 执行坐标转换
     return {
-      x: (screenPos.x / screenWidth) * 3000,
-      y: (screenPos.y / screenHeight) * 3000
+      x: (screenPos.x / screenWidth) * 3000,  // 屏幕X坐标映射到世界宽度
+      y: (screenPos.y / screenHeight) * 3000  // 屏幕Y坐标映射到世界高度
     };
   }
 
@@ -468,52 +703,70 @@ export class BattleSceneView {
 
   /**
    * 实体创建事件处理
+   *
+   * 实体在游戏世界中的位置分布：
+   * - 英雄：玩家控制的角色，初始位于游戏世界中央附近
+   * - 水晶：位于游戏世界中央 (1500, 1500)
+   * - 豆豆：敌人，分布在水晶周围的随机位置
+   *
+   * 实体显示 (适配430*930屏幕)：
+   * - 英雄：使用 🧙 表示，大小根据屏幕宽度自适应
+   * - 水晶：使用 💎 表示，大小根据屏幕宽度自适应
+   * - 豆豆：使用 🟢 表示，大小根据屏幕宽度自适应
+   *
    * @param data 事件数据
    */
   private onEntityCreated(data: any): void {
     console.log('[DEBUG] onEntityCreated 被调用，数据:', data);
 
     try {
+      // 获取屏幕尺寸
+      const screenWidth = this.scene.cameras.main.width;
+
       // 创建实体精灵
       const entityId = data.id;
       const entityType = data.type;
       const position = data.position;
 
-      // 转换为屏幕坐标
+      // 转换为屏幕坐标 (将游戏世界坐标转换为屏幕像素坐标)
       const screenPos = this.worldToScreenPosition(position);
+
+      // 计算实体大小 (根据屏幕宽度自适应)
+      const heroSize = Math.min(48, Math.max(32, screenWidth * 0.09)); // 英雄和水晶大小
+      const beanSize = Math.min(32, Math.max(24, screenWidth * 0.06)); // 豆豆大小
 
       // 使用Text对象显示Emoji而不是Sprite
       let sprite: Phaser.GameObjects.Text;
 
       switch (entityType) {
         case EntityType.HERO:
-          // 使用英雄Emoji
+          // 使用英雄Emoji (位于转换后的屏幕坐标)
           sprite = this.scene.add.text(screenPos.x, screenPos.y, '🧙', {
-            fontSize: '48px'
+            fontSize: `${heroSize}px`  // 英雄大小自适应
           });
-          sprite.setOrigin(0.5);
+          sprite.setOrigin(0.5);  // 设置原点为中心，使Emoji居中显示
 
           // 如果是英雄，立即聚焦摄像机
           this.focusCameraOnHero(position);
-          console.log('[DEBUG] 英雄创建成功:', entityId, '位置:', screenPos);
+          console.log('[DEBUG] 英雄创建成功:', entityId, '位置:', screenPos, '大小:', heroSize);
           break;
 
         case EntityType.BEAN:
-          // 使用豆豆Emoji
+          // 使用豆豆Emoji (位于转换后的屏幕坐标)
           sprite = this.scene.add.text(screenPos.x, screenPos.y, '🟢', {
-            fontSize: '32px'
+            fontSize: `${beanSize}px`  // 豆豆大小自适应
           });
-          sprite.setOrigin(0.5);
-          console.log('[DEBUG] 豆豆创建成功:', entityId, '位置:', screenPos);
+          sprite.setOrigin(0.5);  // 设置原点为中心，使Emoji居中显示
+          console.log('[DEBUG] 豆豆创建成功:', entityId, '位置:', screenPos, '大小:', beanSize);
           break;
 
         case EntityType.CRYSTAL:
-          // 使用水晶Emoji
+          // 使用水晶Emoji (位于转换后的屏幕坐标)
           sprite = this.scene.add.text(screenPos.x, screenPos.y, '💎', {
-            fontSize: '48px'
+            fontSize: `${heroSize}px`  // 水晶大小自适应
           });
-          sprite.setOrigin(0.5);
-          console.log('[DEBUG] 水晶创建成功:', entityId, '位置:', screenPos);
+          sprite.setOrigin(0.5);  // 设置原点为中心，使Emoji居中显示
+          console.log('[DEBUG] 水晶创建成功:', entityId, '位置:', screenPos, '大小:', heroSize);
           break;
 
         default:
@@ -524,7 +777,7 @@ export class BattleSceneView {
       // 添加到映射
       this.entitySprites.set(entityId, sprite as any);
 
-      // 创建生命值条
+      // 创建生命值条 (位于实体上方)
       const healthBar = this.scene.add.graphics();
       this.entityHealthBars.set(entityId, healthBar);
 
@@ -823,6 +1076,81 @@ export class BattleSceneView {
   }
 
   /**
+   * 波次完成事件处理
+   * @param data 事件数据
+   */
+  private onWaveCompleted(data: any): void {
+    console.log('[DEBUG] onWaveCompleted 被调用，数据:', data);
+
+    try {
+      const waveIndex = data.waveIndex;
+      const waveName = data.waveName;
+      const duration = data.duration;
+
+      console.log(`[DEBUG] 波次完成: 第${waveIndex + 1}波 - ${waveName}, 用时: ${duration}ms`);
+
+      // 显示波次完成提示
+      const completeText = this.scene.add.text(
+        this.scene.cameras.main.width / 2,
+        this.scene.cameras.main.height / 2 - 50,
+        `第 ${waveIndex + 1} 波完成!`,
+        {
+          fontSize: '32px',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 4
+        }
+      );
+      completeText.setOrigin(0.5);
+
+      // 添加继续按钮
+      const continueButton = this.scene.add.text(
+        this.scene.cameras.main.width / 2,
+        this.scene.cameras.main.height / 2 + 20,
+        '继续',
+        {
+          fontSize: '28px',
+          color: '#ffffff',
+          backgroundColor: '#4a668d',
+          padding: {
+            left: 20,
+            right: 20,
+            top: 10,
+            bottom: 10
+          }
+        }
+      );
+      continueButton.setOrigin(0.5);
+      continueButton.setInteractive();
+
+      // 添加点击效果
+      continueButton.on('pointerover', () => {
+        continueButton.setStyle({ backgroundColor: '#5a769d' });
+      });
+
+      continueButton.on('pointerout', () => {
+        continueButton.setStyle({ backgroundColor: '#4a668d' });
+      });
+
+      // 点击继续按钮时开始下一波
+      continueButton.on('pointerdown', () => {
+        // 销毁提示和按钮
+        completeText.destroy();
+        continueButton.destroy();
+
+        // 调用战斗引擎的波次管理器开始下一波
+        this.battleEngine.getWaveManager().startNextWave();
+
+        console.log('[DEBUG] 开始下一波');
+      });
+
+      console.log('[DEBUG] 波次完成提示显示完成');
+    } catch (error) {
+      console.error('[ERROR] onWaveCompleted 出错:', error);
+    }
+  }
+
+  /**
    * 战斗结束事件处理
    * @param data 事件数据
    */
@@ -891,6 +1219,7 @@ export class BattleSceneView {
     this.eventManager.off('skillCooldownComplete', this.onSkillCooldownComplete.bind(this));
     this.eventManager.off('entityDied', this.onEntityDied.bind(this));
     this.eventManager.off('waveChanged', this.onWaveChanged.bind(this));
+    this.eventManager.off('waveCompleted', this.onWaveCompleted.bind(this));
     this.eventManager.off('battleEnd', this.onBattleEnd.bind(this));
 
     // 销毁组件

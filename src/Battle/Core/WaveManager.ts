@@ -54,7 +54,7 @@ export class WaveManager {
   private randomManager: RandomManager;
   private entityManager: EntityManager;
   private eventManager: EventManager;
-  
+
   // 波次配置列表
   private waves: WaveConfig[] = [];
   // 当前波次索引
@@ -72,7 +72,7 @@ export class WaveManager {
   // 战斗开始时间（毫秒）
   private battleStartTime: number = 0;
   // 是否自动开始下一波
-  private autoNextWave: boolean = true;
+  private autoNextWave: boolean = false;
   // 中心点位置（通常是水晶位置）
   private centerPosition: Vector2D = { x: 1500, y: 1500 };
   // 生成范围（最小和最大距离）
@@ -92,14 +92,14 @@ export class WaveManager {
     this.randomManager = randomManager;
     this.entityManager = entityManager;
     this.eventManager = eventManager;
-    
+
     // 监听敌人死亡事件
     this.eventManager.on('entityDeath', (event) => {
       if (event.entity.getType() === EntityType.BEAN) {
         this.onEnemyDefeated(event.entity.getId());
       }
     });
-    
+
     logger.debug('波次管理器初始化');
   }
 
@@ -145,13 +145,13 @@ export class WaveManager {
   public startBattle(): void {
     this.battleStartTime = Date.now();
     logger.info('战斗开始');
-    
+
     // 触发战斗开始事件
     this.eventManager.emit('battleStart', {
       time: this.battleStartTime,
       totalWaves: this.waves.length
     });
-    
+
     // 开始第一波
     this.startNextWave();
   }
@@ -163,16 +163,16 @@ export class WaveManager {
     // 检查是否还有下一波
     if (this.currentWaveIndex + 1 >= this.waves.length) {
       logger.info('已经是最后一波');
-      
+
       // 触发所有波次完成事件
       this.eventManager.emit('allWavesCompleted', {
         time: Date.now(),
         totalWaves: this.waves.length
       });
-      
+
       return;
     }
-    
+
     // 更新波次索引和状态
     this.currentWaveIndex++;
     this.currentWaveStatus = WaveStatus.ACTIVE;
@@ -180,10 +180,10 @@ export class WaveManager {
     this.defeatedEnemiesCount = 0;
     this.waveStartTime = Date.now();
     this.lastSpawnTime = this.waveStartTime;
-    
+
     const wave = this.waves[this.currentWaveIndex];
     logger.info(`开始第${this.currentWaveIndex + 1}波: ${wave.name}`);
-    
+
     // 触发波次开始事件
     this.eventManager.emit('waveStart', {
       waveIndex: this.currentWaveIndex,
@@ -202,32 +202,32 @@ export class WaveManager {
     if (this.currentWaveStatus !== WaveStatus.ACTIVE) {
       return;
     }
-    
+
     const wave = this.waves[this.currentWaveIndex];
-    
+
     // 检查是否需要生成敌人
     if (this.spawnedEnemiesCount < wave.totalEnemies) {
       const timeSinceLastSpawn = currentTime - this.lastSpawnTime;
-      
+
       if (timeSinceLastSpawn >= wave.spawnInterval) {
         this.spawnEnemy();
         this.lastSpawnTime = currentTime;
       }
     }
-    
+
     // 检查特殊敌人生成
     if (wave.specialEnemies) {
       const waveElapsedTime = currentTime - this.waveStartTime;
-      
+
       for (const specialEnemy of wave.specialEnemies) {
         // 如果指定了生成时间，并且时间已到
-        if (specialEnemy.spawnTime !== undefined && 
+        if (specialEnemy.spawnTime !== undefined &&
             waveElapsedTime >= specialEnemy.spawnTime) {
           // 移除已处理的特殊敌人，避免重复生成
           const index = wave.specialEnemies.indexOf(specialEnemy);
           if (index !== -1) {
             wave.specialEnemies.splice(index, 1);
-            
+
             // 生成特殊敌人
             for (let i = 0; i < specialEnemy.count; i++) {
               this.spawnSpecialEnemy(specialEnemy.type);
@@ -236,9 +236,9 @@ export class WaveManager {
         }
       }
     }
-    
+
     // 检查波次是否完成
-    if (this.spawnedEnemiesCount >= wave.totalEnemies && 
+    if (this.spawnedEnemiesCount >= wave.totalEnemies &&
         this.defeatedEnemiesCount >= wave.totalEnemies) {
       this.completeCurrentWave();
     }
@@ -258,10 +258,10 @@ export class WaveManager {
     const config = this.currentWaveIndex >= 0 && this.currentWaveIndex < this.waves.length
       ? this.waves[this.currentWaveIndex]
       : null;
-    
+
     const totalEnemies = config ? config.totalEnemies : 0;
     const progress = totalEnemies > 0 ? this.defeatedEnemiesCount / totalEnemies : 0;
-    
+
     return {
       index: this.currentWaveIndex,
       status: this.currentWaveStatus,
@@ -291,18 +291,18 @@ export class WaveManager {
    */
   private spawnEnemy(): void {
     const wave = this.waves[this.currentWaveIndex];
-    
+
     // 根据权重随机选择敌人类型
     const enemyTypes = wave.enemyTypes.map(e => e.type);
     const weights = wave.enemyTypes.map(e => e.weight);
     const selectedType = this.randomManager.weightedRandom(enemyTypes, weights);
-    
+
     // 获取属性系数
     const attrFactors = wave.enemyTypes.find(e => e.type === selectedType)?.attrFactors || {};
-    
+
     // 生成敌人
     this.spawnEnemyOfType(selectedType, attrFactors);
-    
+
     // 更新计数
     this.spawnedEnemiesCount++;
   }
@@ -319,10 +319,10 @@ export class WaveManager {
       defense: 1.5,
       speed: 1.2
     };
-    
+
     // 生成敌人
     this.spawnEnemyOfType(type, attrFactors, true);
-    
+
     // 更新计数（特殊敌人也计入总数）
     this.spawnedEnemiesCount++;
   }
@@ -340,7 +340,7 @@ export class WaveManager {
   ): void {
     // 生成随机位置（在中心点周围的环形区域）
     const spawnPosition = this.generateRandomSpawnPosition();
-    
+
     // 触发敌人生成事件
     this.eventManager.emit('enemySpawn', {
       type,
@@ -349,7 +349,7 @@ export class WaveManager {
       isSpecial,
       waveIndex: this.currentWaveIndex
     });
-    
+
     logger.debug(`生成敌人: 类型=${type}, 位置=(${spawnPosition.x},${spawnPosition.y}), 特殊=${isSpecial}`);
   }
 
@@ -359,14 +359,14 @@ export class WaveManager {
   private generateRandomSpawnPosition(): Vector2D {
     // 随机角度（0-2π）
     const angle = this.randomManager.randomFloat(0, Math.PI * 2);
-    
+
     // 随机距离（在指定范围内）
     const distance = this.randomManager.randomFloat(this.spawnRange.min, this.spawnRange.max);
-    
+
     // 计算坐标
     const x = this.centerPosition.x + Math.cos(angle) * distance;
     const y = this.centerPosition.y + Math.sin(angle) * distance;
-    
+
     return { x, y };
   }
 
@@ -377,10 +377,10 @@ export class WaveManager {
   private onEnemyDefeated(enemyId: string): void {
     // 更新计数
     this.defeatedEnemiesCount++;
-    
+
     const wave = this.waves[this.currentWaveIndex];
     logger.debug(`敌人被击败: ID=${enemyId}, 进度=${this.defeatedEnemiesCount}/${wave.totalEnemies}`);
-    
+
     // 触发进度更新事件
     this.eventManager.emit('waveProgress', {
       waveIndex: this.currentWaveIndex,
@@ -389,9 +389,9 @@ export class WaveManager {
       totalEnemies: wave.totalEnemies,
       progress: this.defeatedEnemiesCount / wave.totalEnemies
     });
-    
+
     // 检查波次是否完成
-    if (this.spawnedEnemiesCount >= wave.totalEnemies && 
+    if (this.spawnedEnemiesCount >= wave.totalEnemies &&
         this.defeatedEnemiesCount >= wave.totalEnemies) {
       this.completeCurrentWave();
     }
@@ -403,13 +403,13 @@ export class WaveManager {
   private completeCurrentWave(): void {
     // 更新状态
     this.currentWaveStatus = WaveStatus.COMPLETED;
-    
+
     const wave = this.waves[this.currentWaveIndex];
     const waveEndTime = Date.now();
     const waveDuration = waveEndTime - this.waveStartTime;
-    
+
     logger.info(`完成第${this.currentWaveIndex + 1}波: ${wave.name}, 用时: ${waveDuration}ms`);
-    
+
     // 触发波次完成事件
     this.eventManager.emit('waveCompleted', {
       waveIndex: this.currentWaveIndex,
@@ -417,10 +417,10 @@ export class WaveManager {
       duration: waveDuration,
       time: waveEndTime
     });
-    
+
     // 检查是否是最后一波
     const isLastWave = this.currentWaveIndex === this.waves.length - 1;
-    
+
     if (isLastWave) {
       // 触发所有波次完成事件
       this.eventManager.emit('allWavesCompleted', {
@@ -432,9 +432,9 @@ export class WaveManager {
       // 自动开始下一波（可能有延迟）
       const nextWave = this.waves[this.currentWaveIndex + 1];
       const delay = nextWave.delay || 3000; // 默认3秒延迟
-      
+
       logger.debug(`将在${delay}ms后开始下一波`);
-      
+
       // 使用setTimeout模拟延迟
       setTimeout(() => {
         this.startNextWave();

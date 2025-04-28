@@ -29,26 +29,39 @@ export class SkillUIComponent {
    * @param x X坐标
    * @param y Y坐标
    * @param skillId 技能ID
+   * @param customSize 自定义按钮大小（可选）
    */
-  constructor(scene: Phaser.Scene, x: number, y: number, skillId: string) {
+  constructor(scene: Phaser.Scene, x: number, y: number, skillId: string, customSize?: number) {
     this.scene = scene;
     this.skillId = skillId;
 
     // 获取技能UI配置
     const config = getSkillVisualConfig(skillId);
     if (!config) {
-      console.warn(`未找到技能UI配置: ${skillId}`);
-      return;
+      console.warn(`未找到技能UI配置: ${skillId}，使用默认配置`);
+      // 使用默认配置
+      this.uiConfig = {
+        id: skillId,
+        name: `技能${skillId.replace('skill_', '')}`,
+        description: '技能描述',
+        emoji: '⚡',
+        cooldown: 5,
+        cost: 30,
+        type: 'damage',
+        color: '#ffffff',
+        borderColor: '#aaaaaa'
+      };
+    } else {
+      this.uiConfig = config.uiConfig;
     }
 
-    this.uiConfig = config.uiConfig;
     this.maxCooldown = this.uiConfig.cooldown * 1000; // 转换为毫秒
 
     // 创建容器
     this.container = scene.add.container(x, y);
 
-    // 计算按钮大小（根据屏幕宽度调整）
-    const buttonSize = Math.min(35, scene.cameras.main.width / 12);
+    // 计算按钮大小（根据屏幕宽度调整或使用自定义大小）
+    const buttonSize = customSize || Math.min(35, scene.cameras.main.width / 12);
 
     // 创建背景（使用圆形图形）
     this.background = scene.add.circle(0, 0, buttonSize, 0x333333, 0.8);
