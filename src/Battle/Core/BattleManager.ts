@@ -14,7 +14,7 @@ import { RandomManager } from './RandomManager';
 import { BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '../../DesignConfig/types/BattleCommand';
 import { BattleInitParams } from '../../DesignConfig/types/BattleInitParams';
 import { BattleReplayData } from '../../DesignConfig/types/BattleReplay';
-import { Entity, EntityType } from '../Entities/Entity';
+import { Entity, EntityType, EntityStats } from '../Entities/Entity';
 import { Vector2D } from '../Types/Vector2D';
 import { Hero } from '../Entities/Hero';
 import { Bean, BeanType, BeanState } from '../Entities/Bean';
@@ -454,15 +454,15 @@ export class BattleManager {
         id: hero.getId(),
         name: hero.getName(),
         level: hero.getStat('level'),
-        hp: hero.getStat('hp'),
-        maxHp: hero.getStat('maxHp'),
-        mp: hero.getStat('mp'),
-        maxMp: hero.getStat('maxMp'),
+        hp: hero.getStat('hp') ?? 0,
+        maxHp: hero.getStat('maxHp') ?? 100,
+        mp: hero.getStat('mp') ?? 0,
+        maxMp: hero.getStat('maxMp') ?? 100,
         position: hero.getPosition()
       })),
       crystalStats: this.crystal ? {
-        hp: this.crystal.getStat('hp'),
-        maxHp: this.crystal.getStat('maxHp')
+        hp: this.crystal.getStat('hp') ?? 1000,
+        maxHp: this.crystal.getStat('maxHp') ?? 1000
       } : null
     };
   }
@@ -634,14 +634,17 @@ export class BattleManager {
    * @param crystalConfig 水晶配置
    */
   private createCrystal(crystalConfig: any): void {
+    // 确保水晶配置中有正确的HP值
+    const maxHp = crystalConfig.maxHp || crystalConfig.maxHP || 1000;
+
     // 创建水晶实体
     this.crystal = new Crystal(
       'crystal_1',
       '水晶',
       { x: 1500, y: 1500 },
       {
-        hp: crystalConfig.maxHp,
-        maxHp: crystalConfig.maxHp
+        hp: maxHp,
+        maxHp: maxHp
       },
       this.frameManager.getCurrentLogicFrame()
     );
@@ -652,7 +655,7 @@ export class BattleManager {
     // 设置波次管理器的中心点
     this.waveManager.setCenterPosition({ x: 1500, y: 1500 });
 
-    logger.info(`创建水晶: HP=${crystalConfig.maxHp}`);
+    logger.info(`创建水晶: HP=${maxHp}`);
 
     // 触发水晶创建事件
     this.eventManager.emit('crystalCreated', {

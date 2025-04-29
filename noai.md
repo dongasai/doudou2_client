@@ -15,4 +15,8 @@
 
 [2025-04-29T05:46:00.934Z] [INFO] 波次完成: 第NaN波 - undefined, 用时: undefinedms
 
+
+[DEBUG] 检测到水晶状态: {hp: undefined, maxHp: undefined}hp: undefinedmaxHp: undefined
+
+src/Battle/View/BattleSceneView.ts 事件监听,还有未使用EventType的
 [11](11)

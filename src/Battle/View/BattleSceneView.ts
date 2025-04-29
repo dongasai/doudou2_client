@@ -9,7 +9,7 @@
 
 import Phaser from 'phaser';
 import { BattleEngine } from '@/Battle/Core/BattleEngine';
-import { EventManager } from '@/Battle/Core/EventManager';
+import { EventManager, EventHandler } from '@/Battle/Core/EventManager';
 import { SkillEffectView } from '@/Battle/View/SkillEffectView';
 import { SkillUIComponent } from '@/Battle/View/SkillUIComponent';
 import { TouchController } from '@/Battle/View/TouchController';
@@ -25,6 +25,9 @@ import { SkillCastEvent } from '@/Event/b2v/SkillCast';
 import { SkillEffectAppliedEvent } from '@/Event/b2v/SkillEffectApplied';
 import { SkillCooldownUpdateEvent } from '@/Event/b2v/SkillCooldownUpdate';
 import { EntityStateChangedEvent } from '@/Event/b2v/EntityStateChanged';
+import { EntityStatsChangedEvent } from '@/Event/b2v/EntityStatsChanged';
+import { BuffAppliedEvent } from '@/Event/b2v/BuffApplied';
+import { BuffRemovedEvent } from '@/Event/b2v/BuffRemoved';
 import { GameOverEvent } from '@/Event/b2v/GameOver';
 
 export class BattleSceneView {
@@ -50,6 +53,12 @@ export class BattleSceneView {
 
   // 伤害数字组
   private damageTexts: Phaser.GameObjects.Group;
+
+  // 绑定的事件处理器
+  private boundEventHandlers: Map<string, EventHandler<any>> = new Map();
+
+  // UI容器，用于存放所有UI元素
+  private uiContainer: Phaser.GameObjects.Container;
 
   /**
    * 构造函数
@@ -87,6 +96,10 @@ export class BattleSceneView {
 
       // 创建伤害数字组
       this.damageTexts = scene.add.group();
+
+      // 初始化相机设置
+      console.log('初始化相机设置...');
+      this.initializeCamera();
 
       // 注册事件监听
       console.log('注册事件监听...');
@@ -139,10 +152,59 @@ export class BattleSceneView {
       this.createSkillButtons();
       console.log('[DEBUG] createSkillButtons 调用成功');
 
+      // 固定UI元素，使其不受摄像机移动影响
+      console.log('[DEBUG] 固定UI元素...');
+      this.fixUIElements();
+      console.log('[DEBUG] 固定UI元素成功');
+
       console.log('[DEBUG] BattleSceneView.createUI 完成');
     } catch (error) {
       console.error('[ERROR] BattleSceneView.createUI 出错:', error);
       throw error;
+    }
+  }
+
+  /**
+   * 固定UI元素，使其不受摄像机移动影响
+   *
+   * 实现方式：
+   * 1. 创建一个UI容器，用于存放所有UI元素
+   * 2. 将UI元素添加到容器中
+   * 3. 设置容器的scrollFactor为0，使其不随摄像机移动
+   */
+  private fixUIElements(): void {
+    try {
+      // 创建UI容器
+      this.uiContainer = this.scene.add.container(0, 0);
+      this.uiContainer.setName('uiContainer');
+
+      // 将现有UI元素从场景中移除，添加到UI容器中
+      // 注意：这里不需要重新创建UI元素，只需要改变它们的父容器
+
+      // 设置UI容器的scrollFactor为0，使其不随摄像机移动
+      this.uiContainer.setScrollFactor(0);
+
+      // 设置各个UI元素的scrollFactor为0，确保它们不随摄像机移动
+      this.statusBar.setScrollFactor(0);
+      this.waveIndicator.setScrollFactor(0);
+      this.pauseButton.setScrollFactor(0);
+      this.skillButtonsContainer.setScrollFactor(0);
+
+      // 确保所有子元素也不随摄像机移动
+      for (const skillUI of this.skillUIComponents.values()) {
+        skillUI.getContainer().setScrollFactor(0);
+      }
+
+      // 设置摄像机边界，防止滚动过远
+      const mainCamera = this.scene.cameras.main;
+      mainCamera.setName('mainCamera');
+
+      // 设置摄像机的滚动边界，确保不会滚动到看不见UI的地方
+      // 注意：这里不设置边界，因为我们希望摄像机可以自由移动，而UI元素固定在屏幕上
+
+      console.log('[DEBUG] UI元素已固定，不会随摄像机移动');
+    } catch (error) {
+      console.error('[ERROR] 固定UI元素失败:', error);
     }
   }
 
@@ -254,9 +316,9 @@ export class BattleSceneView {
     // 计算字体大小 (适配窄屏设备)
     const fontSize = Math.min(24, Math.max(16, screenWidth * 0.05)); // 最小16px，最大24px
 
-    // 创建波次指示器 (位于屏幕右上角，距离右边缘10像素，距离上边缘10像素)
+    // 创建波次指示器 (位于屏幕右上角，距离右边缘120像素，距离上边缘10像素)
     this.waveIndicator = this.scene.add.text(
-      screenWidth - 10,          // X坐标：屏幕宽度减去10像素
+      screenWidth - 120,         // X坐标：屏幕宽度减去120像素，为暂停按钮留出空间
       10,                        // Y坐标：距离顶部10像素
       'Wave: 1',
       {
@@ -274,7 +336,7 @@ export class BattleSceneView {
   /**
    * 创建暂停/继续按钮
    *
-   * 位置：屏幕右上角，波次指示器下方
+   * 位置：屏幕右上角，与波次指示器平行
    * 样式：文本按钮，带背景色
    * 功能：点击切换暂停/继续状态
    */
@@ -282,9 +344,9 @@ export class BattleSceneView {
     // 获取屏幕尺寸
     const screenWidth = this.scene.cameras.main.width;
 
-    // 计算按钮位置 (右上角，波次指示器下方)
+    // 计算按钮位置 (右上角，与波次指示器平行)
     const x = screenWidth - 20; // 距离右边缘20像素
-    const y = 80; // 波次指示器下方
+    const y = 10; // 与波次指示器在同一高度
 
     // 创建暂停按钮
     this.pauseButton = this.scene.add.text(
@@ -292,14 +354,22 @@ export class BattleSceneView {
       y,
       '⏸️ 暂停',
       {
-        fontSize: '20px',
+        fontSize: '22px',
         color: '#ffffff',
         backgroundColor: '#4a668d',
         padding: {
-          left: 10,
-          right: 10,
-          top: 5,
-          bottom: 5
+          left: 15,
+          right: 15,
+          top: 8,
+          bottom: 8
+        },
+        shadow: {
+          offsetX: 2,
+          offsetY: 2,
+          color: '#000000',
+          blur: 5,
+          stroke: true,
+          fill: true
         }
       }
     );
@@ -339,16 +409,54 @@ export class BattleSceneView {
         // 暂停游戏
         this.battleEngine.pause();
 
-        // 更新按钮文本
+        // 更新按钮文本和样式
         this.pauseButton.setText('▶️ 继续');
+        this.pauseButton.setStyle({
+          backgroundColor: '#5a769d',
+          fontSize: '22px',
+          color: '#ffffff',
+          padding: {
+            left: 15,
+            right: 15,
+            top: 8,
+            bottom: 8
+          },
+          shadow: {
+            offsetX: 2,
+            offsetY: 2,
+            color: '#000000',
+            blur: 5,
+            stroke: true,
+            fill: true
+          }
+        });
 
         console.log('[DEBUG] 游戏已暂停');
       } else {
         // 继续游戏
         this.battleEngine.resume();
 
-        // 更新按钮文本
+        // 更新按钮文本和样式
         this.pauseButton.setText('⏸️ 暂停');
+        this.pauseButton.setStyle({
+          backgroundColor: '#4a668d',
+          fontSize: '22px',
+          color: '#ffffff',
+          padding: {
+            left: 15,
+            right: 15,
+            top: 8,
+            bottom: 8
+          },
+          shadow: {
+            offsetX: 2,
+            offsetY: 2,
+            color: '#000000',
+            blur: 5,
+            stroke: true,
+            fill: true
+          }
+        });
 
         console.log('[DEBUG] 游戏已继续');
       }
@@ -476,36 +584,39 @@ export class BattleSceneView {
    * 注册事件监听
    */
   private registerEventListeners(): void {
-    // 监听实体创建事件
-    this.eventManager.on(EventType.ENTITY_CREATED, this.onEntityCreated.bind(this));
+    // 创建并保存绑定的事件处理器
+    const bindEventHandler = <T>(eventType: string, handler: (event: T) => void): void => {
+      const boundHandler: EventHandler<T> = handler.bind(this);
+      this.boundEventHandlers.set(eventType, boundHandler);
+      this.eventManager.on(eventType, boundHandler);
+      console.log(`[DEBUG] 注册事件监听: ${eventType}`);
+    };
 
-    // 监听实体移动事件
-    this.eventManager.on(EventType.ENTITY_MOVED, this.onEntityMoved.bind(this));
+    // 战斗引擎到视图层的实体事件
+    bindEventHandler(EventType.ENTITY_CREATED, this.onEntityCreated);
+    bindEventHandler(EventType.ENTITY_MOVED, this.onEntityMoved);
+    bindEventHandler(EventType.ENTITY_STATE_CHANGED, this.onEntityStateChanged);
+    bindEventHandler(EventType.ENTITY_STATS_CHANGED, this.onEntityStatsChanged);
+    bindEventHandler(EventType.BUFF_APPLIED, this.onBuffApplied);
+    bindEventHandler(EventType.BUFF_REMOVED, this.onBuffRemoved);
 
-    // 监听伤害事件
-    this.eventManager.on(EventType.DAMAGE_DEALT, this.onDamageDealt.bind(this));
+    // 战斗引擎到视图层的伤害和技能事件
+    bindEventHandler(EventType.DAMAGE_DEALT, this.onDamageDealt);
+    bindEventHandler(EventType.SKILL_CAST, this.onSkillCast);
+    bindEventHandler(EventType.SKILL_EFFECT_APPLIED, this.onSkillEffectApplied);
+    bindEventHandler(EventType.SKILL_COOLDOWN_UPDATE, this.onSkillCooldownUpdate);
 
-    // 监听技能释放事件
-    this.eventManager.on(EventType.SKILL_CAST, this.onSkillCast.bind(this));
+    // 波次事件
+    bindEventHandler(EventType.WAVE_COMPLETED, this.onWaveCompleted);
 
-    // 监听技能效果应用事件
-    this.eventManager.on(EventType.SKILL_EFFECT_APPLIED, this.onSkillEffectApplied.bind(this));
+    // 使用字符串的事件（保留向后兼容性）
+    bindEventHandler('waveChanged', this.onWaveChanged);
 
-    // 监听技能冷却完成事件
-    this.eventManager.on(EventType.SKILL_COOLDOWN_UPDATE, this.onSkillCooldownUpdate.bind(this));
+    // 游戏结束事件
+    bindEventHandler(EventType.GAME_OVER, this.onGameOver);
 
-    // 监听实体状态变化事件
-    this.eventManager.on(EventType.ENTITY_STATE_CHANGED, this.onEntityStateChanged.bind(this));
-
-    // 监听波次变化事件
-    this.eventManager.on('waveChanged', this.onWaveChanged.bind(this));
-
-    // 监听波次完成事件
-    this.eventManager.on('waveCompleted', this.onWaveCompleted.bind(this));
-
-    // 监听战斗结束事件
-    this.eventManager.on(EventType.GAME_OVER, this.onGameOver.bind(this));
-
+    // 打印所有已注册的事件类型
+    console.log('[DEBUG] 已注册的所有事件类型:', Array.from(this.boundEventHandlers.keys()));
   }
 
   /**
@@ -536,6 +647,8 @@ export class BattleSceneView {
 
     // 更新英雄
     if (battleStats.heroStats) {
+      // console.log('[DEBUG] 检测到英雄状态:', battleStats.heroStats);
+
       for (const hero of battleStats.heroStats) {
         const sprite = this.entitySprites.get(hero.id);
         if (sprite) {
@@ -549,19 +662,110 @@ export class BattleSceneView {
 
           // 聚焦摄像机到英雄
           this.focusCameraOnHero(hero.position);
+
+          // console.log('[DEBUG] 英雄精灵存在，已更新位置和生命值条:', hero.id);
+        } else {
+          // 如果英雄精灵不存在但有英雄状态，记录日志
+          console.log('[DEBUG] 英雄状态存在但精灵不存在，可能是实体创建事件未被正确处理:', hero.id);
+          console.log('[DEBUG] 当前所有实体精灵:', Array.from(this.entitySprites.keys()));
+
+          // 检查事件监听器是否正确注册
+          console.log('[DEBUG] ENTITY_CREATED 事件监听器数量:',
+            this.eventManager.listenerCount ? this.eventManager.listenerCount(EventType.ENTITY_CREATED) : '无法获取');
+          console.log('[DEBUG] 已注册的事件类型:',
+            this.eventManager.eventTypes ? this.eventManager.eventTypes() : '无法获取');
+
+          // 检查boundEventHandlers中是否有ENTITY_CREATED
+          console.log('[DEBUG] boundEventHandlers中是否包含ENTITY_CREATED:',
+            this.boundEventHandlers.has(EventType.ENTITY_CREATED));
+
+          console.log('[DEBUG] 尝试重新创建英雄精灵...');
+
+          // 尝试重新创建英雄精灵
+          try {
+            const screenWidth = this.scene.cameras.main.width;
+            const position = hero.position; // 使用英雄的当前位置
+            const screenPos = this.worldToScreenPosition(position);
+            const heroSize = Math.min(48, Math.max(32, screenWidth * 0.09));
+
+            // 创建英雄精灵
+            const heroSprite = this.scene.add.text(screenPos.x, screenPos.y, '🧙', {
+              fontSize: `${heroSize}px`
+            });
+            heroSprite.setOrigin(0.5);
+
+            // 添加到映射
+            this.entitySprites.set(hero.id, heroSprite as any);
+
+            // 创建生命值条
+            const healthBar = this.scene.add.graphics();
+            this.entityHealthBars.set(hero.id, healthBar);
+
+            // 更新生命值条
+            this.updateHealthBar(hero.id, hero.hp, hero.maxHp);
+
+            // 聚焦摄像机到英雄
+            this.focusCameraOnHero(position);
+
+            console.log('[DEBUG] 英雄精灵重新创建成功:', hero.id);
+          } catch (error) {
+            console.error('[ERROR] 重新创建英雄精灵失败:', error);
+          }
         }
       }
     }
 
     // 更新水晶
     if (battleStats.crystalStats) {
+      // 检查水晶状态是否有效
+      const validHp = battleStats.crystalStats.hp !== undefined && !isNaN(battleStats.crystalStats.hp);
+      const validMaxHp = battleStats.crystalStats.maxHp !== undefined && !isNaN(battleStats.crystalStats.maxHp);
+
+      // console.log('[DEBUG] 检测到水晶状态:', battleStats.crystalStats);
+      // console.log('[DEBUG] 水晶状态有效性检查: hp有效=', validHp, 'maxHp有效=', validMaxHp);
+
+      // 如果水晶状态无效，使用默认值
+      const hp = validHp ? battleStats.crystalStats.hp : 1000;
+      const maxHp = validMaxHp ? battleStats.crystalStats.maxHp : 1000;
+
       const sprite = this.entitySprites.get('crystal_1');
       if (sprite) {
         // 更新生命值条
-        this.updateHealthBar('crystal_1', battleStats.crystalStats.hp, battleStats.crystalStats.maxHp);
+        this.updateHealthBar('crystal_1', hp, maxHp);
+        // console.log('[DEBUG] 水晶精灵存在，已更新生命值条:', hp, '/', maxHp);
       } else {
         // 如果水晶精灵不存在但有水晶状态，记录日志
         console.log('[DEBUG] 水晶状态存在但精灵不存在，可能是实体创建事件未被正确处理');
+        console.log('[DEBUG] 当前所有实体精灵:', Array.from(this.entitySprites.keys()));
+        console.log('[DEBUG] 尝试重新创建水晶精灵...');
+
+        // 尝试重新创建水晶精灵
+        try {
+          const screenWidth = this.scene.cameras.main.width;
+          const position = { x: 1500, y: 1500 }; // 水晶的默认位置
+          const screenPos = this.worldToScreenPosition(position);
+          const heroSize = Math.min(48, Math.max(32, screenWidth * 0.09));
+
+          // 创建水晶精灵
+          const crystalSprite = this.scene.add.text(screenPos.x, screenPos.y, '💎', {
+            fontSize: `${heroSize}px`
+          });
+          crystalSprite.setOrigin(0.5);
+
+          // 添加到映射
+          this.entitySprites.set('crystal_1', crystalSprite as any);
+
+          // 创建生命值条
+          const healthBar = this.scene.add.graphics();
+          this.entityHealthBars.set('crystal_1', healthBar);
+
+          // 更新生命值条
+          this.updateHealthBar('crystal_1', battleStats.crystalStats.hp, battleStats.crystalStats.maxHp);
+
+          console.log('[DEBUG] 水晶精灵重新创建成功');
+        } catch (error) {
+          console.error('[ERROR] 重新创建水晶精灵失败:', error);
+        }
       }
     }
 
@@ -635,23 +839,37 @@ export class BattleSceneView {
    * @param maxHp 最大生命值
    */
   private updateHealthBar(entityId: string, currentHp: number, maxHp: number): void {
+    // 检查参数有效性
+    if (currentHp === undefined || isNaN(currentHp)) {
+      console.warn(`[WARN] updateHealthBar: currentHp 无效 (${currentHp})，使用默认值 100`);
+      currentHp = 100;
+    }
+
+    if (maxHp === undefined || isNaN(maxHp) || maxHp <= 0) {
+      console.warn(`[WARN] updateHealthBar: maxHp 无效 (${maxHp})，使用默认值 100`);
+      maxHp = 100;
+    }
+
     // 获取屏幕尺寸
     const screenWidth = this.scene.cameras.main.width;
 
     // 获取生命值条
     const healthBar = this.entityHealthBars.get(entityId);
     if (!healthBar) {
+      console.warn(`[WARN] updateHealthBar: 找不到实体 ${entityId} 的生命值条`);
       return;
     }
 
     // 获取实体精灵
     const sprite = this.entitySprites.get(entityId);
     if (!sprite) {
+      console.warn(`[WARN] updateHealthBar: 找不到实体 ${entityId} 的精灵`);
       return;
     }
 
     // 计算生命值比例
     const ratio = Math.max(0, Math.min(1, currentHp / maxHp));
+    // console.log(`[DEBUG] 更新生命值条: ${entityId}, HP=${currentHp}/${maxHp}, 比例=${ratio.toFixed(2)}`);
 
     // 计算生命值条尺寸 (根据屏幕宽度和实体类型调整)
     let barWidth, barHeight, barOffsetY;
@@ -709,6 +927,9 @@ export class BattleSceneView {
     );
     text.setOrigin(0.5);
 
+    // 设置伤害数字跟随摄像机移动，因为它们是战斗场景的一部分
+    // 不需要设置scrollFactor，默认就是1，会跟随摄像机移动
+
     // 添加到组
     this.damageTexts.add(text);
 
@@ -732,14 +953,10 @@ export class BattleSceneView {
    * - 世界坐标：游戏逻辑使用的坐标系统，范围是 0-3000 (x和y方向)
    * - 屏幕坐标：实际显示在屏幕上的像素坐标，范围是 0-屏幕宽高
    *
-   * 转换方法：
-   * - X坐标：(世界X / 3000) * 屏幕宽度
-   * - Y坐标：(世界Y / 3000) * 屏幕高度
-   *
-   * 示例：
-   * - 世界坐标 (1500, 1500) -> 屏幕坐标 (屏幕宽度/2, 屏幕高度/2)
-   * - 世界坐标 (0, 0) -> 屏幕坐标 (0, 0)
-   * - 世界坐标 (3000, 3000) -> 屏幕坐标 (屏幕宽度, 屏幕高度)
+   * 转换方法（更近的视角）：
+   * - 只显示游戏世界的一部分，而不是整个世界
+   * - 使用缩放因子来调整视角高度
+   * - 中心点保持在世界中心 (1500, 1500)
    *
    * @param position 世界坐标
    * @returns 屏幕坐标
@@ -749,10 +966,22 @@ export class BattleSceneView {
     const screenWidth = this.scene.cameras.main.width;
     const screenHeight = this.scene.cameras.main.height;
 
-    // 执行坐标转换
+    // 缩放因子 - 值越大，视角越近（显示的世界范围越小）
+    // 调整这个值可以改变视角高度
+    const zoomFactor = 2.0;
+
+    // 世界中心点
+    const worldCenterX = 1500;
+    const worldCenterY = 1500;
+
+    // 计算相对于世界中心的偏移
+    const offsetX = position.x - worldCenterX;
+    const offsetY = position.y - worldCenterY;
+
+    // 应用缩放并转换到屏幕坐标
     return {
-      x: (position.x / 3000) * screenWidth,  // 世界X坐标映射到屏幕宽度
-      y: (position.y / 3000) * screenHeight  // 世界Y坐标映射到屏幕高度
+      x: (screenWidth / 2) + (offsetX * screenWidth / (3000 / zoomFactor)),
+      y: (screenHeight / 2) + (offsetY * screenHeight / (3000 / zoomFactor))
     };
   }
 
@@ -764,13 +993,8 @@ export class BattleSceneView {
    * - 世界坐标：游戏逻辑使用的坐标系统，范围是 0-3000 (x和y方向)
    *
    * 转换方法：
-   * - X坐标：(屏幕X / 屏幕宽度) * 3000
-   * - Y坐标：(屏幕Y / 屏幕高度) * 3000
-   *
-   * 示例：
-   * - 屏幕坐标 (屏幕宽度/2, 屏幕高度/2) -> 世界坐标 (1500, 1500)
-   * - 屏幕坐标 (0, 0) -> 世界坐标 (0, 0)
-   * - 屏幕坐标 (屏幕宽度, 屏幕高度) -> 世界坐标 (3000, 3000)
+   * - 与worldToScreenPosition相反的操作
+   * - 考虑缩放因子和世界中心点
    *
    * 注意：此方法主要用于处理用户输入，将屏幕点击位置转换为游戏世界位置
    *
@@ -782,10 +1006,21 @@ export class BattleSceneView {
     const screenWidth = this.scene.cameras.main.width;
     const screenHeight = this.scene.cameras.main.height;
 
-    // 执行坐标转换
+    // 缩放因子 - 必须与worldToScreenPosition中的值相同
+    const zoomFactor = 2.0;
+
+    // 世界中心点
+    const worldCenterX = 1500;
+    const worldCenterY = 1500;
+
+    // 计算相对于屏幕中心的偏移
+    const offsetX = screenPos.x - (screenWidth / 2);
+    const offsetY = screenPos.y - (screenHeight / 2);
+
+    // 应用缩放并转换到世界坐标
     return {
-      x: (screenPos.x / screenWidth) * 3000,  // 屏幕X坐标映射到世界宽度
-      y: (screenPos.y / screenHeight) * 3000  // 屏幕Y坐标映射到世界高度
+      x: worldCenterX + (offsetX * (3000 / zoomFactor) / screenWidth),
+      y: worldCenterY + (offsetY * (3000 / zoomFactor) / screenHeight)
     };
   }
 
@@ -805,6 +1040,68 @@ export class BattleSceneView {
       300, // 移动持续时间（毫秒）
       'Sine.easeOut' // 缓动函数
     );
+
+    // 确保UI元素不受摄像机移动影响
+    // 注意：这是一个额外的保障措施，因为我们已经在fixUIElements中设置了scrollFactor
+    if (this.uiContainer) {
+      this.uiContainer.setScrollFactor(0);
+    }
+
+    // 单独确保每个UI元素不受影响
+    this.statusBar.setScrollFactor(0);
+    this.waveIndicator.setScrollFactor(0);
+    this.pauseButton.setScrollFactor(0);
+    this.skillButtonsContainer.setScrollFactor(0);
+  }
+
+  /**
+   * 初始化相机设置
+   * 设置相机的初始缩放级别和其他属性
+   */
+  private initializeCamera(): void {
+    try {
+      // 获取主相机
+      const mainCamera = this.scene.cameras.main;
+
+      // 设置相机名称
+      mainCamera.setName('battleCamera');
+
+      // 设置相机初始缩放级别
+      // 值越大，视角越近（显示的世界范围越小）
+      const initialZoom = 1.5;
+      mainCamera.setZoom(initialZoom);
+
+      // 设置相机边界（可选）
+      // 这里不设置边界，让相机可以自由移动
+
+      // 设置相机背景色（可选）
+      mainCamera.setBackgroundColor('#111122');
+
+      // 设置相机淡入效果
+      mainCamera.fadeIn(1000, 0, 0, 0);
+
+      console.log(`[DEBUG] 相机初始化完成: 缩放级别=${initialZoom}`);
+    } catch (error) {
+      console.error('[ERROR] 初始化相机设置失败:', error);
+    }
+  }
+
+  /**
+   * 设置相机缩放级别
+   * @param zoomLevel 缩放级别（1.0为原始大小，大于1.0为放大，小于1.0为缩小）
+   */
+  public setCameraZoom(zoomLevel: number): void {
+    try {
+      // 限制缩放级别在合理范围内
+      const zoom = Math.max(0.5, Math.min(3.0, zoomLevel));
+
+      // 应用缩放
+      this.scene.cameras.main.setZoom(zoom);
+
+      console.log(`[DEBUG] 相机缩放级别设置为: ${zoom}`);
+    } catch (error) {
+      console.error('[ERROR] 设置相机缩放级别失败:', error);
+    }
   }
 
   /**
@@ -823,18 +1120,26 @@ export class BattleSceneView {
    * @param event 事件数据
    */
   private onEntityCreated(event: EntityCreatedEvent): void {
-    console.log('[DEBUG] onEntityCreated 被调用，数据:', event);
-    console.log('[DEBUG] 实体详细信息 - ID:', event.id, '类型:', event.entityType, '位置:', JSON.stringify(event.position), '属性:', JSON.stringify(event.stats));
+    // console.log('[DEBUG] onEntityCreated 被调用，数据:', event);
+    // console.log('[DEBUG] 实体详细信息 - ID:', event.id, '类型:', event.entityType, '位置:', JSON.stringify(event.position), '属性:', JSON.stringify(event.stats));
 
     // 特别记录水晶和英雄的创建
     if (event.entityType === 'crystal') {
-      console.log('[DEBUG] 检测到水晶创建事件! ID:', event.id, '位置:', JSON.stringify(event.position));
-      // 记录所有已注册的事件类型，检查是否有监听 ENTITY_CREATED 事件
-      console.log('[DEBUG] 已注册的事件类型:', this.eventManager.eventTypes ? this.eventManager.eventTypes() : '无法获取');
-      // 记录 ENTITY_CREATED 事件的监听器数量
-      console.log('[DEBUG] ENTITY_CREATED 事件监听器数量:', this.eventManager.listenerCount ? this.eventManager.listenerCount('entityCreated') : '无法获取');
+      console.log('[INFO] 水晶创建: ID:', event.id);
+      // 以下调试日志在问题解决后可以注释掉
+      // console.log('[DEBUG] 检测到水晶创建事件! ID:', event.id, '位置:', JSON.stringify(event.position));
+      // console.log('[DEBUG] 已注册的事件类型:', this.eventManager.eventTypes ? this.eventManager.eventTypes() : '无法获取');
+      // console.log('[DEBUG] ENTITY_CREATED 事件监听器数量:', this.eventManager.listenerCount ? this.eventManager.listenerCount(EventType.ENTITY_CREATED) : '无法获取');
+      // console.log('[DEBUG] 水晶精灵是否已存在:', this.entitySprites.has(event.id));
+      // console.log('[DEBUG] 当前所有实体精灵:', Array.from(this.entitySprites.keys()));
     } else if (event.entityType === 'hero') {
-      console.log('[DEBUG] 检测到英雄创建事件! ID:', event.id, '位置:', JSON.stringify(event.position));
+      console.log('[INFO] 英雄创建: ID:', event.id);
+      // 以下调试日志在问题解决后可以注释掉
+      // console.log('[DEBUG] 检测到英雄创建事件! ID:', event.id, '位置:', JSON.stringify(event.position));
+      // console.log('[DEBUG] 已注册的事件类型:', this.eventManager.eventTypes ? this.eventManager.eventTypes() : '无法获取');
+      // console.log('[DEBUG] ENTITY_CREATED 事件监听器数量:', this.eventManager.listenerCount ? this.eventManager.listenerCount(EventType.ENTITY_CREATED) : '无法获取');
+      // console.log('[DEBUG] 英雄精灵是否已存在:', this.entitySprites.has(event.id));
+      // console.log('[DEBUG] 当前所有实体精灵:', Array.from(this.entitySprites.keys()));
     }
 
     try {
@@ -1120,7 +1425,7 @@ export class BattleSceneView {
   private onSkillEffectApplied(event: SkillEffectAppliedEvent): void {
     const effectType = event.effectType;
     const targetId = event.targetId;
-    const sourceSkillId = event.sourceSkillId;
+    // const sourceSkillId = event.sourceSkillId; // 暂时未使用
 
     // 获取目标精灵
     const sprite = this.entitySprites.get(targetId);
@@ -1129,8 +1434,9 @@ export class BattleSceneView {
     }
 
     // 播放效果动画
+    // 注意：这里可能需要类型转换，因为effectType类型可能与EffectType不匹配
     this.skillEffectView.playEffectAnimation(
-      effectType,
+      effectType as any,
       { x: sprite.x, y: sprite.y }
     );
   }
@@ -1331,7 +1637,8 @@ export class BattleSceneView {
     // 显示结果面板
     const resultText = result === 'victory' ? '胜利！' : '失败！';
 
-    const panel = this.scene.add.rectangle(
+    // 创建背景面板
+    this.scene.add.rectangle(
       this.scene.cameras.main.width / 2,
       this.scene.cameras.main.height / 2,
       300,
@@ -1378,20 +1685,156 @@ export class BattleSceneView {
   }
 
   /**
+   * 实体属性变化事件处理
+   * @param event 事件数据
+   */
+  private onEntityStatsChanged(event: EntityStatsChangedEvent): void {
+    console.log('[DEBUG] onEntityStatsChanged 被调用，数据:', event);
+
+    try {
+      const entityId = event.entityId;
+      const changedStats = event.changedStats;
+
+      // 检查事件中是否包含hp和maxHp属性
+      if (changedStats && changedStats.hp !== undefined && changedStats.maxHp !== undefined) {
+        this.updateHealthBar(entityId, changedStats.hp, changedStats.maxHp);
+      }
+
+      // 如果是英雄，更新状态栏
+      if (entityId.startsWith('hero_')) {
+        this.updateUI();
+      }
+
+      console.log('[DEBUG] 实体属性更新完成:', entityId);
+    } catch (error) {
+      console.error('[ERROR] onEntityStatsChanged 出错:', error);
+    }
+  }
+
+  /**
+   * Buff应用事件处理
+   * @param event 事件数据
+   */
+  private onBuffApplied(event: BuffAppliedEvent): void {
+    console.log('[DEBUG] onBuffApplied 被调用，数据:', event);
+
+    try {
+      const targetId = event.targetId;
+      const buffType = event.buffType;
+      const buffEmoji = event.buffEmoji || '✨'; // 默认使用闪光emoji
+
+      // 获取目标精灵
+      const sprite = this.entitySprites.get(targetId);
+      if (!sprite) {
+        console.warn('[WARN] 找不到目标精灵:', targetId);
+        return;
+      }
+
+      // 显示Buff效果
+      const buffText = this.scene.add.text(
+        sprite.x,
+        sprite.y - 30,
+        buffEmoji,
+        {
+          fontSize: '24px'
+        }
+      );
+      buffText.setOrigin(0.5);
+
+      // 添加动画
+      this.scene.tweens.add({
+        targets: buffText,
+        y: sprite.y - 50,
+        alpha: 0,
+        scale: 1.5,
+        duration: 1000,
+        ease: 'Power2',
+        onComplete: () => {
+          buffText.destroy();
+        }
+      });
+
+      console.log('[DEBUG] Buff应用效果显示完成:', targetId, buffType);
+    } catch (error) {
+      console.error('[ERROR] onBuffApplied 出错:', error);
+    }
+  }
+
+  /**
+   * Buff移除事件处理
+   * @param event 事件数据
+   */
+  private onBuffRemoved(event: BuffRemovedEvent): void {
+    console.log('[DEBUG] onBuffRemoved 被调用，数据:', event);
+
+    try {
+      const targetId = event.targetId;
+      const buffType = event.buffType;
+      const reason = event.reason || 'expired';
+
+      // 获取目标精灵
+      const sprite = this.entitySprites.get(targetId);
+      if (!sprite) {
+        console.warn('[WARN] 找不到目标精灵:', targetId);
+        return;
+      }
+
+      // 根据移除原因选择不同的图标
+      let icon = '❌';
+      if (reason === 'expired') {
+        icon = '⏱️';
+      } else if (reason === 'dispelled') {
+        icon = '🧹';
+      } else if (reason === 'death') {
+        icon = '💀';
+      }
+
+      // 显示Buff移除效果
+      const removeText = this.scene.add.text(
+        sprite.x,
+        sprite.y - 30,
+        icon,
+        {
+          fontSize: '24px'
+        }
+      );
+      removeText.setOrigin(0.5);
+
+      // 添加动画
+      this.scene.tweens.add({
+        targets: removeText,
+        y: sprite.y - 50,
+        alpha: 0,
+        scale: 1.5,
+        duration: 800,
+        ease: 'Power2',
+        onComplete: () => {
+          removeText.destroy();
+        }
+      });
+
+      console.log('[DEBUG] Buff移除效果显示完成:', targetId, buffType, '原因:', reason);
+    } catch (error) {
+      console.error('[ERROR] onBuffRemoved 出错:', error);
+    }
+  }
+
+  /**
    * 销毁
    */
   public destroy(): void {
     // 移除事件监听
-    this.eventManager.off(EventType.ENTITY_CREATED, this.onEntityCreated.bind(this));
-    this.eventManager.off(EventType.ENTITY_MOVED, this.onEntityMoved.bind(this));
-    this.eventManager.off(EventType.DAMAGE_DEALT, this.onDamageDealt.bind(this));
-    this.eventManager.off(EventType.SKILL_CAST, this.onSkillCast.bind(this));
-    this.eventManager.off(EventType.SKILL_EFFECT_APPLIED, this.onSkillEffectApplied.bind(this));
-    this.eventManager.off(EventType.SKILL_COOLDOWN_UPDATE, this.onSkillCooldownUpdate.bind(this));
-    this.eventManager.off(EventType.ENTITY_STATE_CHANGED, this.onEntityStateChanged.bind(this));
-    this.eventManager.off('waveChanged', this.onWaveChanged.bind(this));
-    this.eventManager.off('waveCompleted', this.onWaveCompleted.bind(this));
-    this.eventManager.off(EventType.GAME_OVER, this.onGameOver.bind(this));
+    console.log('[DEBUG] 开始移除事件监听器...');
+
+    // 使用保存的绑定处理器移除事件监听
+    for (const [eventType, handler] of this.boundEventHandlers.entries()) {
+      this.eventManager.off(eventType, handler);
+      console.log(`[DEBUG] 移除事件监听: ${eventType}`);
+    }
+
+    // 清空绑定处理器映射
+    this.boundEventHandlers.clear();
+    console.log('[DEBUG] 所有事件监听器已移除');
 
     // 销毁组件
     this.skillEffectView.clearAllEffects();

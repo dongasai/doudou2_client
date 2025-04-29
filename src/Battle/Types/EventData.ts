@@ -75,6 +75,8 @@ export interface EntityCreatedEventData {
   id: string;
   /** 实体类型 */
   type: string;
+  /** 实体类型字符串（用于视图层） */
+  entityType?: string;
   /** 实体位置 */
   position: Vector2D;
   /** 实体属性 */
