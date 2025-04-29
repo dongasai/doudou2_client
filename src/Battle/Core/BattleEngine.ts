@@ -66,6 +66,20 @@ export class BattleEngine {
   }
 
   /**
+   * 暂停游戏
+   */
+  public pause(): void {
+    this.pauseBattle();
+  }
+
+  /**
+   * 继续游戏
+   */
+  public resume(): void {
+    this.resumeBattle();
+  }
+
+  /**
    * 获取战斗状态
    * @returns 战斗状态
    */
