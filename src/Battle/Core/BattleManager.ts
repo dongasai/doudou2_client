@@ -34,6 +34,7 @@ import {
   WaveCompletedEventData,
   AllWavesCompletedEventData
 } from '../Types/EventData';
+import { EventType } from '../../Event/EventTypes';
 import { BattleParamsService } from '../../services/BattleParamsService';
 
 // 战斗状态枚举
@@ -139,7 +140,7 @@ export class BattleManager {
    */
   private registerWaveManagerEvents(): void {
     // 监听敌人生成事件
-    this.eventManager.on('enemySpawn', (data: EnemySpawnEventData) => {
+    this.eventManager.on(EventType.ENEMY_SPAWN, (data: EnemySpawnEventData) => {
       this.createBeanFromWaveManager(
         data.type,
         data.position,
@@ -150,22 +151,22 @@ export class BattleManager {
     });
 
     // 监听波次开始事件
-    this.eventManager.on('waveStart', (data: WaveStartEventData) => {
+    this.eventManager.on(EventType.WAVE_START, (data: WaveStartEventData) => {
       logger.info(`波次开始: 第${data.waveIndex + 1}波 - ${data.waveName}`);
     });
 
     // 监听波次进度事件
-    this.eventManager.on('waveProgress', (data: WaveProgressEventData) => {
+    this.eventManager.on(EventType.WAVE_PROGRESS, (data: WaveProgressEventData) => {
       logger.debug(`波次进度: 第${data.waveIndex + 1}波, 进度=${Math.floor(data.progress * 100)}%`);
     });
 
     // 监听波次完成事件
-    this.eventManager.on('waveCompleted', (data: WaveCompletedEventData) => {
+    this.eventManager.on(EventType.WAVE_COMPLETED, (data: WaveCompletedEventData) => {
       logger.info(`波次完成: 第${data.waveIndex + 1}波 - ${data.waveName}, 用时: ${data.duration}ms`);
     });
 
     // 监听所有波次完成事件
-    this.eventManager.on('allWavesCompleted', (data: AllWavesCompletedEventData) => {
+    this.eventManager.on(EventType.ALL_WAVES_COMPLETED, (data: AllWavesCompletedEventData) => {
       logger.info(`所有波次完成，总波次: ${data.totalWaves}, 总用时: ${data.totalDuration || '未知'}ms`);
     });
   }
@@ -243,7 +244,7 @@ export class BattleManager {
       params: this.battleParams,
       seed: this.randomSeed
     };
-    this.eventManager.emit('battleStart', battleStartData);
+    this.eventManager.emit(EventType.BATTLE_START, battleStartData);
   }
 
   /**
@@ -263,7 +264,7 @@ export class BattleManager {
     const battlePauseData: BattlePauseEventData = {
       time: Date.now()
     };
-    this.eventManager.emit('battlePause', battlePauseData);
+    this.eventManager.emit(EventType.BATTLE_PAUSE, battlePauseData);
   }
 
   /**
@@ -283,7 +284,7 @@ export class BattleManager {
     const battleResumeData: BattleResumeEventData = {
       time: Date.now()
     };
-    this.eventManager.emit('battleResume', battleResumeData);
+    this.eventManager.emit(EventType.BATTLE_RESUME, battleResumeData);
   }
 
   /**
@@ -310,7 +311,7 @@ export class BattleManager {
       duration: this.battleEndTime - this.battleStartTime,
       stats: this.getBattleStats()
     };
-    this.eventManager.emit('battleEnd', battleEndData);
+    this.eventManager.emit(EventType.BATTLE_END, battleEndData);
   }
 
   /**
@@ -1014,7 +1015,7 @@ export class BattleManager {
         position: bean.getPosition(),
         stats: bean.getStats()
       };
-      this.eventManager.emit('entityCreated', entityCreatedData);
+      this.eventManager.emit(EventType.ENTITY_CREATED, entityCreatedData);
     } catch (error) {
       logger.error(`创建豆豆失败: ${error}`);
     }
@@ -1303,7 +1304,7 @@ export class BattleManager {
       duration: this.battleEndTime - this.battleStartTime,
       stats: this.getBattleStats()
     };
-    this.eventManager.emit('gameOver', gameOverData);
+    this.eventManager.emit(EventType.GAME_OVER, gameOverData);
   }
 
   /**
@@ -1350,7 +1351,7 @@ export class BattleManager {
    */
   private registerEventListeners(): void {
     // 监听伤害事件
-    this.eventManager.on('damageDealt', (event: DamageDealtEventData) => {
+    this.eventManager.on(EventType.DAMAGE_DEALT, (event: DamageDealtEventData) => {
       if (event.source && this.heroes.has(event.source.id)) {
         // 英雄造成伤害
         this.totalDamageDealt += event.actualAmount;
@@ -1363,7 +1364,7 @@ export class BattleManager {
     });
 
     // 监听实体死亡事件
-    this.eventManager.on('entityDeath', (event: EntityDeathEventData) => {
+    this.eventManager.on(EventType.ENTITY_DEATH, (event: EntityDeathEventData) => {
       if (event.entity.type === EntityType.BEAN) {
         // 敌人被击败
         this.totalEnemiesDefeated++;

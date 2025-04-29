@@ -17,6 +17,15 @@ import { Vector2D } from '@/Battle/Types/Vector2D';
 import { EntityType } from '@/Battle/Entities/Entity';
 import { gameState } from '@/main';
 import { BattleParamsService } from '@/services/BattleParamsService';
+import { EventType } from '@/Event/EventTypes';
+import { EntityCreatedEvent } from '@/Event/b2v/EntityCreated';
+import { EntityMovedEvent } from '@/Event/b2v/EntityMoved';
+import { DamageDealtEvent } from '@/Event/b2v/DamageDealt';
+import { SkillCastEvent } from '@/Event/b2v/SkillCast';
+import { SkillEffectAppliedEvent } from '@/Event/b2v/SkillEffectApplied';
+import { SkillCooldownUpdateEvent } from '@/Event/b2v/SkillCooldownUpdate';
+import { EntityStateChangedEvent } from '@/Event/b2v/EntityStateChanged';
+import { GameOverEvent } from '@/Event/b2v/GameOver';
 
 export class BattleSceneView {
   private scene: Phaser.Scene;
@@ -468,25 +477,25 @@ export class BattleSceneView {
    */
   private registerEventListeners(): void {
     // 监听实体创建事件
-    this.eventManager.on('entityCreated', this.onEntityCreated.bind(this));
+    this.eventManager.on(EventType.ENTITY_CREATED, this.onEntityCreated.bind(this));
 
     // 监听实体移动事件
-    this.eventManager.on('entityMoved', this.onEntityMoved.bind(this));
+    this.eventManager.on(EventType.ENTITY_MOVED, this.onEntityMoved.bind(this));
 
     // 监听伤害事件
-    this.eventManager.on('damageDealt', this.onDamageDealt.bind(this));
+    this.eventManager.on(EventType.DAMAGE_DEALT, this.onDamageDealt.bind(this));
 
     // 监听技能释放事件
-    this.eventManager.on('skillCast', this.onSkillCast.bind(this));
+    this.eventManager.on(EventType.SKILL_CAST, this.onSkillCast.bind(this));
 
     // 监听技能效果应用事件
-    this.eventManager.on('skillEffectApplied', this.onSkillEffectApplied.bind(this));
+    this.eventManager.on(EventType.SKILL_EFFECT_APPLIED, this.onSkillEffectApplied.bind(this));
 
     // 监听技能冷却完成事件
-    this.eventManager.on('skillCooldownComplete', this.onSkillCooldownComplete.bind(this));
+    this.eventManager.on(EventType.SKILL_COOLDOWN_UPDATE, this.onSkillCooldownUpdate.bind(this));
 
-    // 监听实体死亡事件
-    this.eventManager.on('entityDied', this.onEntityDied.bind(this));
+    // 监听实体状态变化事件
+    this.eventManager.on(EventType.ENTITY_STATE_CHANGED, this.onEntityStateChanged.bind(this));
 
     // 监听波次变化事件
     this.eventManager.on('waveChanged', this.onWaveChanged.bind(this));
@@ -495,7 +504,7 @@ export class BattleSceneView {
     this.eventManager.on('waveCompleted', this.onWaveCompleted.bind(this));
 
     // 监听战斗结束事件
-    this.eventManager.on('battleEnd', this.onBattleEnd.bind(this));
+    this.eventManager.on(EventType.GAME_OVER, this.onGameOver.bind(this));
   }
 
   /**
@@ -926,12 +935,12 @@ export class BattleSceneView {
 
   /**
    * 伤害事件处理
-   * @param data 事件数据
+   * @param event 事件数据
    */
-  private onDamageDealt(data: any): void {
-    const targetId = data.targetId;
-    const damage = data.damage;
-    const isCritical = data.isCritical;
+  private onDamageDealt(event: DamageDealtEvent): void {
+    const targetId = event.targetId;
+    const damage = event.damage;
+    const isCritical = event.isCritical || false;
 
     // 获取目标精灵
     const sprite = this.entitySprites.get(targetId);
@@ -955,16 +964,16 @@ export class BattleSceneView {
 
   /**
    * 技能释放事件处理
-   * @param data 事件数据
+   * @param event 事件数据
    */
-  private onSkillCast(data: any): void {
-    console.log('[DEBUG] onSkillCast 被调用，数据:', data);
+  private onSkillCast(event: SkillCastEvent): void {
+    console.log('[DEBUG] onSkillCast 被调用，数据:', event);
 
     try {
-      const skillId = data.skillId;
-      const casterId = data.casterId;
-      const targetIds = data.targetIds;
-      const position = data.position;
+      const skillId = event.skillId;
+      const casterId = event.casterId;
+      const targetIds = event.targetIds;
+      const position = event.position;
 
       // 获取施法者精灵
       const casterSprite = this.entitySprites.get(casterId);
@@ -1052,12 +1061,12 @@ export class BattleSceneView {
 
   /**
    * 技能效果应用事件处理
-   * @param data 事件数据
+   * @param event 事件数据
    */
-  private onSkillEffectApplied(data: any): void {
-    const effectId = data.effectId;
-    const targetId = data.targetId;
-    const type = data.type;
+  private onSkillEffectApplied(event: SkillEffectAppliedEvent): void {
+    const effectType = event.effectType;
+    const targetId = event.targetId;
+    const sourceSkillId = event.sourceSkillId;
 
     // 获取目标精灵
     const sprite = this.entitySprites.get(targetId);
@@ -1067,31 +1076,46 @@ export class BattleSceneView {
 
     // 播放效果动画
     this.skillEffectView.playEffectAnimation(
-      type,
+      effectType,
       { x: sprite.x, y: sprite.y }
     );
   }
 
   /**
-   * 技能冷却完成事件处理
-   * @param data 事件数据
+   * 技能冷却更新事件处理
+   * @param event 事件数据
    */
-  private onSkillCooldownComplete(data: any): void {
-    const skillId = data.skillId;
+  private onSkillCooldownUpdate(event: SkillCooldownUpdateEvent): void {
+    const skillId = event.skillId;
+    const isReady = event.progress >= 1.0;
 
     // 更新技能UI
     const skillUI = this.skillUIComponents.get(`skill_${skillId}`);
     if (skillUI) {
-      skillUI.setAvailable(true);
+      skillUI.setAvailable(isReady);
+      skillUI.updateCooldownProgress(event.progress);
     }
   }
 
   /**
-   * 实体死亡事件处理
-   * @param data 事件数据
+   * 实体状态变化事件处理
+   * @param event 事件数据
    */
-  private onEntityDied(data: any): void {
-    const entityId = data.id;
+  private onEntityStateChanged(event: EntityStateChangedEvent): void {
+    const entityId = event.entityId;
+    const state = event.state;
+
+    // 如果状态是死亡，处理实体死亡
+    if (state === 'dead') {
+      this.handleEntityDeath(entityId);
+    }
+  }
+
+  /**
+   * 处理实体死亡
+   * @param entityId 实体ID
+   */
+  private handleEntityDeath(entityId: string): void {
 
     // 获取实体精灵
     const sprite = this.entitySprites.get(entityId);
@@ -1244,11 +1268,11 @@ export class BattleSceneView {
   }
 
   /**
-   * 战斗结束事件处理
-   * @param data 事件数据
+   * 游戏结束事件处理
+   * @param event 事件数据
    */
-  private onBattleEnd(data: any): void {
-    const result = data.result;
+  private onGameOver(event: GameOverEvent): void {
+    const result = event.result;
 
     // 显示结果面板
     const resultText = result === 'victory' ? '胜利！' : '失败！';
@@ -1304,16 +1328,16 @@ export class BattleSceneView {
    */
   public destroy(): void {
     // 移除事件监听
-    this.eventManager.off('entityCreated', this.onEntityCreated.bind(this));
-    this.eventManager.off('entityMoved', this.onEntityMoved.bind(this));
-    this.eventManager.off('damageDealt', this.onDamageDealt.bind(this));
-    this.eventManager.off('skillCast', this.onSkillCast.bind(this));
-    this.eventManager.off('skillEffectApplied', this.onSkillEffectApplied.bind(this));
-    this.eventManager.off('skillCooldownComplete', this.onSkillCooldownComplete.bind(this));
-    this.eventManager.off('entityDied', this.onEntityDied.bind(this));
+    this.eventManager.off(EventType.ENTITY_CREATED, this.onEntityCreated.bind(this));
+    this.eventManager.off(EventType.ENTITY_MOVED, this.onEntityMoved.bind(this));
+    this.eventManager.off(EventType.DAMAGE_DEALT, this.onDamageDealt.bind(this));
+    this.eventManager.off(EventType.SKILL_CAST, this.onSkillCast.bind(this));
+    this.eventManager.off(EventType.SKILL_EFFECT_APPLIED, this.onSkillEffectApplied.bind(this));
+    this.eventManager.off(EventType.SKILL_COOLDOWN_UPDATE, this.onSkillCooldownUpdate.bind(this));
+    this.eventManager.off(EventType.ENTITY_STATE_CHANGED, this.onEntityStateChanged.bind(this));
     this.eventManager.off('waveChanged', this.onWaveChanged.bind(this));
     this.eventManager.off('waveCompleted', this.onWaveCompleted.bind(this));
-    this.eventManager.off('battleEnd', this.onBattleEnd.bind(this));
+    this.eventManager.off(EventType.GAME_OVER, this.onGameOver.bind(this));
 
     // 销毁组件
     this.skillEffectView.clearAllEffects();
