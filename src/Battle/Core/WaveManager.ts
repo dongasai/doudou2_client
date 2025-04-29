@@ -43,6 +43,31 @@ export interface WaveConfig {
   }>;
 }
 
+/**
+ * 波次信息接口
+ * 描述当前波次的状态和进度
+ */
+export interface WaveInfo {
+  /** 当前波次索引（从0开始） */
+  index: number;
+  /** 当前波次状态（等待中/进行中/已完成） */
+  status: WaveStatus;
+  /** 当前波次配置（如果没有波次则为null） */
+  config: WaveConfig | null;
+  /** 已生成敌人数量 */
+  spawnedCount: number;
+  /** 已击败敌人数量 */
+  defeatedCount: number;
+  /** 当前波次进度（0-1） */
+  progress: number;
+  /** 波次开始时间（毫秒） */
+  startTime: number;
+  /** 波次已进行时间（毫秒） */
+  elapsedTime: number;
+  /** 波次编号（从1开始，用于显示） */
+  number: number;
+}
+
 // 波次状态枚举
 export enum WaveStatus {
   PENDING = 'pending',   // 等待中
@@ -246,21 +271,17 @@ export class WaveManager {
 
   /**
    * 获取当前波次信息
+   * @returns 当前波次的详细信息
    */
-  public getCurrentWaveInfo(): {
-    index: number;
-    status: WaveStatus;
-    config: WaveConfig | null;
-    spawnedCount: number;
-    defeatedCount: number;
-    progress: number;
-  } {
+  public getCurrentWaveInfo(): WaveInfo {
     const config = this.currentWaveIndex >= 0 && this.currentWaveIndex < this.waves.length
       ? this.waves[this.currentWaveIndex]
       : null;
 
     const totalEnemies = config ? config.totalEnemies : 0;
     const progress = totalEnemies > 0 ? this.defeatedEnemiesCount / totalEnemies : 0;
+    const currentTime = Date.now();
+    const elapsedTime = this.waveStartTime > 0 ? currentTime - this.waveStartTime : 0;
 
     return {
       index: this.currentWaveIndex,
@@ -268,7 +289,10 @@ export class WaveManager {
       config,
       spawnedCount: this.spawnedEnemiesCount,
       defeatedCount: this.defeatedEnemiesCount,
-      progress
+      progress,
+      startTime: this.waveStartTime,
+      elapsedTime,
+      number: this.currentWaveIndex + 1 // 波次编号从1开始
     };
   }
 
