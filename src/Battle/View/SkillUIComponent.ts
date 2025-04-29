@@ -241,6 +241,29 @@ export class SkillUIComponent {
   }
 
   /**
+   * 更新冷却进度
+   * @param progress 冷却进度（0-1，1表示冷却完成）
+   */
+  public updateCooldownProgress(progress: number): void {
+    if (progress >= 1.0) {
+      this.currentCooldown = 0;
+      this.setAvailable(true);
+      return;
+    }
+
+    // 计算当前冷却时间
+    this.currentCooldown = this.maxCooldown * (1 - progress);
+
+    // 更新冷却显示
+    this.updateCooldownDisplay();
+
+    // 设置技能不可用
+    if (this.isAvailable) {
+      this.setAvailable(false);
+    }
+  }
+
+  /**
    * 更新冷却显示
    */
   private updateCooldownDisplay(): void {

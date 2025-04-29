@@ -44,6 +44,8 @@ export enum EventType {
   CRYSTAL_CREATED = 'crystalCreated',
   DAMAGE_DEALT = 'damageDealt',
   ENTITY_MOVED = 'entityMoved',
+  ENTITY_CREATED = 'entityCreated',
+  ENTITY_DEATH = 'entityDeath',
   ENTITY_STATE_CHANGED = 'entityStateChanged',
   ENTITY_STATS_CHANGED = 'entityStatsChanged',
   GAME_OVER = 'gameOver',
@@ -53,7 +55,20 @@ export enum EventType {
   SKILL_COOLDOWN_UPDATE = 'skillCooldownUpdate',
   SKILL_EFFECT_APPLIED = 'skillEffectApplied',
   SKILL_HIT = 'skillHit',
-  
+
+  // 战斗流程事件
+  BATTLE_START = 'battleStart',
+  BATTLE_PAUSE = 'battlePause',
+  BATTLE_RESUME = 'battleResume',
+  BATTLE_END = 'battleEnd',
+
+  // 波次事件
+  ENEMY_SPAWN = 'enemySpawn',
+  WAVE_START = 'waveStart',
+  WAVE_PROGRESS = 'waveProgress',
+  WAVE_COMPLETED = 'waveCompleted',
+  ALL_WAVES_COMPLETED = 'allWavesCompleted',
+
   // 视图层到战斗引擎的事件
   GAME_PAUSE_RESUME = 'gamePauseResume',
   MOVE_COMMAND = 'moveCommand',
@@ -75,6 +90,8 @@ export interface EventDataMap {
   [EventType.CRYSTAL_CREATED]: CrystalCreatedEvent;
   [EventType.DAMAGE_DEALT]: DamageDealtEvent;
   [EventType.ENTITY_MOVED]: EntityMovedEvent;
+  [EventType.ENTITY_CREATED]: EntityCreatedEvent;
+  [EventType.ENTITY_DEATH]: any; // 使用 EntityDeathEventData 类型
   [EventType.ENTITY_STATE_CHANGED]: EntityStateChangedEvent;
   [EventType.ENTITY_STATS_CHANGED]: EntityStatsChangedEvent;
   [EventType.GAME_OVER]: GameOverEvent;
@@ -84,7 +101,20 @@ export interface EventDataMap {
   [EventType.SKILL_COOLDOWN_UPDATE]: SkillCooldownUpdateEvent;
   [EventType.SKILL_EFFECT_APPLIED]: SkillEffectAppliedEvent;
   [EventType.SKILL_HIT]: SkillHitEvent;
-  
+
+  // 战斗流程事件
+  [EventType.BATTLE_START]: any; // 使用 BattleStartEventData 类型
+  [EventType.BATTLE_PAUSE]: any; // 使用 BattlePauseEventData 类型
+  [EventType.BATTLE_RESUME]: any; // 使用 BattleResumeEventData 类型
+  [EventType.BATTLE_END]: any; // 使用 BattleEndEventData 类型
+
+  // 波次事件
+  [EventType.ENEMY_SPAWN]: any; // 使用 EnemySpawnEventData 类型
+  [EventType.WAVE_START]: any; // 使用 WaveStartEventData 类型
+  [EventType.WAVE_PROGRESS]: any; // 使用 WaveProgressEventData 类型
+  [EventType.WAVE_COMPLETED]: any; // 使用 WaveCompletedEventData 类型
+  [EventType.ALL_WAVES_COMPLETED]: any; // 使用 AllWavesCompletedEventData 类型
+
   // 视图层到战斗引擎的事件
   [EventType.GAME_PAUSE_RESUME]: GamePauseResumeEvent;
   [EventType.MOVE_COMMAND]: MoveCommandEvent;

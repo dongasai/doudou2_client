@@ -10,4 +10,10 @@ export interface DamageDealtEvent {
     damage: number;
     /** 当前生命值 */
     currentHealth: number;
+    /** 是否暴击 */
+    isCritical?: boolean;
+    /** 伤害来源ID */
+    sourceId?: string;
+    /** 伤害来源类型 */
+    sourceType?: 'hero' | 'bean' | 'crystal' | 'skill';
 }

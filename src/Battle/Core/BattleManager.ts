@@ -660,6 +660,16 @@ export class BattleManager {
       position: this.crystal.getPosition(),
       maxHp: this.crystal.getStat('maxHp')
     });
+
+    // 同时触发通用实体创建事件，确保视图层能正确显示水晶
+    const entityCreatedData: EntityCreatedEventData = {
+      id: this.crystal.getId(),
+      type: EntityType.CRYSTAL,
+      entityType: 'crystal',
+      position: this.crystal.getPosition(),
+      stats: this.crystal.getStats()
+    };
+    this.eventManager.emit(EventType.ENTITY_CREATED, entityCreatedData);
   }
 
   /**
@@ -706,6 +716,16 @@ export class BattleManager {
       position: hero.getPosition(),
       stats: hero.getStats()
     });
+
+    // 同时触发通用实体创建事件，确保视图层能正确显示英雄
+    const entityCreatedData: EntityCreatedEventData = {
+      id: hero.getId(),
+      type: EntityType.HERO,
+      entityType: 'hero',
+      position: hero.getPosition(),
+      stats: hero.getStats()
+    };
+    this.eventManager.emit(EventType.ENTITY_CREATED, entityCreatedData);
   }
 
   /**
@@ -1012,6 +1032,8 @@ export class BattleManager {
       const entityCreatedData: EntityCreatedEventData = {
         id: bean.getId(),
         type: EntityType.BEAN,
+        // 添加entityType字段，确保与EntityCreatedEvent接口兼容
+        entityType: 'bean',
         position: bean.getPosition(),
         stats: bean.getStats()
       };

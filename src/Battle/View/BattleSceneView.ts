@@ -505,6 +505,7 @@ export class BattleSceneView {
 
     // 监听战斗结束事件
     this.eventManager.on(EventType.GAME_OVER, this.onGameOver.bind(this));
+
   }
 
   /**
@@ -558,6 +559,9 @@ export class BattleSceneView {
       if (sprite) {
         // 更新生命值条
         this.updateHealthBar('crystal_1', battleStats.crystalStats.hp, battleStats.crystalStats.maxHp);
+      } else {
+        // 如果水晶精灵不存在但有水晶状态，记录日志
+        console.log('[DEBUG] 水晶状态存在但精灵不存在，可能是实体创建事件未被正确处理');
       }
     }
 
@@ -816,19 +820,46 @@ export class BattleSceneView {
    * - 水晶：使用 💎 表示，大小根据屏幕宽度自适应
    * - 豆豆：使用 🟢 表示，大小根据屏幕宽度自适应
    *
-   * @param data 事件数据
+   * @param event 事件数据
    */
-  private onEntityCreated(data: any): void {
-    console.log('[DEBUG] onEntityCreated 被调用，数据:', data);
+  private onEntityCreated(event: EntityCreatedEvent): void {
+    console.log('[DEBUG] onEntityCreated 被调用，数据:', event);
+    console.log('[DEBUG] 实体详细信息 - ID:', event.id, '类型:', event.entityType, '位置:', JSON.stringify(event.position), '属性:', JSON.stringify(event.stats));
+
+    // 特别记录水晶和英雄的创建
+    if (event.entityType === 'crystal') {
+      console.log('[DEBUG] 检测到水晶创建事件! ID:', event.id, '位置:', JSON.stringify(event.position));
+      // 记录所有已注册的事件类型，检查是否有监听 ENTITY_CREATED 事件
+      console.log('[DEBUG] 已注册的事件类型:', this.eventManager.eventTypes ? this.eventManager.eventTypes() : '无法获取');
+      // 记录 ENTITY_CREATED 事件的监听器数量
+      console.log('[DEBUG] ENTITY_CREATED 事件监听器数量:', this.eventManager.listenerCount ? this.eventManager.listenerCount('entityCreated') : '无法获取');
+    } else if (event.entityType === 'hero') {
+      console.log('[DEBUG] 检测到英雄创建事件! ID:', event.id, '位置:', JSON.stringify(event.position));
+    }
 
     try {
       // 获取屏幕尺寸
       const screenWidth = this.scene.cameras.main.width;
 
       // 创建实体精灵
-      const entityId = data.id;
-      const entityType = data.type;
-      const position = data.position;
+      const entityId = event.id;
+      const entityType = event.entityType;
+
+      // 检查实体类型是否有效
+      if (!entityType) {
+        console.error('[ERROR] 实体类型无效:', entityType);
+        // 使用默认类型
+        event.entityType = 'bean';
+      }
+
+      // 确保位置数据存在
+      if (!event.position || typeof event.position.x !== 'number' || typeof event.position.y !== 'number') {
+        console.error('[ERROR] 实体位置数据无效:', event.position);
+        // 使用默认位置
+        event.position = { x: 1500, y: 1500 };
+      }
+
+      const position = event.position;
 
       // 转换为屏幕坐标 (将游戏世界坐标转换为屏幕像素坐标)
       const screenPos = this.worldToScreenPosition(position);
@@ -840,8 +871,11 @@ export class BattleSceneView {
       // 使用Text对象显示Emoji而不是Sprite
       let sprite: Phaser.GameObjects.Text;
 
-      switch (entityType) {
-        case EntityType.HERO:
+      // 使用更新后的实体类型
+      const finalEntityType = event.entityType;
+
+      switch (finalEntityType) {
+        case 'hero':
           // 使用英雄Emoji (位于转换后的屏幕坐标)
           sprite = this.scene.add.text(screenPos.x, screenPos.y, '🧙', {
             fontSize: `${heroSize}px`  // 英雄大小自适应
@@ -853,7 +887,7 @@ export class BattleSceneView {
           console.log('[DEBUG] 英雄创建成功:', entityId, '位置:', screenPos, '大小:', heroSize);
           break;
 
-        case EntityType.BEAN:
+        case 'bean':
           // 使用豆豆Emoji (位于转换后的屏幕坐标)
           sprite = this.scene.add.text(screenPos.x, screenPos.y, '🟢', {
             fontSize: `${beanSize}px`  // 豆豆大小自适应
@@ -862,7 +896,7 @@ export class BattleSceneView {
           console.log('[DEBUG] 豆豆创建成功:', entityId, '位置:', screenPos, '大小:', beanSize);
           break;
 
-        case EntityType.CRYSTAL:
+        case 'crystal':
           // 使用水晶Emoji (位于转换后的屏幕坐标)
           sprite = this.scene.add.text(screenPos.x, screenPos.y, '💎', {
             fontSize: `${heroSize}px`  // 水晶大小自适应
@@ -872,8 +906,14 @@ export class BattleSceneView {
           break;
 
         default:
-          console.warn('[WARN] 未知实体类型:', entityType);
-          return;
+          console.warn('[WARN] 未知实体类型:', finalEntityType);
+          // 使用默认的豆豆Emoji作为后备
+          sprite = this.scene.add.text(screenPos.x, screenPos.y, '❓', {
+            fontSize: `${beanSize}px`
+          });
+          sprite.setOrigin(0.5);
+          console.log('[DEBUG] 使用默认图标创建未知实体:', entityId, '类型:', finalEntityType);
+          break;
       }
 
       // 添加到映射
@@ -883,8 +923,15 @@ export class BattleSceneView {
       const healthBar = this.scene.add.graphics();
       this.entityHealthBars.set(entityId, healthBar);
 
+      // 确保stats数据存在
+      if (!event.stats) {
+        console.error('[ERROR] 实体属性数据无效:', event.stats);
+        // 使用默认属性
+        event.stats = { hp: 100, maxHp: 100 };
+      }
+
       // 更新生命值条
-      this.updateHealthBar(entityId, data.stats.hp, data.stats.maxHp);
+      this.updateHealthBar(entityId, event.stats.hp, event.stats.maxHp);
 
       console.log('[DEBUG] 实体创建完成:', entityId);
     } catch (error) {
@@ -894,14 +941,21 @@ export class BattleSceneView {
 
   /**
    * 实体移动事件处理
-   * @param data 事件数据
+   * @param event 事件数据
    */
-  private onEntityMoved(data: any): void {
-    console.log('[DEBUG] onEntityMoved 被调用，数据:', data);
+  private onEntityMoved(event: EntityMovedEvent): void {
+    console.log('[DEBUG] onEntityMoved 被调用，数据:', event);
 
     try {
-      const entityId = data.id;
-      const position = data.position;
+      const entityId = event.entityId;
+
+      // 确保位置数据存在
+      if (!event.position || typeof event.position.x !== 'number' || typeof event.position.y !== 'number') {
+        console.error('[ERROR] 实体位置数据无效:', event.position);
+        return;
+      }
+
+      const position = event.position;
 
       // 获取实体精灵
       const sprite = this.entitySprites.get(entityId);
