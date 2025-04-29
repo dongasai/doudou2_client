@@ -7,6 +7,9 @@ import { BattleResult } from '../Core/BattleManager';
 import { EntityStats } from '../Entities/Entity';
 import { Vector2D } from './Vector2D';
 import { BattleInitParams } from '../../DesignConfig/types/BattleInitParams';
+import { BeanState } from '../Entities/Bean';
+import { CrystalState } from '../Entities/Crystal';
+import { EffectType, ControlType } from '../../SkillKernel/type';
 
 /**
  * 战斗开始事件数据
@@ -224,6 +227,182 @@ export interface SkillEffectEventData {
   position: Vector2D;
   /** 影响的实体IDs */
   affectedEntityIds: string[];
+  /** 事件发生时间 */
+  time: number;
+}
+
+/**
+ * 实体移动事件数据
+ */
+export interface EntityMovedEventData {
+  /** 实体ID */
+  entityId: string;
+  /** 实体类型 */
+  entityType: string;
+  /** 原始位置 */
+  fromPosition: Vector2D;
+  /** 目标位置 */
+  toPosition: Vector2D;
+  /** 移动速度 */
+  speed: number;
+  /** 事件发生时间 */
+  time: number;
+}
+
+/**
+ * 实体状态变化事件数据
+ */
+export interface EntityStateChangedEventData {
+  /** 实体ID */
+  entityId: string;
+  /** 实体类型 */
+  entityType: string;
+  /** 原始状态 */
+  fromState: string;
+  /** 新状态 */
+  toState: string;
+  /** 状态变化原因 */
+  reason?: string;
+  /** 事件发生时间 */
+  time: number;
+}
+
+/**
+ * 豆豆状态变化事件数据
+ */
+export interface BeanStateChangedEventData extends EntityStateChangedEventData {
+  /** 原始状态 */
+  fromState: BeanState;
+  /** 新状态 */
+  toState: BeanState;
+}
+
+/**
+ * 水晶状态变化事件数据
+ */
+export interface CrystalStateChangedEventData extends EntityStateChangedEventData {
+  /** 原始状态 */
+  fromState: CrystalState;
+  /** 新状态 */
+  toState: CrystalState;
+  /** 当前生命值百分比 */
+  healthPercentage: number;
+}
+
+/**
+ * 实体属性变化事件数据
+ */
+export interface EntityStatsChangedEventData {
+  /** 实体ID */
+  entityId: string;
+  /** 实体类型 */
+  entityType: string;
+  /** 变化的属性 */
+  changedStats: Partial<EntityStats>;
+  /** 变化原因 */
+  reason?: string;
+  /** 事件发生时间 */
+  time: number;
+}
+
+/**
+ * 技能冷却更新事件数据
+ */
+export interface SkillCooldownUpdateEventData {
+  /** 拥有者ID */
+  ownerId: string;
+  /** 技能ID */
+  skillId: string;
+  /** 当前冷却时间（毫秒） */
+  currentCooldown: number;
+  /** 最大冷却时间（毫秒） */
+  maxCooldown: number;
+  /** 冷却进度（0-1） */
+  progress: number;
+  /** 是否可用 */
+  isReady: boolean;
+  /** 事件发生时间 */
+  time: number;
+}
+
+/**
+ * Buff应用事件数据
+ */
+export interface BuffAppliedEventData {
+  /** 目标实体ID */
+  targetId: string;
+  /** 目标实体类型 */
+  targetType: string;
+  /** 来源实体ID */
+  sourceId?: string;
+  /** Buff ID */
+  buffId: string;
+  /** Buff类型 */
+  buffType: EffectType;
+  /** 持续时间（毫秒） */
+  duration: number;
+  /** 效果值 */
+  value: number;
+  /** 是否可叠加 */
+  isStackable: boolean;
+  /** 叠加层数 */
+  stacks: number;
+  /** 事件发生时间 */
+  time: number;
+}
+
+/**
+ * Buff移除事件数据
+ */
+export interface BuffRemovedEventData {
+  /** 目标实体ID */
+  targetId: string;
+  /** 目标实体类型 */
+  targetType: string;
+  /** Buff ID */
+  buffId: string;
+  /** Buff类型 */
+  buffType: EffectType;
+  /** 移除原因 */
+  reason: 'expired' | 'dispelled' | 'death' | 'replaced' | 'other';
+  /** 事件发生时间 */
+  time: number;
+}
+
+/**
+ * 控制效果应用事件数据
+ */
+export interface ControlEffectAppliedEventData {
+  /** 目标实体ID */
+  targetId: string;
+  /** 目标实体类型 */
+  targetType: string;
+  /** 来源实体ID */
+  sourceId?: string;
+  /** 控制效果ID */
+  effectId: string;
+  /** 控制类型 */
+  controlType: ControlType;
+  /** 持续时间（毫秒） */
+  duration: number;
+  /** 事件发生时间 */
+  time: number;
+}
+
+/**
+ * 控制效果移除事件数据
+ */
+export interface ControlEffectRemovedEventData {
+  /** 目标实体ID */
+  targetId: string;
+  /** 目标实体类型 */
+  targetType: string;
+  /** 控制效果ID */
+  effectId: string;
+  /** 控制类型 */
+  controlType: ControlType;
+  /** 移除原因 */
+  reason: 'expired' | 'dispelled' | 'death' | 'other';
   /** 事件发生时间 */
   time: number;
 }
