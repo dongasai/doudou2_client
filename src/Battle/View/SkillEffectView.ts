@@ -517,6 +517,67 @@ export class SkillEffectView {
 
 
   /**
+   * 创建文本效果
+   * @param position 位置
+   * @param text 文本内容
+   * @param options 动画选项
+   * @returns 创建的文本对象
+   */
+  public createTextEffect(
+    position: Vector2D,
+    text: string,
+    options: {
+      duration?: number;
+      scale?: { from?: number; to?: number };
+      alpha?: { from?: number; to?: number };
+      y?: { offset?: number };
+      color?: string;
+      fontSize?: string;
+    } = {}
+  ): Phaser.GameObjects.Text {
+    // 设置默认值
+    const duration = options.duration || 800;
+    const scaleFrom = options.scale?.from !== undefined ? options.scale.from : 1;
+    const scaleTo = options.scale?.to !== undefined ? options.scale.to : 1;
+    const alphaFrom = options.alpha?.from !== undefined ? options.alpha.from : 1;
+    const alphaTo = options.alpha?.to !== undefined ? options.alpha.to : 0;
+    const yOffset = options.y?.offset || 0;
+    const fontSize = options.fontSize || '24px';
+
+    // 创建文本
+    const textObj = this.scene.add.text(position.x, position.y, text, {
+      fontSize: fontSize,
+      fontFamily: 'Arial, sans-serif'
+    });
+    textObj.setOrigin(0.5);
+    this.effectsGroup.add(textObj);
+
+    // 设置初始属性
+    textObj.setScale(scaleFrom);
+    textObj.setAlpha(alphaFrom);
+
+    // 设置颜色
+    if (options.color) {
+      textObj.setTint(Phaser.Display.Color.HexStringToColor(options.color).color);
+    }
+
+    // 添加动画
+    this.scene.tweens.add({
+      targets: textObj,
+      scale: scaleTo,
+      alpha: alphaTo,
+      y: position.y + yOffset,
+      duration: duration,
+      ease: 'Power2',
+      onComplete: () => {
+        textObj.destroy();
+      }
+    });
+
+    return textObj;
+  }
+
+  /**
    * 清除所有效果
    */
   public clearAllEffects(): void {
