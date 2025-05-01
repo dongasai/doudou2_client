@@ -31,6 +31,9 @@ export class BattleSceneView {
   private eventHandlers: EventHandlers;
   private touchController: TouchController;
 
+  // 待创建实体集合，用于防止重复创建
+  private pendingCreations: Set<string> = new Set();
+
   /**
    * 构造函数
    * @param scene Phaser场景
@@ -49,7 +52,27 @@ export class BattleSceneView {
 
       // 设置相机初始位置
       console.log('[INFO] 设置相机初始位置...');
-      this.cameraController.focusOnPosition({ x: 1500, y: 1500 }, 0);
+      // 尝试获取英雄位置作为初始焦点，如果没有则使用默认位置
+      try {
+        const battleStats = this.battleEngine.getBattleStats();
+        if (battleStats.heroStats && battleStats.heroStats.length > 0 && battleStats.heroStats[0].position) {
+          // 使用英雄位置
+          this.cameraController.focusOnPosition(battleStats.heroStats[0].position, 0);
+          console.log('[INFO] 相机聚焦到英雄位置:', battleStats.heroStats[0].position);
+        } else if (battleStats.crystalStats && battleStats.crystalStats.position) {
+          // 使用水晶位置
+          this.cameraController.focusOnPosition(battleStats.crystalStats.position, 0);
+          console.log('[INFO] 相机聚焦到水晶位置:', battleStats.crystalStats.position);
+        } else {
+          // 使用默认位置
+          this.cameraController.focusOnPosition({ x: 1500, y: 1500 }, 0);
+          console.log('[INFO] 相机聚焦到默认位置: { x: 1500, y: 1500 }');
+        }
+      } catch (error) {
+        // 出错时使用默认位置
+        this.cameraController.focusOnPosition({ x: 1500, y: 1500 }, 0);
+        console.error('[ERROR] 设置相机初始位置失败，使用默认位置:', error);
+      }
 
       // 初始化技能效果视图
       console.log('[INFO] 初始化技能效果视图...');
@@ -75,24 +98,8 @@ export class BattleSceneView {
       console.log('[INFO] 注册UI元素到相机控制器...');
 
       // 确保UI元素创建完成后再注册
-      // 增加延迟时间，确保UI元素完全创建
-      this.scene.time.delayedCall(500, () => {
-        const uiElements = this.uiManager.getAllUIElements();
-        console.log('[INFO] 获取到', uiElements.length, '个UI元素');
-        this.cameraController.registerUIElements(uiElements);
-        console.log('[INFO] UI元素注册完成');
-
-        // 强制更新一次UI，确保显示正确
-        this.updateUI();
-
-        // 添加调试信息，显示UI元素的位置和可见性
-        console.log('[DEBUG] 状态栏:',
-          this.uiManager.getStatusBar().x,
-          this.uiManager.getStatusBar().y,
-          this.uiManager.getStatusBar().visible,
-          this.uiManager.getStatusBar().depth
-        );
-      });
+      // 使用更可靠的方式注册UI元素
+      this.registerUIElementsWhenReady();
 
       // 初始化事件处理器
       console.log('[INFO] 初始化事件处理器...');
@@ -131,7 +138,12 @@ export class BattleSceneView {
       // 更新状态栏
       if (battleStats.heroStats && battleStats.heroStats.length > 0) {
         const hero = battleStats.heroStats[0];
-        this.uiManager.updateStatusBar(hero.hp, hero.maxHp, hero.mp, hero.maxMp);
+        this.uiManager.updateStatusBar(
+          hero.hp,
+          hero.maxHp,
+          hero.mp || 100, // 提供默认值
+          hero.maxMp || 100 // 提供默认值
+        );
         console.log('[INFO] 更新状态栏:', hero);
       }
 
@@ -172,67 +184,116 @@ export class BattleSceneView {
       }
 
       // 手动创建水晶实体
-      if (battleStats.crystalStats && battleStats.crystalStats.length > 0) {
-        for (const crystal of battleStats.crystalStats) {
-          if (crystal.id) {
-            console.log('[INFO] 手动创建水晶实体:', crystal.id);
-            this.entityRenderer.createEntity({
-              id: crystal.id,
-              entityType: 'crystal',
-              position: crystal.position || { x: 1500, y: 1500 },
-              stats: {
-                hp: crystal.hp,
-                maxHp: crystal.maxHp
-              }
-            });
-          }
+      if (battleStats.crystalStats) {
+        // 水晶是单个对象，不是数组
+        console.log('[INFO] 手动创建水晶实体');
+
+        // 检查是否已经尝试创建过
+        if (!this.pendingCreations.has('crystal_1')) {
+          this.pendingCreations.add('crystal_1');
+
+          // 延迟100ms创建，避免重复创建
+          this.scene.time.delayedCall(100, () => {
+            // 再次检查是否已经创建
+            if (!this.entityRenderer.hasEntity('crystal_1')) {
+              this.entityRenderer.createEntity({
+                id: 'crystal_1',
+                entityType: 'crystal',
+                position: { x: 1500, y: 1500 },
+                stats: {
+                  hp: battleStats.crystalStats?.hp || 1000,
+                  maxHp: battleStats.crystalStats?.maxHp || 1000
+                }
+              });
+            }
+            this.pendingCreations.delete('crystal_1');
+          });
         }
       } else {
         // 如果没有水晶数据，创建一个默认水晶
         console.log('[INFO] 创建默认水晶实体');
-        this.entityRenderer.createEntity({
-          id: 'crystal_1',
-          entityType: 'crystal',
-          position: { x: 1500, y: 1500 },
-          stats: {
-            hp: 1000,
-            maxHp: 1000
-          }
-        });
+
+        // 检查是否已经尝试创建过
+        if (!this.pendingCreations.has('crystal_1') && !this.entityRenderer.hasEntity('crystal_1')) {
+          this.pendingCreations.add('crystal_1');
+
+          // 延迟100ms创建，避免重复创建
+          this.scene.time.delayedCall(100, () => {
+            // 再次检查是否已经创建
+            if (!this.entityRenderer.hasEntity('crystal_1')) {
+              this.entityRenderer.createEntity({
+                id: 'crystal_1',
+                entityType: 'crystal',
+                position: { x: 1500, y: 1500 },
+                stats: {
+                  hp: 1000,
+                  maxHp: 1000
+                }
+              });
+            }
+            this.pendingCreations.delete('crystal_1');
+          });
+        }
       }
 
       // 手动创建豆豆实体
       if (battleStats.beanStats && battleStats.beanStats.length > 0) {
         for (const bean of battleStats.beanStats) {
           if (bean.id) {
-            console.log('[INFO] 手动创建豆豆实体:', bean.id);
-            this.entityRenderer.createEntity({
-              id: bean.id,
-              entityType: 'bean',
-              position: bean.position || { x: 1500, y: 1500 },
-              stats: {
-                hp: bean.hp,
-                maxHp: bean.maxHp
-              }
-            });
+            // 检查是否已经尝试创建过
+            if (!this.pendingCreations.has(bean.id) && !this.entityRenderer.hasEntity(bean.id)) {
+              console.log('[INFO] 手动创建豆豆实体:', bean.id);
+              this.pendingCreations.add(bean.id);
+
+              // 延迟创建，避免重复创建
+              this.scene.time.delayedCall(100, () => {
+                // 再次检查是否已经创建
+                if (!this.entityRenderer.hasEntity(bean.id)) {
+                  this.entityRenderer.createEntity({
+                    id: bean.id,
+                    entityType: 'bean',
+                    position: bean.position || { x: 1500, y: 1500 },
+                    stats: {
+                      hp: bean.hp,
+                      maxHp: bean.maxHp
+                    }
+                  });
+                }
+                this.pendingCreations.delete(bean.id);
+              });
+            }
           }
         }
       } else {
         // 如果没有豆豆数据，创建一些默认豆豆
         console.log('[INFO] 创建默认豆豆实体');
         for (let i = 1; i <= 5; i++) {
-          this.entityRenderer.createEntity({
-            id: `bean_${i}`,
-            entityType: 'bean',
-            position: {
-              x: 1500 + Math.random() * 300 - 150,
-              y: 1500 + Math.random() * 300 - 150
-            },
-            stats: {
-              hp: 50,
-              maxHp: 50
-            }
-          });
+          const beanId = `bean_${i}`;
+
+          // 检查是否已经尝试创建过
+          if (!this.pendingCreations.has(beanId) && !this.entityRenderer.hasEntity(beanId)) {
+            this.pendingCreations.add(beanId);
+
+            // 延迟创建，避免重复创建
+            this.scene.time.delayedCall(100, () => {
+              // 再次检查是否已经创建
+              if (!this.entityRenderer.hasEntity(beanId)) {
+                this.entityRenderer.createEntity({
+                  id: beanId,
+                  entityType: 'bean',
+                  position: {
+                    x: 1500 + Math.random() * 300 - 150,
+                    y: 1500 + Math.random() * 300 - 150
+                  },
+                  stats: {
+                    hp: 50,
+                    maxHp: 50
+                  }
+                });
+              }
+              this.pendingCreations.delete(beanId);
+            });
+          }
         }
       }
 
@@ -386,7 +447,12 @@ export class BattleSceneView {
       // 更新状态栏
       if (battleStats.heroStats && battleStats.heroStats.length > 0) {
         const hero = battleStats.heroStats[0];
-        this.uiManager.updateStatusBar(hero.hp, hero.maxHp, hero.mp, hero.maxMp);
+        this.uiManager.updateStatusBar(
+          hero.hp,
+          hero.maxHp,
+          hero.mp || 100, // 提供默认值
+          hero.maxMp || 100 // 提供默认值
+        );
       } else {
         // 使用默认值更新状态栏
         this.uiManager.updateStatusBar(100, 100, 100, 100);
@@ -430,6 +496,61 @@ export class BattleSceneView {
    */
   public setCameraZoom(zoomLevel: number): void {
     this.cameraController.setZoom(zoomLevel);
+  }
+
+  /**
+   * 注册UI元素，使用轮询方式确保UI元素已创建完成
+   * 这个方法比简单的延迟调用更可靠
+   */
+  private registerUIElementsWhenReady(): void {
+    // 最大尝试次数
+    const maxAttempts = 10;
+    // 当前尝试次数
+    let attempts = 0;
+    // 轮询间隔（毫秒）
+    const pollInterval = 100;
+
+    // 创建轮询函数
+    const pollForUIElements = () => {
+      attempts++;
+      console.log(`[INFO] 尝试注册UI元素 (${attempts}/${maxAttempts})...`);
+
+      // 获取UI元素
+      const uiElements = this.uiManager.getAllUIElements();
+
+      // 检查是否有足够的UI元素
+      if (uiElements.length >= 3) { // 至少应该有状态栏、波次指示器和暂停按钮
+        console.log('[INFO] 获取到', uiElements.length, '个UI元素，注册到相机控制器');
+        this.cameraController.registerUIElements(uiElements);
+        console.log('[INFO] UI元素注册完成');
+
+        // 强制更新一次UI，确保显示正确
+        this.updateUI();
+
+        // 添加调试信息，显示UI元素的位置和可见性
+        const statusBar = this.uiManager.getStatusBar();
+        if (statusBar) {
+          console.log('[DEBUG] 状态栏:',
+            statusBar.x,
+            statusBar.y,
+            statusBar.visible,
+            statusBar.depth
+          );
+        }
+      } else if (attempts < maxAttempts) {
+        // 如果UI元素不足且未达到最大尝试次数，继续轮询
+        console.log('[INFO] UI元素不足，继续等待...');
+        this.scene.time.delayedCall(pollInterval, pollForUIElements);
+      } else {
+        // 达到最大尝试次数，使用现有UI元素
+        console.warn('[WARN] 达到最大尝试次数，使用现有UI元素');
+        this.cameraController.registerUIElements(uiElements);
+        this.updateUI();
+      }
+    };
+
+    // 开始轮询
+    pollForUIElements();
   }
 
   /**

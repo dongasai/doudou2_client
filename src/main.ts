@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
-import { BattleScene } from '@/scenes/BattleScene';
-import { MainMenuScene } from '@/scenes/MainMenuScene';
-import { LevelSelectScene } from '@/scenes/LevelSelectScene';
-import { HeroSelectScene } from '@/scenes/HeroSelectScene';
+import { BattleScene } from '@/Scenes/BattleScene';
+import { MainMenuScene } from '@/Scenes/MainMenuScene';
+import { LevelSelectScene } from '@/Scenes/LevelSelectScene';
+import { HeroSelectScene } from '@/Scenes/HeroSelectScene';
+import { EncyclopediaScene } from '@/Scenes/EncyclopediaScene';
 
 /**
  * 游戏配置
@@ -28,7 +29,8 @@ const config: Phaser.Types.Core.GameConfig = {
     MainMenuScene,
     LevelSelectScene,
     HeroSelectScene,
-    BattleScene
+    BattleScene,
+    EncyclopediaScene
   ]
 };
 

@@ -248,6 +248,36 @@ export class BattleEngine {
   }
 
   /**
+   * 获取战斗结果
+   * @returns 战斗结果
+   */
+  public getResult(): any {
+    // 获取战斗状态
+    const state = this.getState();
+
+    // 如果战斗未结束，返回null
+    if (state !== BattleState.COMPLETED) {
+      return null;
+    }
+
+    // 获取战斗统计数据
+    const stats = this.getBattleStats();
+
+    // 判断胜利条件
+    // 这里简单判断：如果英雄还活着，就算胜利
+    const heroAlive = stats.heroStats && stats.heroStats.length > 0 &&
+                      stats.heroStats.some(hero => hero.hp > 0);
+
+    // 返回结果
+    return {
+      victory: heroAlive,
+      stats: stats,
+      duration: stats.duration,
+      enemiesDefeated: stats.totalEnemiesDefeated
+    };
+  }
+
+  /**
    * 获取回放数据
    */
   public getReplayData(): BattleReplayData | null {

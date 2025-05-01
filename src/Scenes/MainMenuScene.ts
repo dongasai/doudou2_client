@@ -11,6 +11,7 @@ export class MainMenuScene extends Phaser.Scene {
   private title: Phaser.GameObjects.Text;
   private startButton: Phaser.GameObjects.Text;
   private quickStartButton: Phaser.GameObjects.Text;
+  private encyclopediaButton: Phaser.GameObjects.Text;
   private settingsButton: Phaser.GameObjects.Text;
   private creditsButton: Phaser.GameObjects.Text;
 
@@ -185,8 +186,19 @@ export class MainMenuScene extends Phaser.Scene {
     this.quickStartButton.on('pointerover', () => this.quickStartButton.setTint(0xffff00));
     this.quickStartButton.on('pointerout', () => this.quickStartButton.clearTint());
 
+    // 百科按钮
+    this.encyclopediaButton = this.add.text(centerX, 490, '游戏百科 📚', {
+      ...buttonStyle,
+      backgroundColor: '#4a5a9a', // 蓝色背景，区别于其他按钮
+    });
+    this.encyclopediaButton.setOrigin(0.5);
+    this.encyclopediaButton.setInteractive({ useHandCursor: true });
+    this.encyclopediaButton.on('pointerdown', this.onEncyclopediaButtonClick, this);
+    this.encyclopediaButton.on('pointerover', () => this.encyclopediaButton.setTint(0xffff00));
+    this.encyclopediaButton.on('pointerout', () => this.encyclopediaButton.clearTint());
+
     // 设置按钮
-    this.settingsButton = this.add.text(centerX, 490, '设置 ⚙️', buttonStyle);
+    this.settingsButton = this.add.text(centerX, 560, '设置 ⚙️', buttonStyle);
     this.settingsButton.setOrigin(0.5);
     this.settingsButton.setInteractive({ useHandCursor: true });
     this.settingsButton.on('pointerdown', this.onSettingsButtonClick, this);
@@ -194,7 +206,7 @@ export class MainMenuScene extends Phaser.Scene {
     this.settingsButton.on('pointerout', () => this.settingsButton.clearTint());
 
     // 制作人员按钮
-    this.creditsButton = this.add.text(centerX, 560, '制作人员 👥', buttonStyle);
+    this.creditsButton = this.add.text(centerX, 630, '制作人员 👥', buttonStyle);
     this.creditsButton.setOrigin(0.5);
     this.creditsButton.setInteractive({ useHandCursor: true });
     this.creditsButton.on('pointerdown', this.onCreditsButtonClick, this);
@@ -224,6 +236,15 @@ export class MainMenuScene extends Phaser.Scene {
 
     // 切换到关卡选择场景
     this.scene.start('LevelSelectScene');
+  }
+
+  /**
+   * 百科按钮点击事件
+   */
+  private onEncyclopediaButtonClick(): void {
+    console.log('[INFO] 点击百科按钮');
+    // 切换到百科场景
+    this.scene.start('EncyclopediaScene');
   }
 
   /**
