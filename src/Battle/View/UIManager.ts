@@ -7,18 +7,18 @@ import Phaser from 'phaser';
 import { SkillUIComponent } from './SkillUIComponent';
 import { BattleParamsService } from '@/services/BattleParamsService';
 import { gameState } from '@/main';
-import { DepthLayers } from '@/Battle/Constants/DepthLayers';
+import { DepthLayers } from '@/Constants/DepthLayers';
 
 export class UIManager {
   private scene: Phaser.Scene;
 
   // UI元素
-  private statusBar: Phaser.GameObjects.Container;
-  private waveIndicator: Phaser.GameObjects.Text;
-  private pauseButton: Phaser.GameObjects.Text;
-  private skillButtonsContainer: Phaser.GameObjects.Container;
-  private skillUIComponents: Map<string, SkillUIComponent>;
-  private uiContainer: Phaser.GameObjects.Container;
+  private statusBar!: Phaser.GameObjects.Container;
+  private waveIndicator!: Phaser.GameObjects.Text;
+  private pauseButton!: Phaser.GameObjects.Text;
+  private skillButtonsContainer!: Phaser.GameObjects.Container;
+  private skillUIComponents: Map<string, SkillUIComponent> = new Map();
+  private uiContainer!: Phaser.GameObjects.Container;
 
   // 状态
   private isPaused: boolean = false;

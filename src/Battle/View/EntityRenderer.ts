@@ -7,7 +7,7 @@ import Phaser from 'phaser';
 import { Vector2D } from '@/Battle/Types/Vector2D';
 import { EntityCreatedEvent } from '@/Event/b2v/EntityCreated';
 import { CameraController } from './CameraController';
-import { DepthLayers } from '@/Battle/Constants/DepthLayers';
+import { DepthLayers } from '@/Constants/DepthLayers';
 
 export class EntityRenderer {
   private scene: Phaser.Scene;

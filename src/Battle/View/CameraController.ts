@@ -5,7 +5,7 @@
 
 import Phaser from 'phaser';
 import { Vector2D } from '@/Battle/Types/Vector2D';
-import { DepthLayers } from '@/Battle/Constants/DepthLayers';
+import { DepthLayers } from '@/Constants/DepthLayers';
 
 export class CameraController {
   private scene: Phaser.Scene;

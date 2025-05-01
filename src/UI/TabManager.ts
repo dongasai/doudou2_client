@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Tab } from './Tab';
+import { DepthLayers } from '@/Constants/DepthLayers';
 
 /**
  * 标签页管理器
@@ -51,6 +52,10 @@ export class TabManager {
     // 创建容器
     this.container = scene.add.container(x, y);
     
+    // 初始化背景属性
+    this.background = scene.add.rectangle(0, 0, 0, 0, 0);
+    this.tabButtonsBackground = scene.add.rectangle(0, 0, 0, 0, 0);
+    
     // 创建背景
     this.createBackground();
     
@@ -62,7 +67,7 @@ export class TabManager {
    */
   private createBackground(): void {
     try {
-      // 创建标签页内容背景
+      // 创建标签页内容背景（UI_BACKGROUND）
       this.background = this.scene.add.rectangle(
         0,
         40, // 标签页按钮高度
@@ -72,7 +77,21 @@ export class TabManager {
         0.7
       );
       this.background.setOrigin(0.5, 0);
+      this.background.setDepth(DepthLayers.UI_BACKGROUND);
       this.container.add(this.background);
+
+      // 创建标签页按钮背景（UI_ELEMENT）
+      this.tabButtonsBackground = this.scene.add.rectangle(
+        0,
+        0,
+        this.width,
+        40,
+        0x333333,
+        0.9
+      );
+      this.tabButtonsBackground.setOrigin(0.5, 0);
+      this.tabButtonsBackground.setDepth(DepthLayers.UI_ELEMENT);
+      this.container.add(this.tabButtonsBackground);
       
       // 创建标签页按钮背景
       this.tabButtonsBackground = this.scene.add.rectangle(
@@ -138,8 +157,14 @@ export class TabManager {
       this.tabButtons.push(tabButton);
       this.tabs.push(tab);
       
+      // 设置深度关系：按钮(UI_FOREGROUND) > 内容(UI_ELEMENT)
+      tabButton.setDepth(DepthLayers.UI_FOREGROUND);
+      tab.container.setDepth(DepthLayers.UI_ELEMENT);
+      
       // 隐藏标签页内容
       tab.hide();
+      
+      console.log(`[DEBUG] 标签页${title}深度设置完成: 按钮=${10}, 内容=${tabCount}`);
       
       // 重新排列标签页按钮
       this.rearrangeTabButtons();

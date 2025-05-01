@@ -15,7 +15,7 @@ export abstract class Tab {
   protected height: number;
 
   // 内容容器
-  protected container: Phaser.GameObjects.Container;
+  public container: Phaser.GameObjects.Container;
 
   // 是否可见
   protected visible: boolean = false;

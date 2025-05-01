@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { TabManager } from '@/UI/TabManager';
 import { LevelsTab } from '@/UI/Encyclopedia/LevelsTab';
 import { HeroesTab } from '@/UI/Encyclopedia/HeroesTab';
-import { BeansTab } from '@/UI/Encyclopedia/BeansTab';
+import { BeansTab } from '../UI/Encyclopedia/BeansTab';
 import { ConfigManager } from '@/Managers/ConfigManager';
 
 /**
@@ -22,7 +22,7 @@ export class EncyclopediaScene extends Phaser.Scene {
   private backButton!: Phaser.GameObjects.Text;
 
   // 配置管理器
-  private configManager: ConfigManager;
+  private configManager: ConfigManager = ConfigManager.getInstance();
 
   /**
    * 构造函数
@@ -189,10 +189,20 @@ export class EncyclopediaScene extends Phaser.Scene {
       // 创建标签页管理器
       this.tabManager = new TabManager(this, width / 2, 120, width * 0.9, height - 200);
 
-      // 创建标签页内容
-      this.levelsTab = new LevelsTab(this, width / 2, 120 + 40, width * 0.9, height - 200 - 40, this.configManager);
-      this.heroesTab = new HeroesTab(this, width / 2, 120 + 40, width * 0.9, height - 200 - 40, this.configManager);
-      this.beansTab = new BeansTab(this, width / 2, 120 + 40, width * 0.9, height - 200 - 40, this.configManager);
+      // 创建标签页内容 - 使用不同深度确保不堆叠
+      const contentX = width / 2;
+      const contentY = 120 + 40;
+      const contentWidth = width * 0.9;
+      const contentHeight = height - 200 - 40;
+      
+      this.levelsTab = new LevelsTab(this, contentX, contentY, contentWidth, contentHeight, this.configManager);
+      this.heroesTab = new HeroesTab(this, contentX, contentY, contentWidth, contentHeight, this.configManager);
+      this.beansTab = new BeansTab(this, contentX, contentY, contentWidth, contentHeight, this.configManager);
+
+      // 设置不同深度
+      this.levelsTab.container.setDepth(1);
+      this.heroesTab.container.setDepth(2);
+      this.beansTab.container.setDepth(3);
 
       // 添加标签页
       this.tabManager.addTab('关卡', this.levelsTab);
@@ -201,6 +211,8 @@ export class EncyclopediaScene extends Phaser.Scene {
 
       // 默认选中第一个标签页
       this.tabManager.selectTab(0);
+
+      console.log('[INFO] 标签页管理器创建完成，深度已设置');
 
       console.log('[INFO] 标签页管理器创建完成');
     } catch (error) {
