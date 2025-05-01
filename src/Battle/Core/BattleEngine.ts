@@ -6,9 +6,9 @@
 import { logger, LogLevel } from '@/Battle/Core/Logger';
 import { BattleManager, BattleState, BattleResult } from '@/Battle/Core/BattleManager';
 import { ReplayManager } from '@/Battle/Core/ReplayManager';
-import { BattleCommand } from '@/DesignConfig/types/BattleCommand';
-import { BattleInitParams } from '@/DesignConfig/types/BattleInitParams';
-import { BattleReplayData, ReplayEvent, ReplayState } from '@/DesignConfig/types/BattleReplay';
+import { BattleCommand } from '@/DesignConfig/BattleCommand';
+import { BattleInitParams } from '@/DesignConfig/BattleInitParams';
+import { BattleReplayData, ReplayEvent, ReplayState } from '@/DesignConfig/BattleReplay';
 
 export class BattleEngine {
   private battleManager: BattleManager;

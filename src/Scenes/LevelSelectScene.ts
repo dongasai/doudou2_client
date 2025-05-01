@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { gameState } from '@/main';
-import { LevelConfig } from '@/DesignConfig/types/Level';
+import { LevelConfig } from '@/DesignConfig/Level';
 
 /**
  * 关卡选择场景

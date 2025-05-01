@@ -1,5 +1,5 @@
 import { gameState } from '@/main';
-import { LevelConfig } from '@/DesignConfig/types/Level';
+import { LevelConfig } from '@/DesignConfig/Level';
 
 /**
  * 战斗参数服务

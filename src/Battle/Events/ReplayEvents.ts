@@ -3,7 +3,7 @@
  * 定义回放系统中使用的事件类型和数据结构
  */
 
-import { ReplayState } from '../../DesignConfig/types/BattleReplay';
+import { ReplayState } from '../../DesignConfig/BattleReplay';
 
 // 回放事件类型
 export enum ReplayEventType {

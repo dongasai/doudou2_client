@@ -11,9 +11,9 @@ import { DamageManager } from './DamageManager';
 import { SkillManager } from './SkillManager'; // 使用兼容层
 import { WaveManager } from './WaveManager';
 import { RandomManager } from './RandomManager';
-import { BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '../../DesignConfig/types/BattleCommand';
-import { BattleInitParams } from '../../DesignConfig/types/BattleInitParams';
-import { BattleReplayData } from '../../DesignConfig/types/BattleReplay';
+import { BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '../../DesignConfig/BattleCommand';
+import { BattleInitParams } from '../../DesignConfig/BattleInitParams';
+import { BattleReplayData } from '../../DesignConfig/BattleReplay';
 import { Entity, EntityType, EntityStats } from '../Entities/Entity';
 import { Vector2D } from '../Types/Vector2D';
 import { Hero } from '../Entities/Hero';

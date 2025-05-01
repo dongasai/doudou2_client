@@ -6,7 +6,7 @@
 import Phaser from 'phaser';
 import { Vector2D } from '../Types/Vector2D';
 import { BattleEngine } from '../Core/BattleEngine';
-import { BattleCommand } from '../../DesignConfig/types/BattleCommand';
+import { BattleCommand } from '../../DesignConfig/BattleCommand';
 
 export class TouchController {
   private scene: Phaser.Scene;

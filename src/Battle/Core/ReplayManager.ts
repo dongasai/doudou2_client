@@ -4,9 +4,9 @@
  */
 
 import { logger } from './Logger';
-import { BattleInitParams } from '../../DesignConfig/types/BattleInitParams';
-import { BattleCommand } from '../../DesignConfig/types/BattleCommand';
-import { BattleReplayData } from '../../DesignConfig/types/BattleReplay';
+import { BattleInitParams } from '../../DesignConfig/BattleInitParams';
+import { BattleCommand } from '../../DesignConfig/BattleCommand';
+import { BattleReplayData } from '../../DesignConfig/BattleReplay';
 import { EventManager } from './EventManager';
 import { ReplayEventType } from '../Events/ReplayEvents';
 

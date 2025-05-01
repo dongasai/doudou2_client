@@ -6,7 +6,7 @@
 import { BattleResult } from '../Core/BattleManager';
 import { EntityStats } from '../Entities/Entity';
 import { Vector2D } from './Vector2D';
-import { BattleInitParams } from '../../DesignConfig/types/BattleInitParams';
+import { BattleInitParams } from '../../DesignConfig/BattleInitParams';
 import { BeanState } from '../Entities/Bean';
 import { CrystalState } from '../Entities/Crystal';
 import { EffectType, ControlType } from '../../SkillKernel/type';

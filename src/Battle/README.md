@@ -59,7 +59,7 @@
 
 ```typescript
 import { battleEngine } from './Battle/Core/BattleEngine';
-import { BattleInitParams } from './DesignConfig/types/BattleInitParams';
+import { BattleInitParams } from './DesignConfig/BattleInitParams';
 
 // 创建战斗初始化参数
 const battleParams: BattleInitParams = {
@@ -111,7 +111,7 @@ battleEngine.startBattle();
 ### 发送战斗指令
 
 ```typescript
-import { BattleCommand } from './DesignConfig/types/BattleCommand';
+import { BattleCommand } from './DesignConfig/BattleCommand';
 
 // 施放技能指令
 const castSkillCommand: BattleCommand = {

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { BattleState } from '@/Battle/Core/BattleManager';
-import { BattleInitParams } from '@/DesignConfig/types/BattleInitParams';
+import { BattleInitParams } from '@/DesignConfig/BattleInitParams';
 import { BattleSceneView } from '@/Battle/View/BattleSceneView';
 import { battleEngine, BattleEngine } from '@/Battle/Core/BattleEngine';
 

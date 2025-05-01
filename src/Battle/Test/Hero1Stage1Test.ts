@@ -5,8 +5,8 @@
 
 import { battleEngine } from '../Core/BattleEngine';
 import { logger, LogLevel } from '../Core/Logger';
-import { BattleCommand } from '../../DesignConfig/types/BattleCommand';
-import { BattleInitParams } from '../../DesignConfig/types/BattleInitParams';
+import { BattleCommand } from '../../DesignConfig/BattleCommand';
+import { BattleInitParams } from '../../DesignConfig/BattleInitParams';
 
 // 设置日志级别
 logger.setLogLevel(LogLevel.DEBUG);
