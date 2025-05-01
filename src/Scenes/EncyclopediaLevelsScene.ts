@@ -70,22 +70,6 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
       loadingText.destroy();
       console.log('[DEBUG] 加载提示已移除');
 
-      // 添加一个测试文本，确认UI可以正常显示
-      const testText = this.add.text(
-        this.cameras.main.width / 2,
-        120,
-        '关卡列表将显示在此区域',
-        {
-          fontSize: '20px',
-          fontFamily: 'Arial',
-          color: '#ffffff',
-          stroke: '#000000',
-          strokeThickness: 2
-        }
-      );
-      testText.setOrigin(0.5, 0.5);
-      console.log('[DEBUG] 测试文本已创建');
-
       // 创建关卡列表
       console.log('[DEBUG] 开始创建关卡列表...');
       this.createLevelsList();
@@ -174,7 +158,7 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
         {
           fontSize: '24px',
           fontFamily: 'Arial',
-          color: '#ffffff',
+          color: '#000000',
           stroke: '#000000',
           strokeThickness: 2
         }
@@ -225,35 +209,12 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
         );
         noDataText.setOrigin(0.5, 0.5);
 
-        // 添加一个测试按钮，显示硬编码的关卡数据
-        const testButton = this.add.text(
-          this.cameras.main.width / 2,
-          this.cameras.main.height / 2 + 100,
-          '显示测试数据',
-          {
-            fontSize: '20px',
-            fontFamily: 'Arial',
-            color: '#ffffff',
-            backgroundColor: '#333333',
-            padding: { left: 15, right: 15, top: 10, bottom: 10 }
-          }
-        ).setInteractive();
 
-        testButton.on('pointerdown', () => {
-          this.showTestData();
-        });
 
         return;
       }
 
-      // 检查是否有可用的章节数据
-      if (!chapters || chapters.length === 0) {
-        console.warn('[WARN] 没有可用的章节数据');
 
-        // 即使没有章节数据，也显示关卡列表
-        this.showLevelsWithoutChapters(levels);
-        return;
-      }
 
       console.log(`[INFO] 加载了 ${levels.length} 个关卡数据和 ${chapters.length} 个章节数据`);
 
@@ -276,23 +237,30 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
         0x000000, // 纯黑色背景
         0.7 // 不透明度
       );
-      scrollBg.setStrokeStyle(2, 0xffffff, 0.5); // 白色边框
-      console.log('[DEBUG] 创建滚动区域背景');
+      scrollBg.setStrokeStyle(
+          2, 0xffffff, 0.5); // 白色边框
+      console.log('[DEBUG] 创建滚动区域背景 0xffffff');
 
-      // 创建遮罩 - 使用透明遮罩，不会显示出来
-      const mask = this.add.graphics()
-        .fillStyle(0x000000) // 使用黑色而不是白色
-        .fillRect(padding, 100, scrollAreaWidth, scrollAreaHeight);
 
-      // 设置遮罩
-      scrollView.setMask(new Phaser.Display.Masks.GeometryMask(this, mask));
+
 
       // 创建章节标题和关卡按钮
       let yPosition = 120;
       console.log('[DEBUG] 开始创建章节和关卡按钮');
 
-      // 添加一个测试文本到滚动区域，确认滚动区域可见
-      const testScrollText = this.add.text(
+      // 添加章节列表标题，并使用背景增强可读性
+      const titleBg = this.add.rectangle(
+        this.cameras.main.width / 2,
+        yPosition,
+        scrollAreaWidth - 20,
+        50,
+        0x333333,
+        0.9
+      );
+      titleBg.setStrokeStyle(2, 0x666666, 0.9);
+      scrollView.add(titleBg);
+
+      const chapterListTitle = this.add.text(
         this.cameras.main.width / 2,
         yPosition,
         '章节列表',
@@ -304,21 +272,32 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
           strokeThickness: 2
         }
       );
-      testScrollText.setOrigin(0.5, 0.5);
-      scrollView.add(testScrollText);
-      yPosition += 60;
+      chapterListTitle.setOrigin(0.5, 0.5);
+      scrollView.add(chapterListTitle);
+      yPosition += 80; // 增加标题与第一个章节之间的间距
 
       console.log('[DEBUG] 章节数量:', chapters.length);
       for (const chapter of chapters) {
         console.log('[DEBUG] 处理章节:', chapter.name);
 
-        // 创建章节标题 - 居中显示
+        // 创建章节标题 - 居中显示，并添加背景以增强可读性
+        const chapterTitleBg = this.add.rectangle(
+          this.cameras.main.width / 2,
+          yPosition,
+          scrollAreaWidth - 40,
+          40,
+          0x222222,
+          0.8
+        );
+        chapterTitleBg.setStrokeStyle(1, 0x444444, 0.8);
+        scrollView.add(chapterTitleBg);
+
         const chapterTitle = this.add.text(
           this.cameras.main.width / 2,
           yPosition,
           `${chapter.name}`,
           {
-            fontSize: '24px', // 稍微减小字体大小
+            fontSize: '24px',
             fontFamily: 'Arial',
             color: '#ffffff',
             stroke: '#000000',
@@ -328,7 +307,7 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
 
         chapterTitle.setOrigin(0.5, 0.5); // 居中对齐
         scrollView.add(chapterTitle);
-        yPosition += 50;
+        yPosition += 70; // 增加章节标题与关卡按钮之间的间距
 
         // 获取该章节的关卡
         console.log('[DEBUG] 过滤章节关卡, 章节ID:', chapter.id);
@@ -364,20 +343,21 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
 
         // 计算按钮大小，使其适应屏幕宽度
         const availableWidth = scrollAreaWidth - (padding * 2);
-        const buttonSpacingX = 10; // 减小按钮间距
+        const buttonSpacingX = 20; // 增加按钮水平间距
         const buttonWidth = (availableWidth - buttonSpacingX) / buttonsPerRow;
 
-        const buttonHeight = 100; // 稍微减小按钮高度
-        const buttonSpacingY = 15; // 减小按钮垂直间距
+        const buttonHeight = 120; // 增加按钮高度，确保有足够空间
+        const buttonSpacingY = 30; // 增加按钮垂直间距
 
         for (let i = 0; i < chapterLevels.length; i++) {
           const level = chapterLevels[i];
           const row = Math.floor(i / buttonsPerRow);
           const col = i % buttonsPerRow;
 
-          // 计算按钮位置，使其在屏幕中居中
+          // 计算按钮位置，使其在屏幕中居中，并确保有足够间距
           const startX = padding + (scrollAreaWidth - (buttonsPerRow * buttonWidth + (buttonsPerRow - 1) * buttonSpacingX)) / 2;
           const x = startX + col * (buttonWidth + buttonSpacingX);
+          // 增加行间距，确保按钮之间不会重叠
           const y = yPosition + row * (buttonHeight + buttonSpacingY);
 
           // 创建按钮容器
@@ -399,13 +379,13 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
           const idParts = level.id.split('-');
           const levelNumber = idParts.length >= 3 ? idParts[2] : '?';
 
-          // 创建关卡标题 - 减小字体大小
+          // 创建关卡标题 - 调整位置和大小
           const levelTitle = this.add.text(
             0,
-            -buttonHeight/2 + 20, // 调整位置
+            -buttonHeight/2 + 25, // 向下调整位置
             `关卡 ${levelNumber}`,
             {
-              fontSize: '16px', // 减小字体大小
+              fontSize: '16px',
               fontFamily: 'Arial',
               color: '#ffffff',
               stroke: '#000000',
@@ -415,33 +395,34 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
           levelTitle.setOrigin(0.5, 0.5);
           buttonContainer.add(levelTitle);
 
-          // 创建关卡名称 - 减小字体大小
+          // 创建关卡名称 - 居中显示
           const levelName = this.add.text(
             0,
-            0,
+            0, // 保持在中央
             level.name,
             {
-              fontSize: '18px', // 减小字体大小
+              fontSize: '18px',
               fontFamily: 'Arial',
               color: '#ffffff',
               stroke: '#000000',
-              strokeThickness: 1
+              strokeThickness: 1,
+              wordWrap: { width: buttonWidth - 20 } // 添加文本换行
             }
           );
           levelName.setOrigin(0.5, 0.5);
           buttonContainer.add(levelName);
 
-          // 创建难度文本 - 减小字体大小
+          // 创建难度文本 - 调整位置
           const difficulty = typeof level.difficulty === 'string' ?
             level.difficulty :
             '未知';
 
           const difficultyText = this.add.text(
             0,
-            buttonHeight/2 - 20, // 调整位置
+            buttonHeight/2 - 25, // 向上调整位置
             `难度: ${difficulty}`,
             {
-              fontSize: '14px', // 减小字体大小
+              fontSize: '14px',
               fontFamily: 'Arial',
               color: '#ffff00'
             }
