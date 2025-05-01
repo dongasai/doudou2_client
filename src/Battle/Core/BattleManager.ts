@@ -438,8 +438,9 @@ export class BattleManager {
 
   /**
    * 获取战斗统计数据
+   * @returns 战斗统计数据
    */
-  public getBattleStats(): any {
+  public getBattleStats(): import('../Types/BattleStats').BattleStats {
     const duration = this.battleEndTime > 0
       ? this.battleEndTime - this.battleStartTime
       : Date.now() - this.battleStartTime;

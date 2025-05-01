@@ -7,6 +7,7 @@ import Phaser from 'phaser';
 import { Vector2D } from '@/Battle/Types/Vector2D';
 import { EntityCreatedEvent } from '@/Event/b2v/EntityCreated';
 import { CameraController } from './CameraController';
+import { DepthLayers } from '@/Battle/Constants/DepthLayers';
 
 export class EntityRenderer {
   private scene: Phaser.Scene;
@@ -69,76 +70,61 @@ export class EntityRenderer {
       const heroSize = Math.min(48, Math.max(32, screenWidth * 0.09)); // 英雄和水晶大小
       const beanSize = Math.min(32, Math.max(24, screenWidth * 0.06)); // 豆豆大小
 
-      // 创建精灵
-      let sprite;
+      // 创建精灵 (直接使用Text对象显示Emoji，与原始代码保持一致)
+      let sprite: Phaser.GameObjects.Text;
 
       switch (entityType) {
         case 'hero':
-          // 创建英雄精灵
-          sprite = this.scene.add.sprite(screenPos.x, screenPos.y, 'hero');
-          if (!sprite.texture.key || sprite.texture.key === '__MISSING') {
-            // 如果纹理不存在，使用文本作为后备
-            sprite.destroy();
-            sprite = this.scene.add.text(screenPos.x, screenPos.y, '🧙', {
-              fontSize: `${heroSize}px`
-            });
-          }
+          // 使用英雄Emoji
+          sprite = this.scene.add.text(screenPos.x, screenPos.y, '🧙', {
+            fontSize: `${heroSize}px`
+          });
           sprite.setOrigin(0.5);
-          sprite.setScale(0.5);
+          sprite.setDepth(DepthLayers.WORLD_ENTITY);
 
           // 如果是英雄，立即聚焦摄像机
           this.cameraController.focusOnPosition(position);
+          console.log('[INFO] 英雄创建成功:', entityId);
           break;
 
         case 'bean':
-          // 创建豆豆精灵
-          sprite = this.scene.add.sprite(screenPos.x, screenPos.y, 'bean');
-          if (!sprite.texture.key || sprite.texture.key === '__MISSING') {
-            // 如果纹理不存在，使用文本作为后备
-            sprite.destroy();
-            sprite = this.scene.add.text(screenPos.x, screenPos.y, '🟢', {
-              fontSize: `${beanSize}px`
-            });
-          }
+          // 使用豆豆Emoji
+          sprite = this.scene.add.text(screenPos.x, screenPos.y, '🟢', {
+            fontSize: `${beanSize}px`
+          });
           sprite.setOrigin(0.5);
-          sprite.setScale(0.4);
+          sprite.setDepth(DepthLayers.WORLD_ENTITY);
+          console.log('[INFO] 豆豆创建成功:', entityId);
           break;
 
         case 'crystal':
-          // 创建水晶精灵
-          sprite = this.scene.add.sprite(screenPos.x, screenPos.y, 'crystal');
-          if (!sprite.texture.key || sprite.texture.key === '__MISSING') {
-            // 如果纹理不存在，使用文本作为后备
-            sprite.destroy();
-            sprite = this.scene.add.text(screenPos.x, screenPos.y, '💎', {
-              fontSize: `${heroSize}px`
-            });
-          }
+          // 使用水晶Emoji
+          sprite = this.scene.add.text(screenPos.x, screenPos.y, '💎', {
+            fontSize: `${heroSize}px`
+          });
           sprite.setOrigin(0.5);
-          sprite.setScale(0.5);
+          sprite.setDepth(DepthLayers.WORLD_ENTITY);
+          console.log('[INFO] 水晶创建成功:', entityId);
           break;
 
         default:
-          // 使用默认的豆豆精灵作为后备
-          sprite = this.scene.add.sprite(screenPos.x, screenPos.y, 'bean');
-          if (!sprite.texture.key || sprite.texture.key === '__MISSING') {
-            // 如果纹理不存在，使用文本作为后备
-            sprite.destroy();
-            sprite = this.scene.add.text(screenPos.x, screenPos.y, '❓', {
-              fontSize: `${beanSize}px`
-            });
-          }
+          // 使用默认的豆豆Emoji作为后备
+          sprite = this.scene.add.text(screenPos.x, screenPos.y, '❓', {
+            fontSize: `${beanSize}px`
+          });
           sprite.setOrigin(0.5);
-          sprite.setScale(0.4);
+          sprite.setDepth(DepthLayers.WORLD_ENTITY);
+          console.log('[INFO] 未知实体创建成功:', entityId);
           break;
       }
 
       // 添加到映射
       this.entitySprites.set(entityId, sprite as any);
-      console.log('[INFO] 实体创建成功:', entityId);
+      console.log('[INFO] 实体添加到映射:', entityId);
 
       // 创建生命值条
       const healthBar = this.scene.add.graphics();
+      healthBar.setDepth(DepthLayers.WORLD_ENTITY + 1); // 设置比实体略高的深度，确保显示在实体上方
       this.entityHealthBars.set(entityId, healthBar);
 
       // 确保stats数据存在
@@ -148,6 +134,7 @@ export class EntityRenderer {
 
       // 更新生命值条
       this.updateHealthBar(entityId, event.stats.hp, event.stats.maxHp);
+      console.log('[INFO] 生命值条更新完成:', entityId);
 
     } catch (error) {
       console.error('[ERROR] 创建实体出错:', error);
@@ -282,6 +269,7 @@ export class EntityRenderer {
       }
     );
     text.setOrigin(0.5);
+    text.setDepth(DepthLayers.WORLD_EFFECT); // 使用效果层级，确保显示在实体和生命值条之上
 
     // 添加到组
     this.damageTexts.add(text);

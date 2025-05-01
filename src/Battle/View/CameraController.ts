@@ -5,6 +5,7 @@
 
 import Phaser from 'phaser';
 import { Vector2D } from '@/Battle/Types/Vector2D';
+import { DepthLayers } from '@/Battle/Constants/DepthLayers';
 
 export class CameraController {
   private scene: Phaser.Scene;
@@ -107,7 +108,7 @@ export class CameraController {
   }
 
   /**
-   * 聚焦相机到指定位置
+   * 聚焦主相机到指定位置
    * @param position 世界坐标位置
    * @param duration 移动持续时间（毫秒）
    */
@@ -115,7 +116,7 @@ export class CameraController {
     // 将世界坐标转换为屏幕坐标
     const screenPos = this.worldToScreenPosition(position);
 
-    // 设置相机跟随目标
+    // 设置主相机跟随目标
     // 使用平滑移动效果，让相机缓慢跟随
     this.scene.cameras.main.pan(
       screenPos.x,
@@ -124,8 +125,8 @@ export class CameraController {
       'Sine.easeOut'
     );
 
-    // 确保UI元素不受相机移动影响
-    this.fixUIElements();
+    // 注意：UI相机保持固定，不会跟随移动
+    // UI元素已经设置了scrollFactor=0，确保它们不受主相机移动影响
   }
 
   /**
@@ -145,22 +146,139 @@ export class CameraController {
   }
 
   /**
-   * 注册UI元素，确保它们不受相机移动影响
+   * 注册UI元素，设置它们的属性并创建专用的UI相机
+   *
+   * 这个方法会：
+   * 1. 创建一个固定位置的UI相机，专门用于渲染UI元素
+   * 2. 设置UI元素的属性，包括深度、可见性和scrollFactor
+   *
    * @param elements UI元素数组
    */
   public registerUIElements(elements: Phaser.GameObjects.GameObject[]): void {
-    this.uiElements = elements;
-    this.fixUIElements();
+    try {
+      console.log('[INFO] 开始注册UI元素，数量:', elements.length);
+      this.uiElements = elements;
+
+      // 创建专用的UI相机
+      this.createUICamera();
+
+      // 确保UI元素不受主相机移动影响
+      this.fixUIElements();
+
+      console.log('[INFO] UI元素注册完成');
+    } catch (error) {
+      console.error('[ERROR] 注册UI元素失败:', error);
+    }
   }
 
   /**
-   * 确保UI元素不受相机移动影响
+   * 创建专用的UI相机，固定位置不随游戏世界移动
+   *
+   * 这个相机专门用于渲染UI元素，它的位置是固定的，不会随着游戏世界的移动而移动。
+   * 这确保了UI元素在屏幕上的位置始终保持不变，提供一致的用户体验。
+   */
+  private createUICamera(): void {
+    try {
+      console.log('[INFO] 开始创建UI相机...');
+
+      // 获取主相机
+      const mainCamera = this.scene.cameras.main;
+
+      // 检查是否已存在UI相机
+      const existingUICamera = this.scene.cameras.getCamera('uiCamera');
+      if (existingUICamera) {
+        console.log('[INFO] UI相机已存在，跳过创建');
+        return;
+      }
+
+      // 创建UI相机 - 这是一个额外的相机，专门用于渲染UI
+      const uiCamera = this.scene.cameras.add(0, 0, mainCamera.width, mainCamera.height);
+      uiCamera.setName('uiCamera');
+      uiCamera.setScroll(0, 0); // UI相机不滚动
+
+      // 不设置背景色，保持透明
+      uiCamera.transparent = true;
+
+      // 简化相机设置，不使用复杂的忽略逻辑
+      // 而是通过设置UI元素的深度和scrollFactor来确保它们正确显示
+
+      // 设置所有UI元素的深度为UI层级，确保它们显示在游戏世界之上
+      for (const element of this.uiElements) {
+        if (element) {
+          // 设置UI层级
+          if ((element as any).setDepth) {
+            (element as any).setDepth(DepthLayers.UI_ELEMENT);
+          }
+
+          // 确保可见
+          if ((element as any).setVisible) {
+            (element as any).setVisible(true);
+          }
+
+          // 设置不透明
+          if ((element as any).setAlpha) {
+            (element as any).setAlpha(1);
+          }
+        }
+      }
+
+      console.log('[INFO] UI元素深度已设置为UI层级，确保显示在游戏世界之上');
+
+      // 将UI相机放在最上层
+      // Phaser 3不支持setZOrder，使用其他方式确保UI相机在最上层
+      this.scene.cameras.cameras.forEach(camera => {
+        if (camera.name === 'uiCamera') {
+          // 将UI相机移到数组末尾，使其最后渲染
+          this.scene.cameras.cameras.splice(this.scene.cameras.cameras.indexOf(camera), 1);
+          this.scene.cameras.cameras.push(camera);
+        }
+      });
+
+      console.log('[INFO] UI相机创建成功');
+    } catch (error) {
+      console.error('[ERROR] 创建UI相机失败:', error);
+    }
+  }
+
+  /**
+   * 设置UI元素的属性，确保它们在UI相机下正确显示
+   *
+   * 这个方法只需要在UI元素初始化时调用一次，不需要在每次相机移动后调用
    */
   private fixUIElements(): void {
-    for (const element of this.uiElements) {
-      if (element && element.setScrollFactor) {
-        element.setScrollFactor(0);
+    try {
+      console.log('[INFO] 开始设置UI元素属性...');
+      let fixedCount = 0;
+
+      for (const element of this.uiElements) {
+        if (element) {
+          // 设置UI层级
+          if ((element as any).setDepth) {
+            (element as any).setDepth(DepthLayers.UI_ELEMENT);
+          }
+
+          // 设置scrollFactor=0，确保元素位置固定，不随相机滚动
+          // 这是关键设置，使UI元素不受主相机移动影响
+          if ((element as any).setScrollFactor) {
+            (element as any).setScrollFactor(0);
+            fixedCount++;
+          }
+
+          // 确保可见
+          if ((element as any).setVisible) {
+            (element as any).setVisible(true);
+          }
+
+          // 设置不透明
+          if ((element as any).setAlpha) {
+            (element as any).setAlpha(1);
+          }
+        }
       }
+
+      console.log('[INFO] UI元素属性设置完成，成功设置', fixedCount, '个元素');
+    } catch (error) {
+      console.error('[ERROR] 设置UI元素属性失败:', error);
     }
   }
 

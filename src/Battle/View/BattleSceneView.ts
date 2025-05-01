@@ -47,6 +47,10 @@ export class BattleSceneView {
       console.log('[INFO] 初始化相机控制器...');
       this.cameraController = new CameraController(scene);
 
+      // 设置相机初始位置
+      console.log('[INFO] 设置相机初始位置...');
+      this.cameraController.focusOnPosition({ x: 1500, y: 1500 }, 0);
+
       // 初始化技能效果视图
       console.log('[INFO] 初始化技能效果视图...');
       this.skillEffectView = new SkillEffectView(scene);
@@ -69,7 +73,26 @@ export class BattleSceneView {
 
       // 注册UI元素到相机控制器
       console.log('[INFO] 注册UI元素到相机控制器...');
-      this.cameraController.registerUIElements(this.uiManager.getAllUIElements());
+
+      // 确保UI元素创建完成后再注册
+      // 增加延迟时间，确保UI元素完全创建
+      this.scene.time.delayedCall(500, () => {
+        const uiElements = this.uiManager.getAllUIElements();
+        console.log('[INFO] 获取到', uiElements.length, '个UI元素');
+        this.cameraController.registerUIElements(uiElements);
+        console.log('[INFO] UI元素注册完成');
+
+        // 强制更新一次UI，确保显示正确
+        this.updateUI();
+
+        // 添加调试信息，显示UI元素的位置和可见性
+        console.log('[DEBUG] 状态栏:',
+          this.uiManager.getStatusBar().x,
+          this.uiManager.getStatusBar().y,
+          this.uiManager.getStatusBar().visible,
+          this.uiManager.getStatusBar().depth
+        );
+      });
 
       // 初始化事件处理器
       console.log('[INFO] 初始化事件处理器...');
@@ -99,40 +122,60 @@ export class BattleSceneView {
    */
   private triggerInitialEvents(): void {
     try {
+      console.log('[INFO] 开始触发初始化事件...');
+
       // 获取战斗状态
       const battleStats = this.battleEngine.getBattleStats();
+      console.log('[INFO] 获取战斗状态:', battleStats);
 
       // 更新状态栏
       if (battleStats.heroStats && battleStats.heroStats.length > 0) {
         const hero = battleStats.heroStats[0];
         this.uiManager.updateStatusBar(hero.hp, hero.maxHp, hero.mp, hero.maxMp);
+        console.log('[INFO] 更新状态栏:', hero);
       }
 
       // 更新波次指示器
       if (battleStats.currentWave) {
         this.uiManager.updateWaveIndicator(battleStats.currentWave.number);
+        console.log('[INFO] 更新波次指示器:', battleStats.currentWave.number);
       }
 
       // 手动创建英雄实体
       if (battleStats.heroStats && battleStats.heroStats.length > 0) {
-        const hero = battleStats.heroStats[0];
-        if (hero.id) {
-          this.entityRenderer.createEntity({
-            id: hero.id,
-            entityType: 'hero',
-            position: hero.position || { x: 1500, y: 1500 },
-            stats: {
-              hp: hero.hp,
-              maxHp: hero.maxHp
-            }
-          });
+        for (const hero of battleStats.heroStats) {
+          if (hero.id) {
+            console.log('[INFO] 手动创建英雄实体:', hero.id);
+            this.entityRenderer.createEntity({
+              id: hero.id,
+              entityType: 'hero',
+              position: hero.position || { x: 1500, y: 1500 },
+              stats: {
+                hp: hero.hp,
+                maxHp: hero.maxHp
+              }
+            });
+          }
         }
+      } else {
+        // 如果没有英雄数据，创建一个默认英雄
+        console.log('[INFO] 创建默认英雄实体');
+        this.entityRenderer.createEntity({
+          id: 'hero_1',
+          entityType: 'hero',
+          position: { x: 1500, y: 1500 },
+          stats: {
+            hp: 100,
+            maxHp: 100
+          }
+        });
       }
 
       // 手动创建水晶实体
       if (battleStats.crystalStats && battleStats.crystalStats.length > 0) {
         for (const crystal of battleStats.crystalStats) {
           if (crystal.id) {
+            console.log('[INFO] 手动创建水晶实体:', crystal.id);
             this.entityRenderer.createEntity({
               id: crystal.id,
               entityType: 'crystal',
@@ -144,12 +187,25 @@ export class BattleSceneView {
             });
           }
         }
+      } else {
+        // 如果没有水晶数据，创建一个默认水晶
+        console.log('[INFO] 创建默认水晶实体');
+        this.entityRenderer.createEntity({
+          id: 'crystal_1',
+          entityType: 'crystal',
+          position: { x: 1500, y: 1500 },
+          stats: {
+            hp: 1000,
+            maxHp: 1000
+          }
+        });
       }
 
       // 手动创建豆豆实体
       if (battleStats.beanStats && battleStats.beanStats.length > 0) {
         for (const bean of battleStats.beanStats) {
           if (bean.id) {
+            console.log('[INFO] 手动创建豆豆实体:', bean.id);
             this.entityRenderer.createEntity({
               id: bean.id,
               entityType: 'bean',
@@ -161,7 +217,26 @@ export class BattleSceneView {
             });
           }
         }
+      } else {
+        // 如果没有豆豆数据，创建一些默认豆豆
+        console.log('[INFO] 创建默认豆豆实体');
+        for (let i = 1; i <= 5; i++) {
+          this.entityRenderer.createEntity({
+            id: `bean_${i}`,
+            entityType: 'bean',
+            position: {
+              x: 1500 + Math.random() * 300 - 150,
+              y: 1500 + Math.random() * 300 - 150
+            },
+            stats: {
+              hp: 50,
+              maxHp: 50
+            }
+          });
+        }
       }
+
+      console.log('[INFO] 初始化事件触发完成');
     } catch (error) {
       console.error('[ERROR] 触发初始化事件失败:', error);
     }
@@ -173,6 +248,9 @@ export class BattleSceneView {
    * @param delta 时间增量
    */
   public update(time: number, delta: number): void {
+    // 更新实体位置和状态
+    this.updateEntities();
+
     // 更新UI
     this.updateUI();
 
@@ -184,21 +262,145 @@ export class BattleSceneView {
   }
 
   /**
+   * 更新实体
+   * 这个方法与原始代码中的updateEntities方法类似，确保实体正确显示
+   */
+  private updateEntities(): void {
+    try {
+      // 获取战斗状态
+      const battleStats = this.battleEngine.getBattleStats();
+
+      // 更新英雄
+      if (battleStats.heroStats) {
+        for (const hero of battleStats.heroStats) {
+          const sprite = this.entityRenderer.getEntitySprite(hero.id);
+          if (sprite) {
+            // 更新位置
+            this.entityRenderer.updateEntityPosition(hero.id, hero.position, false);
+
+            // 更新生命值条
+            this.entityRenderer.updateHealthBar(hero.id, hero.hp, hero.maxHp);
+
+            // 聚焦摄像机到英雄
+            this.cameraController.focusOnPosition(hero.position);
+          } else if (hero.id) {
+            // 如果英雄精灵不存在但有英雄状态，检查是否已经尝试创建过
+            console.log('[INFO] 英雄状态存在但精灵不存在，尝试创建:', hero.id);
+
+            // 使用延迟创建，避免在同一帧多次尝试创建
+            if (!this.pendingCreations.has(hero.id)) {
+              this.pendingCreations.add(hero.id);
+
+              // 延迟100ms创建，避免重复创建
+              this.scene.time.delayedCall(100, () => {
+                // 再次检查是否已经创建
+                if (!this.entityRenderer.hasEntity(hero.id)) {
+                  this.entityRenderer.createEntity({
+                    id: hero.id,
+                    entityType: 'hero',
+                    position: hero.position || { x: 1500, y: 1500 },
+                    stats: {
+                      hp: hero.hp,
+                      maxHp: hero.maxHp
+                    }
+                  });
+                }
+                this.pendingCreations.delete(hero.id);
+              });
+            }
+          }
+        }
+      }
+
+      // 更新水晶
+      if (battleStats.crystalStats) {
+        // 检查水晶状态是否有效
+        const validHp = battleStats.crystalStats.hp !== undefined && !isNaN(battleStats.crystalStats.hp);
+        const validMaxHp = battleStats.crystalStats.maxHp !== undefined && !isNaN(battleStats.crystalStats.maxHp);
+
+        // 如果水晶状态无效，使用默认值
+        const hp = validHp ? battleStats.crystalStats.hp : 1000;
+        const maxHp = validMaxHp ? battleStats.crystalStats.maxHp : 1000;
+
+        const sprite = this.entityRenderer.getEntitySprite('crystal_1');
+        if (sprite) {
+          // 更新生命值条
+          this.entityRenderer.updateHealthBar('crystal_1', hp, maxHp);
+        } else {
+          // 如果水晶精灵不存在但有水晶状态，尝试创建
+          console.log('[INFO] 水晶状态存在但精灵不存在，尝试创建');
+
+          this.entityRenderer.createEntity({
+            id: 'crystal_1',
+            entityType: 'crystal',
+            position: { x: 1500, y: 1500 },
+            stats: {
+              hp: hp,
+              maxHp: maxHp
+            }
+          });
+        }
+      }
+
+      // 更新豆豆
+      if (battleStats.beanStats && battleStats.beanStats.length > 0) {
+        for (const bean of battleStats.beanStats) {
+          if (bean.id) {
+            const sprite = this.entityRenderer.getEntitySprite(bean.id);
+            if (sprite) {
+              // 更新位置
+              this.entityRenderer.updateEntityPosition(bean.id, bean.position, false);
+
+              // 更新生命值条
+              this.entityRenderer.updateHealthBar(bean.id, bean.hp, bean.maxHp);
+            } else {
+              // 如果豆豆精灵不存在但有豆豆状态，尝试创建
+              console.log('[INFO] 豆豆状态存在但精灵不存在，尝试创建:', bean.id);
+
+              this.entityRenderer.createEntity({
+                id: bean.id,
+                entityType: 'bean',
+                position: bean.position || { x: 1500, y: 1500 },
+                stats: {
+                  hp: bean.hp,
+                  maxHp: bean.maxHp
+                }
+              });
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[ERROR] 更新实体失败:', error);
+    }
+  }
+
+  /**
    * 更新UI
    */
   private updateUI(): void {
-    // 获取战斗状态
-    const battleStats = this.battleEngine.getBattleStats();
+    try {
+      // 获取战斗状态
+      const battleStats = this.battleEngine.getBattleStats();
 
-    // 更新状态栏
-    if (battleStats.heroStats && battleStats.heroStats.length > 0) {
-      const hero = battleStats.heroStats[0];
-      this.uiManager.updateStatusBar(hero.hp, hero.maxHp, hero.mp, hero.maxMp);
-    }
+      // 更新状态栏
+      if (battleStats.heroStats && battleStats.heroStats.length > 0) {
+        const hero = battleStats.heroStats[0];
+        this.uiManager.updateStatusBar(hero.hp, hero.maxHp, hero.mp, hero.maxMp);
+      } else {
+        // 使用默认值更新状态栏
+        this.uiManager.updateStatusBar(100, 100, 100, 100);
+      }
 
-    // 更新波次指示器
-    if (battleStats.currentWave) {
-      this.uiManager.updateWaveIndicator(battleStats.currentWave.number);
+      // 更新波次指示器
+      if (battleStats.currentWave) {
+        this.uiManager.updateWaveIndicator(battleStats.currentWave.number);
+      } else {
+        // 使用默认值更新波次指示器
+        this.uiManager.updateWaveIndicator(1);
+      }
+    } catch (error) {
+      console.error('[ERROR] 更新UI失败:', error);
     }
   }
 

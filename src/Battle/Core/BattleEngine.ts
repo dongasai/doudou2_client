@@ -241,8 +241,9 @@ export class BattleEngine {
 
   /**
    * 获取战斗统计数据
+   * @returns 战斗统计数据
    */
-  public getBattleStats(): any {
+  public getBattleStats(): import('../Types/BattleStats').BattleStats {
     return this.battleManager.getBattleStats();
   }
 
