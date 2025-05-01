@@ -105,8 +105,27 @@ export class HeroesTab extends Tab {
    */
   private loadHeroData(): void {
     try {
+      // 检查配置管理器是否存在
+      if (!this.configManager) {
+        console.error('[ERROR] 配置管理器未初始化');
+        throw new Error('配置管理器未初始化');
+      }
+
+      // 检查配置管理器是否有 getHeroesConfig 方法
+      if (typeof this.configManager.getHeroesConfig !== 'function') {
+        console.error('[ERROR] 配置管理器缺少 getHeroesConfig 方法');
+        throw new Error('配置管理器缺少 getHeroesConfig 方法');
+      }
+
       // 从配置管理器中获取英雄数据
       this.heroes = this.configManager.getHeroesConfig();
+
+      // 检查获取的数据是否有效
+      if (!this.heroes || !Array.isArray(this.heroes)) {
+        console.error('[ERROR] 获取的英雄数据无效');
+        throw new Error('获取的英雄数据无效');
+      }
+
       console.log('[INFO] 英雄数据加载完成，共加载', this.heroes.length, '个英雄');
     } catch (error) {
       console.error('[ERROR] 加载英雄数据失败:', error);
@@ -272,32 +291,32 @@ export class HeroesTab extends Tab {
       this.heroDetail.add(title);
 
       // 创建英雄图片
-      this.heroImage = this.scene.add.image(0, -this.height / 2 + 120, 'hero_wizard');
+      this.heroImage = this.scene.add.image(-120, -this.height / 2 + 120, 'hero_wizard');
       this.heroImage.setDisplaySize(150, 150);
       this.heroDetail.add(this.heroImage);
 
       // 创建英雄名称
-      this.heroName = this.scene.add.text(0, -this.height / 2 + 210, '', {
+      this.heroName = this.scene.add.text(50, -this.height / 2 + 90, '', {
         fontSize: '28px',
         fontFamily: 'Arial',
         color: '#ffffff',
         stroke: '#000000',
         strokeThickness: 2
       });
-      this.heroName.setOrigin(0.5, 0.5);
+      this.heroName.setOrigin(0, 0.5);
       this.heroDetail.add(this.heroName);
 
       // 创建英雄类型
-      this.heroType = this.scene.add.text(0, -this.height / 2 + 240, '', {
+      this.heroType = this.scene.add.text(50, -this.height / 2 + 130, '', {
         fontSize: '20px',
         fontFamily: 'Arial',
         color: '#ffff00'
       });
-      this.heroType.setOrigin(0.5, 0.5);
+      this.heroType.setOrigin(0, 0.5);
       this.heroDetail.add(this.heroType);
 
       // 创建英雄描述
-      this.heroDescription = this.scene.add.text(0, -this.height / 2 + 280, '', {
+      this.heroDescription = this.scene.add.text(0, -this.height / 2 + 200, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ffffff',
@@ -306,33 +325,101 @@ export class HeroesTab extends Tab {
       this.heroDescription.setOrigin(0.5, 0);
       this.heroDetail.add(this.heroDescription);
 
+      // 创建属性背景
+      const statsBg = this.scene.add.rectangle(
+        -150,
+        -this.height / 2 + 350,
+        200,
+        180,
+        0x222222,
+        0.7
+      );
+      statsBg.setStrokeStyle(1, 0x444444);
+      this.heroDetail.add(statsBg);
+
+      // 创建属性标题
+      const statsTitle = this.scene.add.text(
+        -240,
+        -this.height / 2 + 270,
+        '英雄属性',
+        {
+          fontSize: '20px',
+          fontFamily: 'Arial',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 1
+        }
+      );
+      statsTitle.setOrigin(0, 0.5);
+      this.heroDetail.add(statsTitle);
+
       // 创建英雄属性
-      this.heroStats = this.scene.add.text(0, -this.height / 2 + 350, '', {
+      this.heroStats = this.scene.add.text(-240, -this.height / 2 + 310, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#00ffff',
-        align: 'center'
+        align: 'left'
       });
-      this.heroStats.setOrigin(0.5, 0);
+      this.heroStats.setOrigin(0, 0);
       this.heroDetail.add(this.heroStats);
 
+      // 创建技能背景
+      const skillsBg = this.scene.add.rectangle(
+        150,
+        -this.height / 2 + 350,
+        200,
+        180,
+        0x222222,
+        0.7
+      );
+      skillsBg.setStrokeStyle(1, 0x444444);
+      this.heroDetail.add(skillsBg);
+
+      // 创建技能标题
+      const skillsTitle = this.scene.add.text(
+        60,
+        -this.height / 2 + 270,
+        '英雄技能',
+        {
+          fontSize: '20px',
+          fontFamily: 'Arial',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 1
+        }
+      );
+      skillsTitle.setOrigin(0, 0.5);
+      this.heroDetail.add(skillsTitle);
+
       // 创建英雄技能
-      this.heroSkills = this.scene.add.text(0, -this.height / 2 + 450, '', {
-        fontSize: '18px',
+      this.heroSkills = this.scene.add.text(60, -this.height / 2 + 310, '', {
+        fontSize: '16px',
         fontFamily: 'Arial',
         color: '#00ff00',
-        wordWrap: { width: 400 }
+        wordWrap: { width: 280 }
       });
-      this.heroSkills.setOrigin(0.5, 0);
+      this.heroSkills.setOrigin(0, 0);
       this.heroDetail.add(this.heroSkills);
 
+      // 创建解锁条件背景
+      const unlockBg = this.scene.add.rectangle(
+        0,
+        this.height / 2 - 50,
+        450,
+        50,
+        0x222222,
+        0.7
+      );
+      unlockBg.setStrokeStyle(1, 0x444444);
+      this.heroDetail.add(unlockBg);
+
       // 创建解锁条件
-      this.heroUnlockCondition = this.scene.add.text(0, this.height / 2 - 50, '', {
+      this.heroUnlockCondition = this.scene.add.text(-200, this.height / 2 - 50, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ff9900'
       });
-      this.heroUnlockCondition.setOrigin(0.5, 0.5);
+      this.heroUnlockCondition.setOrigin(0, 0.5);
       this.heroDetail.add(this.heroUnlockCondition);
 
       console.log('[INFO] 英雄详情创建完成');
@@ -353,20 +440,41 @@ export class HeroesTab extends Tab {
         return;
       }
 
+      // 检查按钮数组是否有效
+      if (!this.heroButtons || this.heroButtons.length === 0) {
+        console.warn('[WARN] 英雄按钮数组为空');
+        return;
+      }
+
+      // 检查索引是否超出按钮数组范围
+      if (index >= this.heroButtons.length) {
+        console.warn(`[WARN] 英雄索引超出按钮数组范围: ${index}, 按钮数组长度: ${this.heroButtons.length}`);
+        return;
+      }
+
       // 如果已经选中，不做任何操作
       if (this.selectedHeroIndex === index) {
         return;
       }
 
       // 重置之前选中的按钮
-      if (this.selectedHeroIndex !== -1) {
-        const prevButton = this.heroButtons[this.selectedHeroIndex].getAt(0) as Phaser.GameObjects.Rectangle;
-        prevButton.setFillStyle(0x333333, 0.8);
+      if (this.selectedHeroIndex !== -1 &&
+          this.selectedHeroIndex < this.heroButtons.length &&
+          this.heroButtons[this.selectedHeroIndex]) {
+
+        const prevButtonContainer = this.heroButtons[this.selectedHeroIndex];
+        if (prevButtonContainer && prevButtonContainer.getAt && prevButtonContainer.getAt(0)) {
+          const prevButton = prevButtonContainer.getAt(0) as Phaser.GameObjects.Rectangle;
+          prevButton.setFillStyle(0x333333, 0.8);
+        }
       }
 
       // 设置新选中的按钮
-      const button = this.heroButtons[index].getAt(0) as Phaser.GameObjects.Rectangle;
-      button.setFillStyle(0x555555, 0.8);
+      const buttonContainer = this.heroButtons[index];
+      if (buttonContainer && buttonContainer.getAt && buttonContainer.getAt(0)) {
+        const button = buttonContainer.getAt(0) as Phaser.GameObjects.Rectangle;
+        button.setFillStyle(0x555555, 0.8);
+      }
 
       // 更新选中的英雄索引
       this.selectedHeroIndex = index;
@@ -411,18 +519,28 @@ export class HeroesTab extends Tab {
       this.heroDescription.setText(hero.description);
 
       // 更新属性
-      this.heroStats.setText(
-        `生命值: ${hero.stats.hp}\n` +
-        `魔法值: ${hero.stats.mp}\n` +
-        `攻击力: ${hero.stats.attack}\n` +
-        `防御力: ${hero.stats.defense}\n` +
+      const statsText = [
+        `生命值: ${hero.stats.hp}`,
+        `魔法值: ${hero.stats.mp}`,
+        `攻击力: ${hero.stats.attack}`,
+        `防御力: ${hero.stats.defense}`,
         `速度: ${hero.stats.speed}`
-      );
+      ];
+
+      this.heroStats.setText(statsText.join('\n'));
 
       // 更新技能
-      let skillsText = '技能:\n';
-      for (const skill of hero.skills) {
-        skillsText += `${skill.name} (冷却: ${skill.cooldown}秒): ${skill.description}\n\n`;
+      let skillsText = '';
+      for (let i = 0; i < hero.skills.length; i++) {
+        const skill = hero.skills[i];
+        skillsText += `• ${skill.name}\n`;
+        skillsText += `  冷却: ${skill.cooldown}秒\n`;
+        skillsText += `  ${skill.description}\n`;
+
+        // 如果不是最后一个技能，添加分隔
+        if (i < hero.skills.length - 1) {
+          skillsText += '\n';
+        }
       }
       this.heroSkills.setText(skillsText);
 

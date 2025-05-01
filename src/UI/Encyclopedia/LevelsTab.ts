@@ -100,8 +100,27 @@ export class LevelsTab extends Tab {
    */
   private loadLevelData(): void {
     try {
+      // 检查配置管理器是否存在
+      if (!this.configManager) {
+        console.error('[ERROR] 配置管理器未初始化');
+        throw new Error('配置管理器未初始化');
+      }
+
+      // 检查配置管理器是否有 getLevelsConfig 方法
+      if (typeof this.configManager.getLevelsConfig !== 'function') {
+        console.error('[ERROR] 配置管理器缺少 getLevelsConfig 方法');
+        throw new Error('配置管理器缺少 getLevelsConfig 方法');
+      }
+
       // 从配置管理器中获取关卡数据
       this.levels = this.configManager.getLevelsConfig();
+
+      // 检查获取的数据是否有效
+      if (!this.levels || !Array.isArray(this.levels)) {
+        console.error('[ERROR] 获取的关卡数据无效');
+        throw new Error('获取的关卡数据无效');
+      }
+
       console.log('[INFO] 关卡数据加载完成，共加载', this.levels.length, '个关卡');
     } catch (error) {
       console.error('[ERROR] 加载关卡数据失败:', error);
@@ -279,7 +298,7 @@ export class LevelsTab extends Tab {
       this.levelDetail.add(this.levelDifficulty);
 
       // 创建描述
-      this.levelDescription = this.scene.add.text(0, -this.height / 2 + 300, '', {
+      this.levelDescription = this.scene.add.text(0, -this.height / 2 + 290, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ffffff',
@@ -288,52 +307,143 @@ export class LevelsTab extends Tab {
       this.levelDescription.setOrigin(0.5, 0);
       this.levelDetail.add(this.levelDescription);
 
+      // 创建关卡信息容器
+      const infoContainer = this.scene.add.container(0, 0);
+      this.levelDetail.add(infoContainer);
+
+      // 创建信息背景 - 使用更大的背景并放在底层
+      const infoBg = this.scene.add.rectangle(
+        0,
+        -this.height / 2 + 450,
+        450,
+        300,
+        0x222222,
+        0.8
+      );
+      infoBg.setStrokeStyle(2, 0x444444);
+      infoContainer.add(infoBg);
+
+      // 创建信息标题区域背景
+      const titleBg = this.scene.add.rectangle(
+        0,
+        -this.height / 2 + 350,
+        450,
+        40,
+        0x333333,
+        0.9
+      );
+      titleBg.setStrokeStyle(1, 0x555555);
+      infoContainer.add(titleBg);
+
+      // 创建信息标题
+      const infoTitle = this.scene.add.text(
+        -210,
+        -this.height / 2 + 350,
+        '关卡信息',
+        {
+          fontSize: '22px',
+          fontFamily: 'Arial',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 1
+        }
+      );
+      infoTitle.setOrigin(0, 0.5);
+      infoContainer.add(infoTitle);
+
+      // 创建信息内容容器 - 用于组织和定位信息文本
+      const infoContentContainer = this.scene.add.container(0, 0);
+      infoContainer.add(infoContentContainer);
+
       // 创建地图信息
-      this.levelMapInfo = this.scene.add.text(0, -this.height / 2 + 380, '', {
+      this.levelMapInfo = this.scene.add.text(-210, -this.height / 2 + 400, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
-        color: '#ff9900'
+        color: '#ff9900',
+        wordWrap: { width: 430 }
       });
-      this.levelMapInfo.setOrigin(0.5, 0.5);
-      this.levelDetail.add(this.levelMapInfo);
+      this.levelMapInfo.setOrigin(0, 0.5);
+      infoContentContainer.add(this.levelMapInfo);
 
       // 创建敌人信息
-      this.levelEnemies = this.scene.add.text(0, -this.height / 2 + 420, '', {
+      this.levelEnemies = this.scene.add.text(-210, -this.height / 2 + 440, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ff6666',
-        wordWrap: { width: 400 }
+        wordWrap: { width: 430 }
       });
-      this.levelEnemies.setOrigin(0.5, 0.5);
-      this.levelDetail.add(this.levelEnemies);
+      this.levelEnemies.setOrigin(0, 0.5);
+      infoContentContainer.add(this.levelEnemies);
 
       // 创建BOSS信息
-      this.levelBoss = this.scene.add.text(0, -this.height / 2 + 460, '', {
+      this.levelBoss = this.scene.add.text(-210, -this.height / 2 + 480, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
-        color: '#ff3333'
+        color: '#ff3333',
+        wordWrap: { width: 430 }
       });
-      this.levelBoss.setOrigin(0.5, 0.5);
-      this.levelDetail.add(this.levelBoss);
+      this.levelBoss.setOrigin(0, 0.5);
+      infoContentContainer.add(this.levelBoss);
 
       // 创建解锁条件
-      this.levelUnlockCondition = this.scene.add.text(0, -this.height / 2 + 500, '', {
+      this.levelUnlockCondition = this.scene.add.text(-210, -this.height / 2 + 520, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
-        color: '#00ffff'
+        color: '#00ffff',
+        wordWrap: { width: 430 }
       });
-      this.levelUnlockCondition.setOrigin(0.5, 0.5);
-      this.levelDetail.add(this.levelUnlockCondition);
+      this.levelUnlockCondition.setOrigin(0, 0.5);
+      infoContentContainer.add(this.levelUnlockCondition);
+
+      // 创建奖励标题背景
+      const rewardsTitleBg = this.scene.add.rectangle(
+        0,
+        -this.height / 2 + 560,
+        450,
+        40,
+        0x333333,
+        0.9
+      );
+      rewardsTitleBg.setStrokeStyle(1, 0x555555);
+      infoContainer.add(rewardsTitleBg);
+
+      // 创建奖励标题
+      const rewardsTitle = this.scene.add.text(
+        -210,
+        -this.height / 2 + 560,
+        '关卡奖励',
+        {
+          fontSize: '22px',
+          fontFamily: 'Arial',
+          color: '#00ff00',
+          stroke: '#000000',
+          strokeThickness: 1
+        }
+      );
+      rewardsTitle.setOrigin(0, 0.5);
+      infoContainer.add(rewardsTitle);
+
+      // 创建奖励背景
+      const rewardsBg = this.scene.add.rectangle(
+        0,
+        -this.height / 2 + 630,
+        450,
+        100,
+        0x222222,
+        0.8
+      );
+      rewardsBg.setStrokeStyle(2, 0x444444);
+      infoContainer.add(rewardsBg);
 
       // 创建奖励
-      this.levelRewards = this.scene.add.text(0, -this.height / 2 + 540, '', {
+      this.levelRewards = this.scene.add.text(-210, -this.height / 2 + 600, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#00ff00',
-        wordWrap: { width: 400 }
+        wordWrap: { width: 430 }
       });
-      this.levelRewards.setOrigin(0.5, 0.5);
-      this.levelDetail.add(this.levelRewards);
+      this.levelRewards.setOrigin(0, 0);
+      infoContentContainer.add(this.levelRewards);
 
       console.log('[INFO] 关卡详情创建完成');
     } catch (error) {
@@ -353,20 +463,41 @@ export class LevelsTab extends Tab {
         return;
       }
 
+      // 检查按钮数组是否有效
+      if (!this.levelButtons || this.levelButtons.length === 0) {
+        console.warn('[WARN] 关卡按钮数组为空');
+        return;
+      }
+
+      // 检查索引是否超出按钮数组范围
+      if (index >= this.levelButtons.length) {
+        console.warn(`[WARN] 关卡索引超出按钮数组范围: ${index}, 按钮数组长度: ${this.levelButtons.length}`);
+        return;
+      }
+
       // 如果已经选中，不做任何操作
       if (this.selectedLevelIndex === index) {
         return;
       }
 
       // 重置之前选中的按钮
-      if (this.selectedLevelIndex !== -1) {
-        const prevButton = this.levelButtons[this.selectedLevelIndex].getAt(0) as Phaser.GameObjects.Rectangle;
-        prevButton.setFillStyle(0x333333, 0.8);
+      if (this.selectedLevelIndex !== -1 &&
+          this.selectedLevelIndex < this.levelButtons.length &&
+          this.levelButtons[this.selectedLevelIndex]) {
+
+        const prevButtonContainer = this.levelButtons[this.selectedLevelIndex];
+        if (prevButtonContainer && prevButtonContainer.getAt && prevButtonContainer.getAt(0)) {
+          const prevButton = prevButtonContainer.getAt(0) as Phaser.GameObjects.Rectangle;
+          prevButton.setFillStyle(0x333333, 0.8);
+        }
       }
 
       // 设置新选中的按钮
-      const button = this.levelButtons[index].getAt(0) as Phaser.GameObjects.Rectangle;
-      button.setFillStyle(0x555555, 0.8);
+      const buttonContainer = this.levelButtons[index];
+      if (buttonContainer && buttonContainer.getAt && buttonContainer.getAt(0)) {
+        const button = buttonContainer.getAt(0) as Phaser.GameObjects.Rectangle;
+        button.setFillStyle(0x555555, 0.8);
+      }
 
       // 更新选中的关卡索引
       this.selectedLevelIndex = index;
@@ -418,30 +549,35 @@ export class LevelsTab extends Tab {
 
       // 更新地图信息
       if (level.mapSize && level.estimatedTime) {
-        this.levelMapInfo.setText(`地图大小: ${level.mapSize} | 预计时间: ${level.estimatedTime}`);
+        this.levelMapInfo.setText(`地图大小: ${level.mapSize}   |   预计时间: ${level.estimatedTime}`);
       } else {
         this.levelMapInfo.setText('');
       }
 
       // 更新敌人信息
       if (level.enemies && level.enemies.length > 0) {
-        this.levelEnemies.setText(`敌人: ${level.enemies.join(', ')}`);
+        this.levelEnemies.setText(`敌人: ${level.enemies.join('、')}`);
       } else {
-        this.levelEnemies.setText('');
+        this.levelEnemies.setText('敌人: 无');
       }
 
       // 更新BOSS信息
       if (level.bossName) {
         this.levelBoss.setText(`BOSS: ${level.bossName}`);
       } else {
-        this.levelBoss.setText('');
+        this.levelBoss.setText('BOSS: 无');
       }
 
       // 更新解锁条件
       this.levelUnlockCondition.setText(`解锁条件: ${level.unlockCondition}`);
 
       // 更新奖励
-      this.levelRewards.setText(`奖励: ${level.rewards.join(', ')}`);
+      if (level.rewards && level.rewards.length > 0) {
+        const rewardsText = level.rewards.map(reward => `• ${reward}`).join('\n');
+        this.levelRewards.setText(rewardsText);
+      } else {
+        this.levelRewards.setText('• 无奖励');
+      }
 
       console.log(`[INFO] 更新关卡详情: ${level.name}`);
     } catch (error) {

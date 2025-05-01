@@ -102,8 +102,27 @@ export class BeansTab extends Tab {
    */
   private loadBeanData(): void {
     try {
+      // 检查配置管理器是否存在
+      if (!this.configManager) {
+        console.error('[ERROR] 配置管理器未初始化');
+        throw new Error('配置管理器未初始化');
+      }
+
+      // 检查配置管理器是否有 getBeansConfig 方法
+      if (typeof this.configManager.getBeansConfig !== 'function') {
+        console.error('[ERROR] 配置管理器缺少 getBeansConfig 方法');
+        throw new Error('配置管理器缺少 getBeansConfig 方法');
+      }
+
       // 从配置管理器中获取豆豆数据
       this.beans = this.configManager.getBeansConfig();
+
+      // 检查获取的数据是否有效
+      if (!this.beans || !Array.isArray(this.beans)) {
+        console.error('[ERROR] 获取的豆豆数据无效');
+        throw new Error('获取的豆豆数据无效');
+      }
+
       console.log('[INFO] 豆豆数据加载完成，共加载', this.beans.length, '个豆豆');
     } catch (error) {
       console.error('[ERROR] 加载豆豆数据失败:', error);
@@ -263,32 +282,32 @@ export class BeansTab extends Tab {
       this.beanDetail.add(title);
 
       // 创建豆豆图片
-      this.beanImage = this.scene.add.image(0, -this.height / 2 + 120, 'bean_normal');
+      this.beanImage = this.scene.add.image(-120, -this.height / 2 + 120, 'bean_normal');
       this.beanImage.setDisplaySize(150, 150);
       this.beanDetail.add(this.beanImage);
 
       // 创建豆豆名称
-      this.beanName = this.scene.add.text(0, -this.height / 2 + 210, '', {
+      this.beanName = this.scene.add.text(50, -this.height / 2 + 90, '', {
         fontSize: '28px',
         fontFamily: 'Arial',
         color: '#ffffff',
         stroke: '#000000',
         strokeThickness: 2
       });
-      this.beanName.setOrigin(0.5, 0.5);
+      this.beanName.setOrigin(0, 0.5);
       this.beanDetail.add(this.beanName);
 
       // 创建豆豆类型
-      this.beanType = this.scene.add.text(0, -this.height / 2 + 240, '', {
+      this.beanType = this.scene.add.text(50, -this.height / 2 + 130, '', {
         fontSize: '20px',
         fontFamily: 'Arial',
         color: '#ffff00'
       });
-      this.beanType.setOrigin(0.5, 0.5);
+      this.beanType.setOrigin(0, 0.5);
       this.beanDetail.add(this.beanType);
 
       // 创建豆豆描述
-      this.beanDescription = this.scene.add.text(0, -this.height / 2 + 280, '', {
+      this.beanDescription = this.scene.add.text(0, -this.height / 2 + 200, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ffffff',
@@ -297,41 +316,124 @@ export class BeansTab extends Tab {
       this.beanDescription.setOrigin(0.5, 0);
       this.beanDetail.add(this.beanDescription);
 
+      // 创建信息背景
+      const infoBg = this.scene.add.rectangle(
+        0,
+        -this.height / 2 + 400,
+        450,
+        200,
+        0x222222,
+        0.7
+      );
+      infoBg.setStrokeStyle(1, 0x444444);
+      this.beanDetail.add(infoBg);
+
+      // 创建左侧信息标题
+      const leftInfoTitle = this.scene.add.text(
+        -200,
+        -this.height / 2 + 320,
+        '基本属性',
+        {
+          fontSize: '20px',
+          fontFamily: 'Arial',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 1
+        }
+      );
+      leftInfoTitle.setOrigin(0, 0.5);
+      this.beanDetail.add(leftInfoTitle);
+
+      // 创建左侧分隔线
+      const leftSeparator = this.scene.add.line(
+        -75,
+        -this.height / 2 + 340,
+        -125,
+        0,
+        125,
+        0,
+        0x666666,
+        0.8
+      );
+      this.beanDetail.add(leftSeparator);
+
       // 创建豆豆属性
-      this.beanStats = this.scene.add.text(0, -this.height / 2 + 350, '', {
+      this.beanStats = this.scene.add.text(-200, -this.height / 2 + 360, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#00ffff',
-        align: 'center'
+        align: 'left'
       });
-      this.beanStats.setOrigin(0.5, 0);
+      this.beanStats.setOrigin(0, 0);
       this.beanDetail.add(this.beanStats);
 
+      // 创建右侧信息标题
+      const rightInfoTitle = this.scene.add.text(
+        50,
+        -this.height / 2 + 320,
+        '战斗信息',
+        {
+          fontSize: '20px',
+          fontFamily: 'Arial',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 1
+        }
+      );
+      rightInfoTitle.setOrigin(0, 0.5);
+      this.beanDetail.add(rightInfoTitle);
+
+      // 创建右侧分隔线
+      const rightSeparator = this.scene.add.line(
+        175,
+        -this.height / 2 + 340,
+        -125,
+        0,
+        125,
+        0,
+        0x666666,
+        0.8
+      );
+      this.beanDetail.add(rightSeparator);
+
       // 创建豆豆能力
-      this.beanAbilities = this.scene.add.text(0, -this.height / 2 + 450, '', {
+      this.beanAbilities = this.scene.add.text(50, -this.height / 2 + 360, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
-        color: '#00ff00'
+        color: '#00ff00',
+        align: 'left'
       });
-      this.beanAbilities.setOrigin(0.5, 0.5);
+      this.beanAbilities.setOrigin(0, 0);
       this.beanDetail.add(this.beanAbilities);
 
+      // 创建底部信息背景
+      const bottomInfoBg = this.scene.add.rectangle(
+        0,
+        this.height / 2 - 70,
+        450,
+        80,
+        0x222222,
+        0.7
+      );
+      bottomInfoBg.setStrokeStyle(1, 0x444444);
+      this.beanDetail.add(bottomInfoBg);
+
       // 创建豆豆掉落物
-      this.beanDrops = this.scene.add.text(0, -this.height / 2 + 490, '', {
+      this.beanDrops = this.scene.add.text(-200, this.height / 2 - 90, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ff9900'
       });
-      this.beanDrops.setOrigin(0.5, 0.5);
+      this.beanDrops.setOrigin(0, 0.5);
       this.beanDetail.add(this.beanDrops);
 
       // 创建首次出现关卡
-      this.beanFirstAppear = this.scene.add.text(0, -this.height / 2 + 530, '', {
+      this.beanFirstAppear = this.scene.add.text(-200, this.height / 2 - 50, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ff6666'
       });
-      this.beanFirstAppear.setOrigin(0.5, 0.5);
+      this.beanFirstAppear.setOrigin(0, 0.5);
       this.beanDetail.add(this.beanFirstAppear);
 
       console.log('[INFO] 豆豆详情创建完成');
@@ -352,20 +454,41 @@ export class BeansTab extends Tab {
         return;
       }
 
+      // 检查按钮数组是否有效
+      if (!this.beanButtons || this.beanButtons.length === 0) {
+        console.warn('[WARN] 豆豆按钮数组为空');
+        return;
+      }
+
+      // 检查索引是否超出按钮数组范围
+      if (index >= this.beanButtons.length) {
+        console.warn(`[WARN] 豆豆索引超出按钮数组范围: ${index}, 按钮数组长度: ${this.beanButtons.length}`);
+        return;
+      }
+
       // 如果已经选中，不做任何操作
       if (this.selectedBeanIndex === index) {
         return;
       }
 
       // 重置之前选中的按钮
-      if (this.selectedBeanIndex !== -1) {
-        const prevButton = this.beanButtons[this.selectedBeanIndex].getAt(0) as Phaser.GameObjects.Rectangle;
-        prevButton.setFillStyle(0x333333, 0.8);
+      if (this.selectedBeanIndex !== -1 &&
+          this.selectedBeanIndex < this.beanButtons.length &&
+          this.beanButtons[this.selectedBeanIndex]) {
+
+        const prevButtonContainer = this.beanButtons[this.selectedBeanIndex];
+        if (prevButtonContainer && prevButtonContainer.getAt && prevButtonContainer.getAt(0)) {
+          const prevButton = prevButtonContainer.getAt(0) as Phaser.GameObjects.Rectangle;
+          prevButton.setFillStyle(0x333333, 0.8);
+        }
       }
 
       // 设置新选中的按钮
-      const button = this.beanButtons[index].getAt(0) as Phaser.GameObjects.Rectangle;
-      button.setFillStyle(0x555555, 0.8);
+      const buttonContainer = this.beanButtons[index];
+      if (buttonContainer && buttonContainer.getAt && buttonContainer.getAt(0)) {
+        const button = buttonContainer.getAt(0) as Phaser.GameObjects.Rectangle;
+        button.setFillStyle(0x555555, 0.8);
+      }
 
       // 更新选中的豆豆索引
       this.selectedBeanIndex = index;
@@ -416,18 +539,38 @@ export class BeansTab extends Tab {
       this.beanDescription.setText(bean.description);
 
       // 更新属性
-      this.beanStats.setText(
-        `生命值: ${bean.stats.hp}\n` +
-        `攻击力: ${bean.stats.attack}\n` +
-        `防御力: ${bean.stats.defense}\n` +
+      const statsText = [
+        `生命值: ${bean.stats.hp}`,
+        `攻击力: ${bean.stats.attack}`,
+        `防御力: ${bean.stats.defense}`,
         `速度: ${bean.stats.speed}`
-      );
+      ];
+
+      this.beanStats.setText(statsText.join('\n'));
 
       // 更新能力
-      this.beanAbilities.setText(`能力: ${bean.abilities.join(', ')}`);
+      if (bean.abilities && bean.abilities.length > 0) {
+        let abilitiesText = '能力:\n';
+        for (const ability of bean.abilities) {
+          abilitiesText += `• ${ability}\n`;
+        }
+        this.beanAbilities.setText(abilitiesText);
+      } else {
+        this.beanAbilities.setText('能力: 无');
+      }
 
       // 更新掉落物
-      this.beanDrops.setText(`掉落物: ${bean.drops.join(', ')}`);
+      if (bean.drops && bean.drops.length > 0) {
+        let dropsText = '掉落物:';
+        for (const drop of bean.drops) {
+          dropsText += ` ${drop},`;
+        }
+        // 移除最后一个逗号
+        dropsText = dropsText.slice(0, -1);
+        this.beanDrops.setText(dropsText);
+      } else {
+        this.beanDrops.setText('掉落物: 无');
+      }
 
       // 更新首次出现关卡
       this.beanFirstAppear.setText(`首次出现: ${bean.firstAppearLevel}`);

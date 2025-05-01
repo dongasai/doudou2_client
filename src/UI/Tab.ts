@@ -7,19 +7,22 @@ import Phaser from 'phaser';
 export abstract class Tab {
   // 场景引用
   protected scene: Phaser.Scene;
-  
+
   // 位置和尺寸
   protected x: number;
   protected y: number;
   protected width: number;
   protected height: number;
-  
+
   // 内容容器
   protected container: Phaser.GameObjects.Container;
-  
+
   // 是否可见
   protected visible: boolean = false;
-  
+
+  // 是否已初始化
+  protected initialized: boolean = false;
+
   /**
    * 构造函数
    * @param scene 场景
@@ -34,34 +37,43 @@ export abstract class Tab {
     this.y = y;
     this.width = width;
     this.height = height;
-    
+
     // 创建容器
     this.container = scene.add.container(x, y);
-    
-    // 初始化内容
-    this.init();
-    
+
     // 默认隐藏
     this.hide();
-    
-    console.log('[INFO] 标签页初始化完成');
+
+    console.log('[INFO] 标签页容器创建完成');
   }
-  
+
   /**
    * 初始化内容
    * 子类应该重写这个方法，创建标签页内容
    */
   protected abstract init(): void;
-  
+
   /**
    * 显示标签页
    */
   public show(): void {
+    // 如果尚未初始化，先初始化
+    if (!this.initialized) {
+      try {
+        console.log('[INFO] 初始化标签页内容');
+        this.init();
+        this.initialized = true;
+        console.log('[INFO] 标签页内容初始化完成');
+      } catch (error) {
+        console.error('[ERROR] 标签页内容初始化失败:', error);
+      }
+    }
+
     this.container.setVisible(true);
     this.visible = true;
     this.onShow();
   }
-  
+
   /**
    * 隐藏标签页
    */
@@ -70,7 +82,7 @@ export abstract class Tab {
     this.visible = false;
     this.onHide();
   }
-  
+
   /**
    * 显示时的回调
    * 子类可以重写这个方法，在标签页显示时执行特定操作
@@ -78,7 +90,7 @@ export abstract class Tab {
   protected onShow(): void {
     // 默认实现为空
   }
-  
+
   /**
    * 隐藏时的回调
    * 子类可以重写这个方法，在标签页隐藏时执行特定操作
@@ -86,7 +98,7 @@ export abstract class Tab {
   protected onHide(): void {
     // 默认实现为空
   }
-  
+
   /**
    * 更新
    * @param time 当前时间
@@ -98,7 +110,7 @@ export abstract class Tab {
       this.updateContent(time, delta);
     }
   }
-  
+
   /**
    * 更新内容
    * 子类可以重写这个方法，更新标签页内容

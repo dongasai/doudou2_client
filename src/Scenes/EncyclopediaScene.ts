@@ -29,10 +29,7 @@ export class EncyclopediaScene extends Phaser.Scene {
    */
   constructor() {
     super({ key: 'EncyclopediaScene' });
-    console.log('[INFO] 百科视图场景创建');
-
-    // 初始化配置管理器
-    this.configManager = ConfigManager.getInstance();
+    console.log('[INFO] 百科视图场景构造函数调用');
   }
 
   /**
@@ -77,6 +74,10 @@ export class EncyclopediaScene extends Phaser.Scene {
   create(): void {
     try {
       console.log('[INFO] 创建百科视图场景');
+
+      // 初始化配置管理器
+      this.configManager = ConfigManager.getInstance();
+      console.log('[INFO] 配置管理器初始化完成');
 
       // 创建背景
       this.createBackground();
