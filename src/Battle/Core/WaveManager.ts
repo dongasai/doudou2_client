@@ -101,7 +101,7 @@ export class WaveManager {
   // 中心点位置（通常是水晶位置）
   private centerPosition: Vector2D = { x: 1500, y: 1500 };
   // 生成范围（最小和最大距离）
-  private spawnRange: { min: number, max: number } = { min: 200, max: 300 };
+  private spawnRange: { min: number, max: number } = { min: 500, max: 800 };
 
   /**
    * 构造函数

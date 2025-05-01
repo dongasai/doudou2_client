@@ -1,44 +1,9 @@
-import { LevelConfig as DesignLevelConfig } from '@/DesignConfig/Level';
+import { LevelConfig } from '@/DesignConfig/Level';
 import { Hero } from '@/DesignConfig/GameHero';
 import { CharacterBean } from '@/DesignConfig/CharacterBean';
+import { Chapter } from '@/DesignConfig/Chapter';
 
-/**
- * 关卡配置接口
- * 用于UI显示的扩展配置
- */
-export interface LevelConfig {
-  id: number;
-  name: string;
-  description: string;
-  difficulty: string;
-  image: string;
-  unlockCondition: string;
-  rewards: string[];
-  enemies: string[];
-  bossName: string;
-  mapSize: string;
-  estimatedTime: string;
-  rawConfig: DesignLevelConfig;
-}
 
-/**
- * 英雄配置接口
- * 用于UI显示的扩展配置
- */
-export interface HeroConfig extends Hero {
-  image: string;
-  unlockCondition: string;
-}
-
-/**
- * 豆豆配置接口
- * 用于UI显示的扩展配置
- */
-export interface BeanConfig extends CharacterBean {
-  abilities: string[];
-  drops: string[];
-  firstAppearLevel: string;
-}
 
 /**
  * 配置管理器
@@ -49,16 +14,20 @@ export class ConfigManager {
   private static instance: ConfigManager;
 
   // 配置数据
+  private chaptersConfig: Chapter[] = [];
   private levelsConfig: LevelConfig[] = [];
-  private heroesConfig: HeroConfig[] = [];
-  private beansConfig: BeanConfig[] = [];
+  private heroesConfig: Hero[] = [];
+  private beansConfig: CharacterBean[] = [];
 
   /**
    * 私有构造函数，防止外部直接创建实例
    */
   private constructor() {
     // 初始化配置
-    this.initConfigs();
+    console.log('[INFO] ConfigManager 构造函数被调用');
+    this.initConfigs().catch(error => {
+      console.error('[ERROR] 配置初始化失败:', error);
+    });
   }
 
   /**
@@ -79,7 +48,10 @@ export class ConfigManager {
     try {
       console.log('[INFO] 开始初始化配置数据');
 
-      // 并行加载所有配置
+      // 先加载章节配置
+      await this.loadChaptersConfig();
+
+      // 并行加载其他配置
       await Promise.all([
         this.loadLevelsConfig(),
         this.loadHeroesConfig(),
@@ -95,6 +67,29 @@ export class ConfigManager {
   // loadConfigs方法已被initConfigs替代
 
   /**
+   * 加载章节配置
+   */
+  private async loadChaptersConfig(): Promise<void> {
+    try {
+      console.log('[INFO] 开始加载章节配置...');
+
+      // 加载章节配置文件
+      const chaptersData = await this.loadJsonFileWithXHR('/DesignConfig/chapters.json');
+
+      if (chaptersData && Array.isArray(chaptersData)) {
+        this.chaptersConfig = chaptersData;
+        console.log(`[INFO] 章节配置加载完成，共加载 ${chaptersData.length} 个章节配置`);
+      } else {
+        console.error('[ERROR] 章节配置格式不正确，应为数组');
+        throw new Error('章节配置格式不正确');
+      }
+    } catch (error) {
+      console.error('[ERROR] 加载章节配置失败:', error);
+      throw new Error('未能从配置文件加载章节配置');
+    }
+  }
+
+  /**
    * 加载关卡配置
    */
   private async loadLevelsConfig(): Promise<void> {
@@ -103,16 +98,15 @@ export class ConfigManager {
 
       // 使用动态方式加载关卡配置文件
       const levelConfigs: LevelConfig[] = [];
-      let idCounter = 1;
 
-      // 定义要加载的关卡章节和数量
-      const chapters = [
-        { id: 1, levels: 5 } // 第一章有5个关卡
-      ];
+      // 检查章节配置是否已加载
+      if (this.chaptersConfig.length === 0) {
+        throw new Error('章节配置未加载，无法加载关卡配置');
+      }
 
       // 遍历所有章节和关卡
-      for (const chapter of chapters) {
-        for (let level = 1; level <= chapter.levels; level++) {
+      for (const chapter of this.chaptersConfig) {
+        for (const level of chapter.levels) {
           try {
             // 构建文件路径
             const fileName = `level-${chapter.id}-${level}`;
@@ -133,23 +127,10 @@ export class ConfigManager {
               continue;
             }
 
-            console.log(`[INFO] 解析关卡ID: 第${chapter.id}章-第${level}关`);
+            console.log(`[INFO] 解析关卡ID: ${levelData.id}`);
 
-            // 创建UI友好的关卡配置
-            const levelConfig = {
-              id: idCounter++,
-              name: levelData.name || `第${chapter.id}章-第${level}关`,
-              description: levelData.description || '关卡描述未提供',
-              difficulty: this.getDifficultyText(levelData.difficulty || 1.0),
-              image: `level_${level}`,
-              unlockCondition: level === 1 ? '默认解锁' : `完成第${level-1}关`,
-              rewards: this.getRewardsByLevel(level),
-              enemies: this.getBeanTypesFromRatios(levelData.beanRatios || []),
-              bossName: this.getBossNameByLevel(level),
-              mapSize: this.getMapSizeFromBeanCount(levelData.totalBeans || 30),
-              estimatedTime: this.getEstimatedTimeFromBeanCount(levelData.totalBeans || 30),
-              rawConfig: levelData
-            };
+            // 直接使用从文件加载的数据
+            const levelConfig: LevelConfig = levelData;
 
             levelConfigs.push(levelConfig);
             console.log(`[INFO] 已加载关卡配置: ${levelConfig.name}`);
@@ -165,8 +146,8 @@ export class ConfigManager {
         throw new Error('未能成功加载任何关卡配置');
       }
 
-      // 按ID排序
-      levelConfigs.sort((a, b) => a.id - b.id);
+      // 按ID排序（字符串比较）
+      levelConfigs.sort((a, b) => a.id.localeCompare(b.id));
 
       // 设置关卡配置
       this.levelsConfig = levelConfigs;
@@ -219,92 +200,7 @@ export class ConfigManager {
     });
   }
 
-  /**
-   * 根据难度系数获取难度文本
-   * @param difficulty 难度系数
-   * @returns 难度文本
-   */
-  private getDifficultyText(difficulty: number): string {
-    if (difficulty < 1.1) return '简单';
-    if (difficulty < 1.3) return '中等';
-    if (difficulty < 1.5) return '困难';
-    return '噩梦';
-  }
 
-  /**
-   * 根据豆豆比例获取豆豆类型列表
-   * @param beanRatios 豆豆比例配置
-   * @returns 豆豆类型列表
-   */
-  private getBeanTypesFromRatios(beanRatios: {type: string, weight: number}[]): string[] {
-    return beanRatios.map(ratio => ratio.type);
-  }
-
-  /**
-   * 根据豆豆数量获取地图大小描述
-   * @param beanCount 豆豆数量
-   * @returns 地图大小描述
-   */
-  private getMapSizeFromBeanCount(beanCount: number): string {
-    if (beanCount < 30) return '小';
-    if (beanCount < 40) return '中';
-    if (beanCount < 50) return '大';
-    return '超大';
-  }
-
-  /**
-   * 根据豆豆数量估计关卡时间
-   * @param beanCount 豆豆数量
-   * @returns 估计时间描述
-   */
-  private getEstimatedTimeFromBeanCount(beanCount: number): string {
-    const minutes = Math.ceil(beanCount / 6);
-    return `${minutes}分钟`;
-  }
-
-  /**
-   * 根据关卡等级获取奖励
-   * @param level 关卡等级
-   * @returns 奖励列表
-   */
-  private getRewardsByLevel(level: number): string[] {
-    switch (level) {
-      case 1:
-        return ['100金币', '经验值+50', '初级装备箱'];
-      case 2:
-        return ['200金币', '经验值+100', '中级装备箱', '森林之心'];
-      case 3:
-        return ['300金币', '经验值+150', '高级装备箱', '火焰宝石'];
-      case 4:
-        return ['400金币', '经验值+200', '高级装备箱', '冰霜宝石'];
-      case 5:
-        return ['500金币', '经验值+250', '传说装备箱', '豆豆王冠'];
-      default:
-        return [`${level * 100}金币`, `经验值+${level * 50}`, '装备箱'];
-    }
-  }
-
-  /**
-   * 根据关卡等级获取BOSS名称
-   * @param level 关卡等级
-   * @returns BOSS名称
-   */
-  private getBossNameByLevel(level: number): string {
-    switch (level) {
-      case 1:
-        return '豆豆队长';
-      case 2:
-        return '森林守护者';
-      case 3:
-        return '火山之王';
-      case 4:
-        return '冰霜巨人';
-      case 5:
-        return '豆豆国王';
-      default:
-        return `第${level}关BOSS`;
-    }
-  }
 
   /**
    * 加载英雄配置
@@ -314,7 +210,7 @@ export class ConfigManager {
       console.log('[INFO] 开始加载英雄配置...');
 
       // 尝试从配置文件加载英雄数据
-      const heroConfigs: HeroConfig[] = [];
+      const heroConfigs: Hero[] = [];
 
       // 定义要加载的英雄文件列表
       const heroIds = [1, 2, 3];
@@ -378,6 +274,13 @@ export class ConfigManager {
   }
 
   /**
+   * 获取所有章节配置
+   */
+  public getChaptersConfig(): Chapter[] {
+    return this.chaptersConfig;
+  }
+
+  /**
    * 获取所有关卡配置
    */
   public getLevelsConfig(): LevelConfig[] {
@@ -387,22 +290,30 @@ export class ConfigManager {
   /**
    * 获取所有英雄配置
    */
-  public getHeroesConfig(): HeroConfig[] {
+  public getHeroesConfig(): Hero[] {
     return this.heroesConfig;
   }
 
   /**
    * 获取所有豆豆配置
    */
-  public getBeansConfig(): BeanConfig[] {
+  public getBeansConfig(): CharacterBean[] {
     return this.beansConfig;
+  }
+
+  /**
+   * 根据ID获取章节配置
+   * @param id 章节ID
+   */
+  public getChapterConfigById(id: number): Chapter | undefined {
+    return this.chaptersConfig.find(chapter => chapter.id === id);
   }
 
   /**
    * 根据ID获取关卡配置
    * @param id 关卡ID
    */
-  public getLevelConfigById(id: number): LevelConfig | undefined {
+  public getLevelConfigById(id: string): LevelConfig | undefined {
     return this.levelsConfig.find(level => level.id === id);
   }
 
@@ -410,7 +321,7 @@ export class ConfigManager {
    * 根据ID获取英雄配置
    * @param id 英雄ID
    */
-  public getHeroConfigById(id: number): HeroConfig | undefined {
+  public getHeroConfigById(id: number): Hero | undefined {
     return this.heroesConfig.find(hero => hero.id === id);
   }
 
@@ -418,7 +329,7 @@ export class ConfigManager {
    * 根据ID获取豆豆配置
    * @param id 豆豆ID
    */
-  public getBeanConfigById(id: number): BeanConfig | undefined {
+  public getBeanConfigById(id: number): CharacterBean | undefined {
     return this.beansConfig.find(bean => bean.id === id);
   }
 }
