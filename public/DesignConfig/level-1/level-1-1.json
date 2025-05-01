@@ -1,0 +1,35 @@
+{
+    "id": "level-1-1",
+    "name": "\u7b2c\u4e00\u7ae0-\u7b2c\u4e00\u5173",
+    "description": "\u57fa\u7840\u96be\u5ea6\u5173\u5361",
+    "difficulty": 1.0,
+    "crystal": {
+        "maxHp": 1000
+    },
+    "beanRatios": [
+        {
+            "type": "\u66b4\u8e81\u8c46",
+            "weight": 3
+        },
+        {
+            "type": "\u6bd2\u8c46",
+            "weight": 1
+        }
+    ],
+    "totalBeans": 30,
+    "spawnInterval": 1000,
+    "attrFactors": {
+        "hp": 1.0,
+        "attack": 1.0,
+        "defense": 1.0,
+        "speed": 1.0
+    },
+    "victoryCondition": {
+        "type": "allDefeated"
+    },
+    "defeatCondition": {
+        "type": "crystalDestroyed"
+    },
+    "background": "grassland",
+    "availableHeroSlots": 3
+}

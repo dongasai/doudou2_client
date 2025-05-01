@@ -3,7 +3,10 @@ import { BattleScene } from '@/Scenes/BattleScene';
 import { MainMenuScene } from '@/Scenes/MainMenuScene';
 import { LevelSelectScene } from '@/Scenes/LevelSelectScene';
 import { HeroSelectScene } from '@/Scenes/HeroSelectScene';
-import { EncyclopediaScene } from '@/Scenes/EncyclopediaScene';
+import { EncyclopediaSelectScene } from '@/Scenes/EncyclopediaSelectScene';
+import { EncyclopediaLevelsScene } from '@/Scenes/EncyclopediaLevelsScene';
+import { EncyclopediaHeroesScene } from '@/Scenes/EncyclopediaHeroesScene';
+import { EncyclopediaBeansScene } from '@/Scenes/EncyclopediaBeansScene';
 
 /**
  * 游戏配置
@@ -30,7 +33,10 @@ const config: Phaser.Types.Core.GameConfig = {
     LevelSelectScene,
     HeroSelectScene,
     BattleScene,
-    EncyclopediaScene
+    EncyclopediaSelectScene,
+    EncyclopediaLevelsScene,
+    EncyclopediaHeroesScene,
+    EncyclopediaBeansScene
   ]
 };
 

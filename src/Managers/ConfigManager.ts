@@ -5,19 +5,20 @@
 export class ConfigManager {
   // 单例实例
   private static instance: ConfigManager;
-  
+
   // 配置数据
   private levelsConfig: any[] = [];
   private heroesConfig: any[] = [];
   private beansConfig: any[] = [];
-  
+
   /**
    * 私有构造函数，防止外部直接创建实例
    */
   private constructor() {
-    this.loadConfigs();
+    // 初始化配置
+    this.initConfigs();
   }
-  
+
   /**
    * 获取单例实例
    */
@@ -27,39 +28,113 @@ export class ConfigManager {
     }
     return ConfigManager.instance;
   }
-  
+
   /**
-   * 加载所有配置
+   * 初始化配置
+   * 注意：所有配置加载方法都是异步的
    */
-  private loadConfigs(): void {
+  private async initConfigs(): Promise<void> {
     try {
-      console.log('[INFO] 开始加载配置数据');
-      
-      // 加载关卡配置
-      this.loadLevelsConfig();
-      
-      // 加载英雄配置
-      this.loadHeroesConfig();
-      
-      // 加载豆豆配置
-      this.loadBeansConfig();
-      
-      console.log('[INFO] 配置数据加载完成');
+      console.log('[INFO] 开始初始化配置数据');
+
+      // 并行加载所有配置
+      await Promise.all([
+        this.loadLevelsConfig(),
+        this.loadHeroesConfig(),
+        this.loadBeansConfig()
+      ]);
+
+      console.log('[INFO] 配置数据初始化完成');
     } catch (error) {
-      console.error('[ERROR] 加载配置数据失败:', error);
+      console.error('[ERROR] 初始化配置数据失败:', error);
     }
   }
-  
+
+  // loadConfigs方法已被initConfigs替代
+
   /**
    * 加载关卡配置
    */
-  private loadLevelsConfig(): void {
+  private async loadLevelsConfig(): Promise<void> {
     try {
-      // 从 src/DesignConfig/ 目录加载关卡配置
-      // 在实际项目中，这里应该使用 import 或 require 加载 JSON 文件
-      // 例如：import levelsData from '@/DesignConfig/levels.json';
-      
-      // 模拟从配置表加载数据
+      console.log('[INFO] 开始加载关卡配置...');
+
+      // 使用动态方式加载关卡配置文件
+      const levelConfigs: any[] = [];
+      let idCounter = 1;
+
+      // 定义要加载的关卡章节和数量
+      const chapters = [
+        { id: 1, levels: 5 } // 第一章有5个关卡
+      ];
+
+      // 遍历所有章节和关卡
+      for (const chapter of chapters) {
+        for (let level = 1; level <= chapter.levels; level++) {
+          try {
+            // 构建文件路径
+            const fileName = `level-${chapter.id}-${level}`;
+            const filePath = `/DesignConfig/data/level-${chapter.id}/${fileName}.json`;
+            console.log(`[INFO] 正在加载关卡配置: ${fileName}`);
+
+            // 使用XMLHttpRequest加载JSON文件
+            const levelData = await this.loadJsonFileWithXHR(filePath);
+
+            if (!levelData) {
+              console.error(`[ERROR] 无法加载关卡配置: ${fileName}`);
+              continue;
+            }
+
+            // 检查必要的字段
+            if (!levelData.id || !levelData.name) {
+              console.error(`[ERROR] 关卡配置缺少必要字段: ${fileName}`, levelData);
+              continue;
+            }
+
+            console.log(`[INFO] 解析关卡ID: 第${chapter.id}章-第${level}关`);
+
+            // 创建UI友好的关卡配置
+            const levelConfig = {
+              id: idCounter++,
+              name: levelData.name || `第${chapter.id}章-第${level}关`,
+              description: levelData.description || '关卡描述未提供',
+              difficulty: this.getDifficultyText(levelData.difficulty || 1.0),
+              image: `level_${level}`,
+              unlockCondition: level === 1 ? '默认解锁' : `完成第${level-1}关`,
+              rewards: this.getRewardsByLevel(level),
+              enemies: this.getBeanTypesFromRatios(levelData.beanRatios || []),
+              bossName: this.getBossNameByLevel(level),
+              mapSize: this.getMapSizeFromBeanCount(levelData.totalBeans || 30),
+              estimatedTime: this.getEstimatedTimeFromBeanCount(levelData.totalBeans || 30),
+              rawConfig: levelData
+            };
+
+            levelConfigs.push(levelConfig);
+            console.log(`[INFO] 已加载关卡配置: ${levelConfig.name}`);
+          } catch (error) {
+            console.error(`[ERROR] 加载关卡配置失败 (第${chapter.id}章-第${level}关):`, error);
+          }
+        }
+      }
+
+      console.log(`[INFO] 关卡配置加载完成，成功加载 ${levelConfigs.length} 个关卡配置`);
+
+      if (levelConfigs.length === 0) {
+        throw new Error('未能成功加载任何关卡配置');
+      }
+
+      // 按ID排序
+      levelConfigs.sort((a, b) => a.id - b.id);
+
+      // 设置关卡配置
+      this.levelsConfig = levelConfigs;
+
+      console.log('[INFO] 关卡配置加载完成，共加载 ' + this.levelsConfig.length + ' 个关卡');
+    } catch (error) {
+      console.error('[ERROR] 加载关卡配置失败:', error);
+      console.log('[INFO] 回退到硬编码的关卡配置...');
+
+      // 回退到硬编码的关卡配置
       this.levelsConfig = [
         {
           id: 1,
@@ -72,7 +147,27 @@ export class ConfigManager {
           enemies: ['普通豆豆', '小型豆豆'],
           bossName: '豆豆队长',
           mapSize: '小',
-          estimatedTime: '5分钟'
+          estimatedTime: '5分钟',
+          rawConfig: {
+            id: "level-1-1",
+            name: "第一章-第一关",
+            description: "基础难度关卡",
+            difficulty: 1.0,
+            crystal: { maxHp: 1000 },
+            beanRatios: [
+              {"type": "暴躁豆", "weight": 3},
+              {"type": "毒豆", "weight": 1}
+            ],
+            totalBeans: 30,
+            spawnInterval: 1000,
+            attrFactors: {
+              hp: 1.0, attack: 1.0, defense: 1.0, speed: 1.0
+            },
+            victoryCondition: { type: "allDefeated" },
+            defeatCondition: { type: "crystalDestroyed" },
+            background: "grassland",
+            availableHeroSlots: 3
+          }
         },
         {
           id: 2,
@@ -85,7 +180,28 @@ export class ConfigManager {
           enemies: ['普通豆豆', '精英豆豆', '森林豆豆'],
           bossName: '森林守护者',
           mapSize: '中',
-          estimatedTime: '10分钟'
+          estimatedTime: '10分钟',
+          rawConfig: {
+            id: "level-1-2",
+            name: "第一章-第二关",
+            description: "初级难度关卡",
+            difficulty: 1.2,
+            crystal: { maxHp: 950 },
+            beanRatios: [
+              {"type": "暴躁豆", "weight": 2},
+              {"type": "毒豆", "weight": 1},
+              {"type": "闪电豆", "weight": 1}
+            ],
+            totalBeans: 35,
+            spawnInterval: 950,
+            attrFactors: {
+              hp: 1.1, attack: 1.1, defense: 1.0, speed: 1.0
+            },
+            victoryCondition: { type: "allDefeated" },
+            defeatCondition: { type: "crystalDestroyed" },
+            background: "grassland",
+            availableHeroSlots: 3
+          }
         },
         {
           id: 3,
@@ -98,7 +214,29 @@ export class ConfigManager {
           enemies: ['火焰豆豆', '熔岩豆豆', '精英火焰豆豆'],
           bossName: '火山之王',
           mapSize: '大',
-          estimatedTime: '15分钟'
+          estimatedTime: '15分钟',
+          rawConfig: {
+            id: "level-1-3",
+            name: "第一章-第三关",
+            description: "进阶难度关卡",
+            difficulty: 1.3,
+            crystal: { maxHp: 900 },
+            beanRatios: [
+              {"type": "暴躁豆", "weight": 2},
+              {"type": "毒豆", "weight": 1},
+              {"type": "闪电豆", "weight": 1},
+              {"type": "铁甲豆", "weight": 1}
+            ],
+            totalBeans: 40,
+            spawnInterval: 900,
+            attrFactors: {
+              hp: 1.15, attack: 1.1, defense: 1.1, speed: 1.0
+            },
+            victoryCondition: { type: "allDefeated" },
+            defeatCondition: { type: "crystalDestroyed" },
+            background: "grassland",
+            availableHeroSlots: 3
+          }
         },
         {
           id: 4,
@@ -111,7 +249,29 @@ export class ConfigManager {
           enemies: ['冰霜豆豆', '冰晶豆豆', '精英冰霜豆豆'],
           bossName: '冰霜巨人',
           mapSize: '中',
-          estimatedTime: '15分钟'
+          estimatedTime: '15分钟',
+          rawConfig: {
+            id: "level-1-4",
+            name: "第一章-第四关",
+            description: "高级难度关卡",
+            difficulty: 1.4,
+            crystal: { maxHp: 850 },
+            beanRatios: [
+              {"type": "暴躁豆", "weight": 1},
+              {"type": "毒豆", "weight": 1},
+              {"type": "闪电豆", "weight": 2},
+              {"type": "铁甲豆", "weight": 2}
+            ],
+            totalBeans: 45,
+            spawnInterval: 850,
+            attrFactors: {
+              hp: 1.2, attack: 1.15, defense: 1.15, speed: 1.05
+            },
+            victoryCondition: { type: "allDefeated" },
+            defeatCondition: { type: "crystalDestroyed" },
+            background: "snowfield",
+            availableHeroSlots: 3
+          }
         },
         {
           id: 5,
@@ -124,25 +284,201 @@ export class ConfigManager {
           enemies: ['所有类型豆豆', '豆豆精英卫队'],
           bossName: '豆豆国王',
           mapSize: '超大',
-          estimatedTime: '30分钟'
+          estimatedTime: '30分钟',
+          rawConfig: {
+            id: "level-1-5",
+            name: "第一章-第五关",
+            description: "终极挑战关卡",
+            difficulty: 1.5,
+            crystal: { maxHp: 800 },
+            beanRatios: [
+              {"type": "暴躁豆", "weight": 1},
+              {"type": "毒豆", "weight": 1},
+              {"type": "闪电豆", "weight": 1},
+              {"type": "铁甲豆", "weight": 1},
+              {"type": "精英豆", "weight": 2}
+            ],
+            totalBeans: 50,
+            spawnInterval: 800,
+            attrFactors: {
+              hp: 1.25, attack: 1.2, defense: 1.2, speed: 1.1
+            },
+            victoryCondition: { type: "allDefeated" },
+            defeatCondition: { type: "crystalDestroyed" },
+            background: "castle",
+            availableHeroSlots: 3
+          }
         }
       ];
-      
-      console.log('[INFO] 关卡配置加载完成');
-    } catch (error) {
-      console.error('[ERROR] 加载关卡配置失败:', error);
+
+      console.log('[INFO] 已回退到硬编码的关卡配置，共加载 ' + this.levelsConfig.length + ' 个关卡');
     }
   }
-  
+
+  /**
+   * 使用XMLHttpRequest加载JSON文件
+   * @param filePath JSON文件路径
+   * @returns JSON数据
+   */
+  private loadJsonFileWithXHR(filePath: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      console.log(`[INFO] 尝试使用XMLHttpRequest加载JSON文件: ${filePath}`);
+
+      const xhr = new XMLHttpRequest();
+      xhr.overrideMimeType('application/json');
+      xhr.open('GET', filePath, true);
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          try {
+            const jsonData = JSON.parse(xhr.responseText);
+            console.log(`[INFO] JSON文件加载成功: ${filePath}`);
+            resolve(jsonData);
+          } catch (parseError) {
+            console.error(`[ERROR] 解析JSON文件失败 ${filePath}:`, parseError);
+            console.error(`[ERROR] 文件内容: ${xhr.responseText.substring(0, 100)}...`);
+            reject(parseError);
+          }
+        } else {
+          const error = new Error(`HTTP错误: ${xhr.status}`);
+          console.error(`[ERROR] 加载JSON文件失败 ${filePath}:`, error);
+          reject(error);
+        }
+      };
+
+      xhr.onerror = function() {
+        const error = new Error('网络错误');
+        console.error(`[ERROR] 加载JSON文件失败 ${filePath}:`, error);
+        reject(error);
+      };
+
+      xhr.send();
+    });
+  }
+
+  /**
+   * 根据难度系数获取难度文本
+   * @param difficulty 难度系数
+   * @returns 难度文本
+   */
+  private getDifficultyText(difficulty: number): string {
+    if (difficulty < 1.1) return '简单';
+    if (difficulty < 1.3) return '中等';
+    if (difficulty < 1.5) return '困难';
+    return '噩梦';
+  }
+
+  /**
+   * 根据豆豆比例获取豆豆类型列表
+   * @param beanRatios 豆豆比例配置
+   * @returns 豆豆类型列表
+   */
+  private getBeanTypesFromRatios(beanRatios: {type: string, weight: number}[]): string[] {
+    return beanRatios.map(ratio => ratio.type);
+  }
+
+  /**
+   * 根据豆豆数量获取地图大小描述
+   * @param beanCount 豆豆数量
+   * @returns 地图大小描述
+   */
+  private getMapSizeFromBeanCount(beanCount: number): string {
+    if (beanCount < 30) return '小';
+    if (beanCount < 40) return '中';
+    if (beanCount < 50) return '大';
+    return '超大';
+  }
+
+  /**
+   * 根据豆豆数量估计关卡时间
+   * @param beanCount 豆豆数量
+   * @returns 估计时间描述
+   */
+  private getEstimatedTimeFromBeanCount(beanCount: number): string {
+    const minutes = Math.ceil(beanCount / 6);
+    return `${minutes}分钟`;
+  }
+
+  /**
+   * 根据关卡等级获取奖励
+   * @param level 关卡等级
+   * @returns 奖励列表
+   */
+  private getRewardsByLevel(level: number): string[] {
+    switch (level) {
+      case 1:
+        return ['100金币', '经验值+50', '初级装备箱'];
+      case 2:
+        return ['200金币', '经验值+100', '中级装备箱', '森林之心'];
+      case 3:
+        return ['300金币', '经验值+150', '高级装备箱', '火焰宝石'];
+      case 4:
+        return ['400金币', '经验值+200', '高级装备箱', '冰霜宝石'];
+      case 5:
+        return ['500金币', '经验值+250', '传说装备箱', '豆豆王冠'];
+      default:
+        return [`${level * 100}金币`, `经验值+${level * 50}`, '装备箱'];
+    }
+  }
+
+  /**
+   * 根据关卡等级获取BOSS名称
+   * @param level 关卡等级
+   * @returns BOSS名称
+   */
+  private getBossNameByLevel(level: number): string {
+    switch (level) {
+      case 1:
+        return '豆豆队长';
+      case 2:
+        return '森林守护者';
+      case 3:
+        return '火山之王';
+      case 4:
+        return '冰霜巨人';
+      case 5:
+        return '豆豆国王';
+      default:
+        return `第${level}关BOSS`;
+    }
+  }
+
   /**
    * 加载英雄配置
    */
-  private loadHeroesConfig(): void {
+  private async loadHeroesConfig(): Promise<void> {
     try {
-      // 从 src/DesignConfig/ 目录加载英雄配置
-      // 在实际项目中，这里应该使用 import 或 require 加载 JSON 文件
-      // 例如：import heroesData from '@/DesignConfig/heroes.json';
-      
+      console.log('[INFO] 开始加载英雄配置...');
+
+      // 尝试从配置文件加载英雄数据
+      const heroConfigs: any[] = [];
+
+      // 定义要加载的英雄文件列表
+      const heroIds = [1, 2, 3];
+
+      for (const heroId of heroIds) {
+        try {
+          // 尝试加载英雄配置
+          const heroData = await this.loadJsonFileWithXHR(`/DesignConfig/data/heroes/hero-${heroId}.json`);
+
+          if (heroData) {
+            heroConfigs.push(heroData);
+            console.log(`[INFO] 已加载英雄配置: ${heroData.name}`);
+          }
+        } catch (error) {
+          console.error(`[ERROR] 加载英雄配置失败 (ID: ${heroId}):`, error);
+        }
+      }
+
+      // 如果成功加载了英雄配置，使用它们
+      if (heroConfigs.length > 0) {
+        this.heroesConfig = heroConfigs;
+        console.log(`[INFO] 英雄配置加载完成，共加载 ${heroConfigs.length} 个英雄配置`);
+        return;
+      }
+
+      console.log('[INFO] 未能从配置文件加载英雄配置，使用硬编码数据...');
+
       // 模拟从配置表加载数据
       this.heroesConfig = [
         {
@@ -242,22 +578,49 @@ export class ConfigManager {
           unlockCondition: '完成森林迷宫'
         }
       ];
-      
+
       console.log('[INFO] 英雄配置加载完成');
     } catch (error) {
       console.error('[ERROR] 加载英雄配置失败:', error);
     }
   }
-  
+
   /**
    * 加载豆豆配置
    */
-  private loadBeansConfig(): void {
+  private async loadBeansConfig(): Promise<void> {
     try {
-      // 从 src/DesignConfig/ 目录加载豆豆配置
-      // 在实际项目中，这里应该使用 import 或 require 加载 JSON 文件
-      // 例如：import beansData from '@/DesignConfig/beans.json';
-      
+      console.log('[INFO] 开始加载豆豆配置...');
+
+      // 尝试从配置文件加载豆豆数据
+      const beanConfigs: any[] = [];
+
+      // 定义要加载的豆豆文件列表
+      const beanTypes = ['normal', 'fire', 'ice', 'poison', 'electric', 'armored', 'boss'];
+
+      for (const beanType of beanTypes) {
+        try {
+          // 尝试加载豆豆配置
+          const beanData = await this.loadJsonFileWithXHR(`/DesignConfig/data/beans/bean-${beanType}.json`);
+
+          if (beanData) {
+            beanConfigs.push(beanData);
+            console.log(`[INFO] 已加载豆豆配置: ${beanData.name}`);
+          }
+        } catch (error) {
+          console.error(`[ERROR] 加载豆豆配置失败 (类型: ${beanType}):`, error);
+        }
+      }
+
+      // 如果成功加载了豆豆配置，使用它们
+      if (beanConfigs.length > 0) {
+        this.beansConfig = beanConfigs;
+        console.log(`[INFO] 豆豆配置加载完成，共加载 ${beanConfigs.length} 个豆豆配置`);
+        return;
+      }
+
+      console.log('[INFO] 未能从配置文件加载豆豆配置，使用硬编码数据...');
+
       // 模拟从配置表加载数据
       this.beansConfig = [
         {
@@ -325,34 +688,34 @@ export class ConfigManager {
           firstAppearLevel: '森林迷宫'
         }
       ];
-      
+
       console.log('[INFO] 豆豆配置加载完成');
     } catch (error) {
       console.error('[ERROR] 加载豆豆配置失败:', error);
     }
   }
-  
+
   /**
    * 获取所有关卡配置
    */
   public getLevelsConfig(): any[] {
     return this.levelsConfig;
   }
-  
+
   /**
    * 获取所有英雄配置
    */
   public getHeroesConfig(): any[] {
     return this.heroesConfig;
   }
-  
+
   /**
    * 获取所有豆豆配置
    */
   public getBeansConfig(): any[] {
     return this.beansConfig;
   }
-  
+
   /**
    * 根据ID获取关卡配置
    * @param id 关卡ID
@@ -360,7 +723,7 @@ export class ConfigManager {
   public getLevelConfigById(id: number): any {
     return this.levelsConfig.find(level => level.id === id);
   }
-  
+
   /**
    * 根据ID获取英雄配置
    * @param id 英雄ID
@@ -368,7 +731,7 @@ export class ConfigManager {
   public getHeroConfigById(id: number): any {
     return this.heroesConfig.find(hero => hero.id === id);
   }
-  
+
   /**
    * 根据ID获取豆豆配置
    * @param id 豆豆ID

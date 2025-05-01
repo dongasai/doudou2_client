@@ -8,12 +8,12 @@ import { BattleParamsService } from '@/services/BattleParamsService';
  */
 export class MainMenuScene extends Phaser.Scene {
   // UI元素
-  private title: Phaser.GameObjects.Text;
-  private startButton: Phaser.GameObjects.Text;
-  private quickStartButton: Phaser.GameObjects.Text;
-  private encyclopediaButton: Phaser.GameObjects.Text;
-  private settingsButton: Phaser.GameObjects.Text;
-  private creditsButton: Phaser.GameObjects.Text;
+  private title!: Phaser.GameObjects.Text;
+  private startButton!: Phaser.GameObjects.Text;
+  private quickStartButton!: Phaser.GameObjects.Text;
+  private encyclopediaButton!: Phaser.GameObjects.Text;
+  private settingsButton!: Phaser.GameObjects.Text;
+  private creditsButton!: Phaser.GameObjects.Text;
 
   /**
    * 构造函数
@@ -243,8 +243,8 @@ export class MainMenuScene extends Phaser.Scene {
    */
   private onEncyclopediaButtonClick(): void {
     console.log('[INFO] 点击百科按钮');
-    // 切换到百科场景
-    this.scene.start('EncyclopediaScene');
+    // 切换到百科选择场景
+    this.scene.start('EncyclopediaSelectScene');
   }
 
   /**

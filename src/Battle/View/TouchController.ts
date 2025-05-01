@@ -11,18 +11,18 @@ import { BattleCommand } from '../../DesignConfig/types/BattleCommand';
 export class TouchController {
   private scene: Phaser.Scene;
   private battleEngine: BattleEngine;
-  
+
   // 触摸状态
   private isTouchActive: boolean = false;
   private selectedSkillId: string | null = null;
   private touchStartPosition: Vector2D | null = null;
   private currentTouchPosition: Vector2D | null = null;
-  
+
   // 视觉元素
   private targetIndicator: Phaser.GameObjects.Image;
   private rangeIndicator: Phaser.GameObjects.Graphics;
   private directionLine: Phaser.GameObjects.Graphics;
-  
+
   /**
    * 构造函数
    * @param scene Phaser场景
@@ -31,45 +31,45 @@ export class TouchController {
   constructor(scene: Phaser.Scene, battleEngine: BattleEngine) {
     this.scene = scene;
     this.battleEngine = battleEngine;
-    
+
     // 创建目标指示器
     this.targetIndicator = scene.add.image(0, 0, 'target_indicator');
     this.targetIndicator.setVisible(false);
-    
+
     // 创建范围指示器
     this.rangeIndicator = scene.add.graphics();
-    
+
     // 创建方向线
     this.directionLine = scene.add.graphics();
-    
+
     // 设置输入事件
     this.setupInputEvents();
   }
-  
+
   /**
    * 设置输入事件
    */
   private setupInputEvents(): void {
     // 监听技能选择事件
     this.scene.events.on('skillSelected', this.onSkillSelected, this);
-    
+
     // 设置触摸输入
     this.scene.input.on('pointerdown', this.onPointerDown, this);
     this.scene.input.on('pointermove', this.onPointerMove, this);
     this.scene.input.on('pointerup', this.onPointerUp, this);
   }
-  
+
   /**
    * 技能选择事件处理
    * @param skillId 技能ID
    */
   private onSkillSelected(skillId: string): void {
     this.selectedSkillId = skillId;
-    
+
     // 显示范围指示器
     this.showRangeIndicator(skillId);
   }
-  
+
   /**
    * 指针按下事件处理
    * @param pointer 指针
@@ -79,20 +79,20 @@ export class TouchController {
     if (!this.selectedSkillId) {
       return;
     }
-    
+
     // 记录触摸开始位置
     this.touchStartPosition = { x: pointer.x, y: pointer.y };
     this.currentTouchPosition = { x: pointer.x, y: pointer.y };
     this.isTouchActive = true;
-    
+
     // 显示目标指示器
     this.targetIndicator.setPosition(pointer.x, pointer.y);
     this.targetIndicator.setVisible(true);
-    
+
     // 清除方向线
     this.directionLine.clear();
   }
-  
+
   /**
    * 指针移动事件处理
    * @param pointer 指针
@@ -102,17 +102,17 @@ export class TouchController {
     if (!this.isTouchActive || !this.touchStartPosition) {
       return;
     }
-    
+
     // 更新当前触摸位置
     this.currentTouchPosition = { x: pointer.x, y: pointer.y };
-    
+
     // 更新目标指示器位置
     this.targetIndicator.setPosition(pointer.x, pointer.y);
-    
+
     // 绘制方向线
     this.drawDirectionLine(this.touchStartPosition, this.currentTouchPosition);
   }
-  
+
   /**
    * 指针抬起事件处理
    * @param pointer 指针
@@ -122,14 +122,14 @@ export class TouchController {
     if (!this.isTouchActive || !this.selectedSkillId || !this.touchStartPosition || !this.currentTouchPosition) {
       return;
     }
-    
+
     // 发送技能释放指令
     this.castSkill(this.selectedSkillId, this.touchStartPosition, this.currentTouchPosition);
-    
+
     // 重置状态
     this.resetTouchState();
   }
-  
+
   /**
    * 重置触摸状态
    */
@@ -138,35 +138,110 @@ export class TouchController {
     this.selectedSkillId = null;
     this.touchStartPosition = null;
     this.currentTouchPosition = null;
-    
+
     // 隐藏视觉元素
     this.targetIndicator.setVisible(false);
     this.rangeIndicator.clear();
     this.directionLine.clear();
-    
+
     // 触发技能取消选择事件
     this.scene.events.emit('skillDeselected');
   }
-  
+
   /**
    * 显示范围指示器
    * @param skillId 技能ID
    */
   private showRangeIndicator(skillId: string): void {
-    // TODO: 根据技能类型显示不同的范围指示器
     this.rangeIndicator.clear();
-    
+
     // 获取英雄位置
     const heroPosition = this.getHeroPosition();
     if (!heroPosition) {
       return;
     }
-    
-    // 绘制范围圈
-    this.rangeIndicator.lineStyle(2, 0xffff00, 0.8);
-    this.rangeIndicator.strokeCircle(heroPosition.x, heroPosition.y, 200);
+
+    // 解析技能ID获取数字部分
+    const skillIdNumber = parseInt(skillId.replace('skill_', ''));
+
+    // 获取战斗状态
+    const battleStats = this.battleEngine.getBattleStats();
+
+    // 获取英雄
+    const hero = battleStats.heroStats && battleStats.heroStats.length > 0 ?
+      battleStats.heroStats[0] : null;
+
+    if (!hero) {
+      return;
+    }
+
+    // 尝试获取技能配置
+    try {
+      // 假设我们可以从某个地方获取技能配置
+      // 这里简化处理，根据技能ID的数字部分来决定范围类型和大小
+      const skillType = skillIdNumber % 3; // 0: 单体, 1: 范围, 2: 直线
+      const rangeSize = 100 + (skillIdNumber * 20); // 基础范围 + 技能ID*20
+
+      // 根据技能类型绘制不同的范围指示器
+      switch (skillType) {
+        case 0: // 单体技能
+          // 绘制小圆圈
+          this.rangeIndicator.lineStyle(2, 0xffff00, 0.8);
+          this.rangeIndicator.strokeCircle(heroPosition.x, heroPosition.y, rangeSize);
+          break;
+
+        case 1: // 范围技能
+          // 绘制大圆圈
+          this.rangeIndicator.lineStyle(2, 0xff0000, 0.8);
+          this.rangeIndicator.strokeCircle(heroPosition.x, heroPosition.y, rangeSize);
+          // 添加内圈
+          this.rangeIndicator.lineStyle(1, 0xff0000, 0.5);
+          this.rangeIndicator.strokeCircle(heroPosition.x, heroPosition.y, rangeSize * 0.5);
+          break;
+
+        case 2: // 直线技能
+          // 绘制扇形区域
+          this.rangeIndicator.lineStyle(2, 0x00ffff, 0.8);
+          this.drawArc(heroPosition.x, heroPosition.y, rangeSize, -Math.PI/4, Math.PI/4);
+          // 绘制方向线
+          this.rangeIndicator.lineStyle(1, 0x00ffff, 0.6);
+          this.rangeIndicator.beginPath();
+          this.rangeIndicator.moveTo(heroPosition.x, heroPosition.y);
+          this.rangeIndicator.lineTo(
+            heroPosition.x + Math.cos(0) * rangeSize,
+            heroPosition.y + Math.sin(0) * rangeSize
+          );
+          this.rangeIndicator.strokePath();
+          break;
+
+        default:
+          // 默认圆形范围
+          this.rangeIndicator.lineStyle(2, 0xffff00, 0.8);
+          this.rangeIndicator.strokeCircle(heroPosition.x, heroPosition.y, 200);
+      }
+    } catch (error) {
+      console.error('[ERROR] 显示技能范围指示器失败:', error);
+
+      // 出错时显示默认范围圈
+      this.rangeIndicator.lineStyle(2, 0xffff00, 0.8);
+      this.rangeIndicator.strokeCircle(heroPosition.x, heroPosition.y, 200);
+    }
   }
-  
+
+  /**
+   * 绘制弧形
+   * @param x 中心点x坐标
+   * @param y 中心点y坐标
+   * @param radius 半径
+   * @param startAngle 起始角度
+   * @param endAngle 结束角度
+   */
+  private drawArc(x: number, y: number, radius: number, startAngle: number, endAngle: number): void {
+    this.rangeIndicator.beginPath();
+    this.rangeIndicator.arc(x, y, radius, startAngle, endAngle);
+    this.rangeIndicator.strokePath();
+  }
+
   /**
    * 绘制方向线
    * @param start 起始位置
@@ -180,7 +255,7 @@ export class TouchController {
     this.directionLine.lineTo(end.x, end.y);
     this.directionLine.strokePath();
   }
-  
+
   /**
    * 释放技能
    * @param skillId 技能ID
@@ -191,12 +266,12 @@ export class TouchController {
     // 转换为世界坐标
     const worldStartPos = this.screenToWorldPosition(startPosition);
     const worldEndPos = this.screenToWorldPosition(endPosition);
-    
+
     // 计算方向
     const dx = endPosition.x - startPosition.x;
     const dy = endPosition.y - startPosition.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    
+
     // 如果距离太小，视为点击
     if (distance < 20) {
       // 点击释放技能
@@ -206,30 +281,55 @@ export class TouchController {
       this.castSkillInDirection(skillId, worldStartPos, worldEndPos);
     }
   }
-  
+
   /**
    * 在指定位置释放技能
    * @param skillId 技能ID
    * @param position 位置
    */
   private castSkillAtPosition(skillId: string, position: Vector2D): void {
+    // 获取当前英雄ID
+    const heroId = this.getCurrentHeroId();
+
     // 创建指令
     const command: BattleCommand = {
       frame: 0, // 由战斗引擎设置
       playerId: 'player1',
       type: 'castSkill',
       data: {
-        heroId: 1, // TODO: 获取当前英雄ID
+        heroId: heroId,
         skillId: parseInt(skillId.replace('skill_', '')),
         targetType: 'position',
         targetPos: position.x // 简化处理，只使用x坐标
       }
     };
-    
+
     // 发送指令
     this.battleEngine.sendCommand(command);
   }
-  
+
+  /**
+   * 获取当前英雄ID
+   * @returns 当前英雄ID
+   */
+  private getCurrentHeroId(): number {
+    // 获取战斗状态
+    const battleStats = this.battleEngine.getBattleStats();
+
+    // 检查是否有英雄
+    if (!battleStats.heroStats || battleStats.heroStats.length === 0) {
+      return 1; // 默认返回1号英雄
+    }
+
+    // 获取第一个英雄的ID
+    const heroIdStr = battleStats.heroStats[0].id;
+
+    // 解析英雄ID（假设格式为"hero_数字"）
+    const heroId = parseInt(heroIdStr.replace('hero_', ''));
+
+    return isNaN(heroId) ? 1 : heroId;
+  }
+
   /**
    * 在指定方向释放技能
    * @param skillId 技能ID
@@ -237,23 +337,26 @@ export class TouchController {
    * @param endPosition 结束位置
    */
   private castSkillInDirection(skillId: string, startPosition: Vector2D, endPosition: Vector2D): void {
+    // 获取当前英雄ID
+    const heroId = this.getCurrentHeroId();
+
     // 创建指令
     const command: BattleCommand = {
       frame: 0, // 由战斗引擎设置
       playerId: 'player1',
       type: 'castSkill',
       data: {
-        heroId: 1, // TODO: 获取当前英雄ID
+        heroId: heroId,
         skillId: parseInt(skillId.replace('skill_', '')),
         targetType: 'position',
         targetPos: endPosition.x // 简化处理，只使用x坐标
       }
     };
-    
+
     // 发送指令
     this.battleEngine.sendCommand(command);
   }
-  
+
   /**
    * 获取英雄位置
    * @returns 英雄位置
@@ -261,19 +364,19 @@ export class TouchController {
   private getHeroPosition(): Vector2D | null {
     // 获取战斗状态
     const battleStats = this.battleEngine.getBattleStats();
-    
+
     // 检查是否有英雄
     if (!battleStats.heroStats || battleStats.heroStats.length === 0) {
       return null;
     }
-    
+
     // 获取第一个英雄的位置
     const heroPosition = battleStats.heroStats[0].position;
-    
+
     // 转换为屏幕坐标
     return this.worldToScreenPosition(heroPosition);
   }
-  
+
   /**
    * 世界坐标转屏幕坐标
    * @param position 世界坐标
@@ -283,13 +386,13 @@ export class TouchController {
     // 假设世界坐标范围是 0-3000，屏幕坐标范围是 0-屏幕宽高
     const screenWidth = this.scene.cameras.main.width;
     const screenHeight = this.scene.cameras.main.height;
-    
+
     return {
       x: (position.x / 3000) * screenWidth,
       y: (position.y / 3000) * screenHeight
     };
   }
-  
+
   /**
    * 屏幕坐标转世界坐标
    * @param screenPos 屏幕坐标
@@ -299,13 +402,13 @@ export class TouchController {
     // 假设世界坐标范围是 0-3000，屏幕坐标范围是 0-屏幕宽高
     const screenWidth = this.scene.cameras.main.width;
     const screenHeight = this.scene.cameras.main.height;
-    
+
     return {
       x: (screenPos.x / screenWidth) * 3000,
       y: (screenPos.y / screenHeight) * 3000
     };
   }
-  
+
   /**
    * 更新
    * @param time 当前时间
@@ -317,7 +420,7 @@ export class TouchController {
       this.drawDirectionLine(this.touchStartPosition, this.currentTouchPosition);
     }
   }
-  
+
   /**
    * 销毁
    */
@@ -327,7 +430,7 @@ export class TouchController {
     this.scene.input.off('pointerdown', this.onPointerDown, this);
     this.scene.input.off('pointermove', this.onPointerMove, this);
     this.scene.input.off('pointerup', this.onPointerUp, this);
-    
+
     // 销毁视觉元素
     this.targetIndicator.destroy();
     this.rangeIndicator.destroy();

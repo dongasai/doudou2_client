@@ -1,0 +1,33 @@
+{
+    "id": "level-1-10",
+    "name": "\u7b2c\u4e00\u7ae0-\u7b2c\u5341\u5173",
+    "description": "Boss\u7ec8\u6781\u51b3\u6218",
+    "difficulty": 2.0,
+    "crystal": {
+        "maxHp": 500
+    },
+    "beanRatios": [
+        {
+            "type": "\u8c46\u8c46\u738b",
+            "weight": 1
+        }
+    ],
+    "totalBeans": 1,
+    "spawnInterval": 0,
+    "attrFactors": {
+        "hp": 2.0,
+        "attack": 2.0,
+        "defense": 2.0,
+        "speed": 1.5
+    },
+    "victoryCondition": {
+        "type": "bossDefeated",
+        "value": "\u8c46\u8c46\u738b"
+    },
+    "defeatCondition": {
+        "type": "crystalDestroyed"
+    },
+    "background": "boss",
+    "availableHeroSlots": 3,
+    "isBossLevel": true
+}

@@ -1,0 +1,43 @@
+{
+    "id": "level-1-4",
+    "name": "\u7b2c\u4e00\u7ae0-\u7b2c\u56db\u5173",
+    "description": "\u51b0\u971c\u6311\u6218\u5173\u5361",
+    "difficulty": 1.4,
+    "crystal": {
+        "maxHp": 850
+    },
+    "beanRatios": [
+        {
+            "type": "\u66b4\u8e81\u8c46",
+            "weight": 2
+        },
+        {
+            "type": "\u51b0\u971c\u8c46",
+            "weight": 1
+        },
+        {
+            "type": "\u95ea\u7535\u8c46",
+            "weight": 1
+        },
+        {
+            "type": "\u94c1\u7532\u8c46",
+            "weight": 1
+        }
+    ],
+    "totalBeans": 45,
+    "spawnInterval": 850,
+    "attrFactors": {
+        "hp": 1.2,
+        "attack": 1.15,
+        "defense": 1.1,
+        "speed": 1.05
+    },
+    "victoryCondition": {
+        "type": "allDefeated"
+    },
+    "defeatCondition": {
+        "type": "crystalDestroyed"
+    },
+    "background": "snowfield",
+    "availableHeroSlots": 3
+}

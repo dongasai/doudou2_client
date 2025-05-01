@@ -147,12 +147,12 @@ export class LevelsTab extends Tab {
    */
   private createLayout(): void {
     try {
-      // 创建关卡列表容器
-      this.levelList = this.scene.add.container(-this.width / 2 + 150, 0);
+      // 创建关卡列表容器 (下移40像素，为tab按钮留出空间)
+      this.levelList = this.scene.add.container(-this.width / 2 + 150, 40);
       this.container.add(this.levelList);
 
-      // 创建关卡详情容器
-      this.levelDetail = this.scene.add.container(50, 0);
+      // 创建关卡详情容器 (下移40像素，为tab按钮留出空间)
+      this.levelDetail = this.scene.add.container(50, 40);
       this.container.add(this.levelDetail);
 
       // 创建分隔线
@@ -179,8 +179,8 @@ export class LevelsTab extends Tab {
    */
   private createLevelList(): void {
     try {
-      // 创建标题
-      const title = this.scene.add.text(0, -this.height / 2 + 30, '关卡列表', {
+      // 创建标题 (调整Y坐标，考虑下移的40像素)
+      const title = this.scene.add.text(0, -this.height / 2 + 70, '关卡列表', {
         fontSize: '24px',
         fontFamily: 'Arial',
         color: '#ffffff',
@@ -194,10 +194,10 @@ export class LevelsTab extends Tab {
       for (let i = 0; i < this.levels.length; i++) {
         const level = this.levels[i];
 
-        // 创建按钮容器
+        // 创建按钮容器 (调整Y坐标，考虑下移的40像素)
         const buttonContainer = this.scene.add.container(
           0,
-          -this.height / 2 + 80 + i * 60
+          -this.height / 2 + 120 + i * 60
         );
 
         // 创建按钮背景
@@ -272,13 +272,13 @@ export class LevelsTab extends Tab {
       title.setOrigin(0.5, 0.5);
       this.levelDetail.add(title);
 
-      // 创建关卡图片
-      this.levelImage = this.scene.add.image(0, -this.height / 2 + 120, 'level_1');
+      // 创建关卡图片 (调整Y坐标，考虑下移的40像素)
+      this.levelImage = this.scene.add.image(0, -this.height / 2 + 160, 'level_1');
       this.levelImage.setDisplaySize(300, 150);
       this.levelDetail.add(this.levelImage);
 
-      // 创建关卡名称
-      this.levelName = this.scene.add.text(0, -this.height / 2 + 210, '', {
+      // 创建关卡名称 (调整Y坐标，考虑下移的40像素)
+      this.levelName = this.scene.add.text(0, -this.height / 2 + 250, '', {
         fontSize: '28px',
         fontFamily: 'Arial',
         color: '#ffffff',
@@ -288,8 +288,8 @@ export class LevelsTab extends Tab {
       this.levelName.setOrigin(0.5, 0.5);
       this.levelDetail.add(this.levelName);
 
-      // 创建难度
-      this.levelDifficulty = this.scene.add.text(0, -this.height / 2 + 250, '', {
+      // 创建难度 (调整Y坐标，考虑下移的40像素)
+      this.levelDifficulty = this.scene.add.text(0, -this.height / 2 + 290, '', {
         fontSize: '20px',
         fontFamily: 'Arial',
         color: '#ffff00'
@@ -297,8 +297,8 @@ export class LevelsTab extends Tab {
       this.levelDifficulty.setOrigin(0.5, 0.5);
       this.levelDetail.add(this.levelDifficulty);
 
-      // 创建描述
-      this.levelDescription = this.scene.add.text(0, -this.height / 2 + 290, '', {
+      // 创建描述 (调整Y坐标，考虑下移的40像素)
+      this.levelDescription = this.scene.add.text(0, -this.height / 2 + 330, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ffffff',
@@ -314,7 +314,7 @@ export class LevelsTab extends Tab {
       // 创建信息背景 - 使用更大的背景并放在底层
       const infoBg = this.scene.add.rectangle(
         0,
-        -this.height / 2 + 450,
+        -this.height / 2 + 490,
         450,
         300,
         0x222222,
@@ -326,7 +326,7 @@ export class LevelsTab extends Tab {
       // 创建信息标题区域背景
       const titleBg = this.scene.add.rectangle(
         0,
-        -this.height / 2 + 350,
+        -this.height / 2 + 390,
         450,
         40,
         0x333333,
@@ -356,7 +356,7 @@ export class LevelsTab extends Tab {
       infoContainer.add(infoContentContainer);
 
       // 创建地图信息
-      this.levelMapInfo = this.scene.add.text(-210, -this.height / 2 + 400, '', {
+      this.levelMapInfo = this.scene.add.text(-210, -this.height / 2 + 440, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ff9900',
@@ -376,7 +376,7 @@ export class LevelsTab extends Tab {
       infoContentContainer.add(this.levelEnemies);
 
       // 创建BOSS信息
-      this.levelBoss = this.scene.add.text(-210, -this.height / 2 + 480, '', {
+      this.levelBoss = this.scene.add.text(-210, -this.height / 2 + 520, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#ff3333',
@@ -386,7 +386,7 @@ export class LevelsTab extends Tab {
       infoContentContainer.add(this.levelBoss);
 
       // 创建解锁条件
-      this.levelUnlockCondition = this.scene.add.text(-210, -this.height / 2 + 520, '', {
+      this.levelUnlockCondition = this.scene.add.text(-210, -this.height / 2 + 560, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#00ffff',
@@ -398,7 +398,7 @@ export class LevelsTab extends Tab {
       // 创建奖励标题背景
       const rewardsTitleBg = this.scene.add.rectangle(
         0,
-        -this.height / 2 + 560,
+        -this.height / 2 + 600,
         450,
         40,
         0x333333,
@@ -426,7 +426,7 @@ export class LevelsTab extends Tab {
       // 创建奖励背景
       const rewardsBg = this.scene.add.rectangle(
         0,
-        -this.height / 2 + 630,
+        -this.height / 2 + 670,
         450,
         100,
         0x222222,
@@ -436,7 +436,7 @@ export class LevelsTab extends Tab {
       infoContainer.add(rewardsBg);
 
       // 创建奖励
-      this.levelRewards = this.scene.add.text(-210, -this.height / 2 + 600, '', {
+      this.levelRewards = this.scene.add.text(-210, -this.height / 2 + 640, '', {
         fontSize: '18px',
         fontFamily: 'Arial',
         color: '#00ff00',
