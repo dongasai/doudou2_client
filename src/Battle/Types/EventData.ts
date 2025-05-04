@@ -81,6 +81,8 @@ export interface EntityCreatedEventData {
   position: Vector2D;
   /** 实体属性 */
   stats: EntityStats;
+  /** 表情符号（用于视图层） */
+  emoji?: string;
 }
 
 /**
@@ -141,6 +143,8 @@ export interface EnemySpawnEventData {
   waveIndex: number;
   /** 事件发生时间 */
   time: number;
+  /** 豆豆ID */
+  beanId: string;
 }
 
 /**

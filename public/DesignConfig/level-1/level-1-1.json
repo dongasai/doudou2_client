@@ -8,11 +8,11 @@
     },
     "beanRatios": [
         {
-            "type": "\u66b4\u8e81\u8c46",
+            "type": 1,
             "weight": 3
         },
         {
-            "type": "\u6bd2\u8c46",
+            "type": 2,
             "weight": 1
         }
     ],

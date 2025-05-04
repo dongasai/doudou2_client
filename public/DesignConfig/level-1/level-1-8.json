@@ -8,19 +8,19 @@
     },
     "beanRatios": [
         {
-            "type": "\u70b8\u5f39\u8c46",
+            "type": 7,
             "weight": 2
         },
         {
-            "type": "\u51b0\u971c\u8c46",
+            "type": 6,
             "weight": 2
         },
         {
-            "type": "\u94c1\u7532\u8c46",
+            "type": 3,
             "weight": 1
         },
         {
-            "type": "\u72c2\u66b4\u8c46",
+            "type": 19,
             "weight": 1
         }
     ],

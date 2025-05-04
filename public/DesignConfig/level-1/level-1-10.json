@@ -8,7 +8,7 @@
     },
     "beanRatios": [
         {
-            "type": "\u8c46\u8c46\u738b",
+            "type": 20,
             "weight": 1
         }
     ],
@@ -22,7 +22,7 @@
     },
     "victoryCondition": {
         "type": "bossDefeated",
-        "value": "\u8c46\u8c46\u738b"
+        "value": 20
     },
     "defeatCondition": {
         "type": "crystalDestroyed"

@@ -3,12 +3,14 @@
  * 负责管理战斗中的敌人波次生成
  */
 
-import { logger } from './Logger';
-import { RandomManager } from './RandomManager';
-import { EntityManager } from './EntityManager';
-import { EventManager } from './EventManager';
-import { Vector2D } from '../Types/Vector2D';
-import { EntityType } from '../Entities/Entity';
+import {logger} from './Logger';
+import {RandomManager} from './RandomManager';
+import {EntityManager} from './EntityManager';
+import {EventManager} from './EventManager';
+import {Vector2D} from '../Types/Vector2D';
+import {EntityType} from '../Entities/Entity';
+import {EntityDeathEventData} from "@/Battle/Types/EventData";
+import {EventType} from "@/Event/EventTypes";
 
 // 波次配置接口
 export interface WaveConfig {
@@ -119,7 +121,8 @@ export class WaveManager {
     this.eventManager = eventManager;
 
     // 监听敌人死亡事件
-    this.eventManager.on('entityDeath', (event) => {
+    this.eventManager.on('entityDeath', (event:EntityDeathEventData) => {
+      // @ts-ignore
       if (event.entity.getType() === EntityType.BEAN) {
         this.onEnemyDefeated(event.entity.getId());
       }
@@ -333,9 +336,9 @@ export class WaveManager {
 
   /**
    * 生成特殊敌人
-   * @param type 敌人类型
+   * @param type 敌人类型（可以是字符串或数字ID）
    */
-  private spawnSpecialEnemy(type: string): void {
+  private spawnSpecialEnemy(type: string | number): void {
     // 特殊敌人通常有更高的属性系数
     const attrFactors = {
       hp: 2.0,
@@ -353,28 +356,32 @@ export class WaveManager {
 
   /**
    * 生成指定类型的敌人
-   * @param type 敌人类型
+   * @param type 敌人类型（可以是字符串或数字ID）
    * @param attrFactors 属性系数
    * @param isSpecial 是否特殊敌人
    */
   private spawnEnemyOfType(
-    type: string,
+    type: string | number,
     attrFactors: { [key: string]: number | undefined } = {},
     isSpecial: boolean = false
   ): void {
     // 生成随机位置（在中心点周围的环形区域）
     const spawnPosition = this.generateRandomSpawnPosition();
 
+    // 如果type是数字，则直接使用作为beanId
+    const beanId = typeof type === 'number' ? type : 1;
+
     // 触发敌人生成事件
-    this.eventManager.emit('enemySpawn', {
+    this.eventManager.emit(EventType.ENEMY_SPAWN, {
       type,
       position: spawnPosition,
       attrFactors,
       isSpecial,
-      waveIndex: this.currentWaveIndex
+      waveIndex: this.currentWaveIndex,
+      beanId
     });
 
-    logger.debug(`生成敌人: 类型=${type}, 位置=(${spawnPosition.x},${spawnPosition.y}), 特殊=${isSpecial}`);
+    logger.debug(`生成敌人: 类型=${type}, ID=${beanId}, 位置=(${spawnPosition.x},${spawnPosition.y}), 特殊=${isSpecial}`);
   }
 
   /**

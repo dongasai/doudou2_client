@@ -28,4 +28,6 @@ export interface EntityCreatedEvent {
     name?: string;
     /** 实体外观（可选） */
     appearance?: string;
+    /** 表情符号（可选，用于豆豆等实体） */
+    emoji: string;
 }

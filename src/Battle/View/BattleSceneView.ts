@@ -249,6 +249,20 @@ export class BattleSceneView {
               this.scene.time.delayedCall(100, () => {
                 // 再次检查是否已经创建
                 if (!this.entityRenderer.hasEntity(bean.id)) {
+                  // 获取随机emoji
+                  let emoji = '🟢';
+                  try {
+                    const ConfigManager = require('../../Managers/ConfigManager').ConfigManager;
+                    const configManager = ConfigManager.getInstance();
+                    const beansConfig = configManager.getBeansConfig();
+                    if (beansConfig && beansConfig.length > 0) {
+                      const randomIndex = Math.floor(Math.random() * beansConfig.length);
+                      emoji = beansConfig[randomIndex].emoji || '🟢';
+                    }
+                  } catch (error) {
+                    console.error('[ERROR] 获取豆豆emoji失败:', error);
+                  }
+
                   this.entityRenderer.createEntity({
                     id: bean.id,
                     entityType: 'bean',
@@ -256,7 +270,8 @@ export class BattleSceneView {
                     stats: {
                       hp: bean.hp,
                       maxHp: bean.maxHp
-                    }
+                    },
+                    emoji: emoji
                   });
                 }
                 this.pendingCreations.delete(bean.id);
@@ -278,6 +293,20 @@ export class BattleSceneView {
             this.scene.time.delayedCall(100, () => {
               // 再次检查是否已经创建
               if (!this.entityRenderer.hasEntity(beanId)) {
+                // 获取随机emoji
+                let emoji = '🟢';
+                try {
+                  const ConfigManager = require('../../Managers/ConfigManager').ConfigManager;
+                  const configManager = ConfigManager.getInstance();
+                  const beansConfig = configManager.getBeansConfig();
+                  if (beansConfig && beansConfig.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * beansConfig.length);
+                    emoji = beansConfig[randomIndex].emoji || '🟢';
+                  }
+                } catch (error) {
+                  console.error('[ERROR] 获取豆豆emoji失败:', error);
+                }
+
                 this.entityRenderer.createEntity({
                   id: beanId,
                   entityType: 'bean',
@@ -288,7 +317,8 @@ export class BattleSceneView {
                   stats: {
                     hp: 50,
                     maxHp: 50
-                  }
+                  },
+                  emoji: emoji
                 });
               }
               this.pendingCreations.delete(beanId);
@@ -411,6 +441,20 @@ export class BattleSceneView {
               // 如果豆豆精灵不存在但有豆豆状态，尝试创建
               console.log('[INFO] 豆豆状态存在但精灵不存在，尝试创建:', bean.id);
 
+              // 获取随机emoji
+              let emoji = '🟢';
+              try {
+                const ConfigManager = require('../../Managers/ConfigManager').ConfigManager;
+                const configManager = ConfigManager.getInstance();
+                const beansConfig = configManager.getBeansConfig();
+                if (beansConfig && beansConfig.length > 0) {
+                  const randomIndex = Math.floor(Math.random() * beansConfig.length);
+                  emoji = beansConfig[randomIndex].emoji || '🟢';
+                }
+              } catch (error) {
+                console.error('[ERROR] 获取豆豆emoji失败:', error);
+              }
+
               this.entityRenderer.createEntity({
                 id: bean.id,
                 entityType: 'bean',
@@ -418,7 +462,8 @@ export class BattleSceneView {
                 stats: {
                   hp: bean.hp,
                   maxHp: bean.maxHp
-                }
+                },
+                emoji: emoji
               });
             }
           }

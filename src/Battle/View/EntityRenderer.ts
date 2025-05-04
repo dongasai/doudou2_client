@@ -87,7 +87,11 @@ export class EntityRenderer {
 
         case 'bean':
           // 使用豆豆Emoji
-          sprite = this.scene.add.text(screenPos.x, screenPos.y, '🟢', {
+          // 直接从事件中获取emoji信息
+          let beanEmoji = event.emoji || '🟢'; // 使用事件中的emoji或默认emoji
+          console.log(`[INFO] 使用豆豆emoji: ${beanEmoji} 用于 ${entityId}`);
+
+          sprite = this.scene.add.text(screenPos.x, screenPos.y, beanEmoji, {
             fontSize: `${beanSize}px`
           });
           sprite.setOrigin(0.5);

@@ -8,15 +8,15 @@
     },
     "beanRatios": [
         {
-            "type": "\u66b4\u8e81\u8c46",
+            "type": 1,
             "weight": 2
         },
         {
-            "type": "\u6bd2\u8c46",
+            "type": 2,
             "weight": 1
         },
         {
-            "type": "\u95ea\u7535\u8c46",
+            "type": 4,
             "weight": 1
         }
     ],

@@ -213,8 +213,8 @@ export class BattleParamsService {
           maxHp: 1000
         },
         beanRatios: [
-          { type: '暴躁豆', weight: 3 },
-          { type: '毒豆', weight: 1 }
+          { type: 1, weight: 3 },
+          { type: 2, weight: 1 }
         ],
         totalBeans: 30,
         spawnInterval: 1000,

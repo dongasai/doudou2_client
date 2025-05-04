@@ -51,7 +51,7 @@ export interface LevelConfig {
   description: string;
   /** 难度系数(1.0为基础难度) */
   difficulty: number;
-  
+
   /** 水晶配置 */
   crystal: {
     /** 水晶位置(固定中央) */
@@ -62,8 +62,8 @@ export interface LevelConfig {
 
   /** 豆豆生成比例配置 */
   beanRatios: Array<{
-    /** 豆豆类型 */
-    type: string;
+    /** 豆豆类型（可以是字符串名称或数字ID） */
+    type: string | number;
     /** 生成权重 */
     weight: number;
   }>;

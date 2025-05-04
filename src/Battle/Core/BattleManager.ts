@@ -12,13 +12,14 @@ import { SkillManager } from './SkillManager'; // 使用兼容层
 import { WaveManager } from './WaveManager';
 import { RandomManager } from './RandomManager';
 import { BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '../../DesignConfig/BattleCommand';
-import { BattleInitParams } from '../../DesignConfig/BattleInitParams';
-import { BattleReplayData } from '../../DesignConfig/BattleReplay';
+import { BattleInitParams } from '@/DesignConfig';
+import { BattleReplayData } from '@/DesignConfig';
 import { Entity, EntityType, EntityStats } from '../Entities/Entity';
 import { Vector2D } from '../Types/Vector2D';
 import { Hero } from '../Entities/Hero';
 import { Bean, BeanType, BeanState } from '../Entities/Bean';
 import { Crystal } from '../Entities/Crystal';
+import {ConfigManager} from "@/Managers/ConfigManager";
 import {
   BattleStartEventData,
   BattlePauseEventData,
@@ -146,7 +147,8 @@ export class BattleManager {
         data.position,
         data.attrFactors,
         data.isSpecial,
-        data.waveIndex
+        data.waveIndex,
+        data.beanId // 传递豆豆ID
       );
     });
 
@@ -955,20 +957,35 @@ export class BattleManager {
    * @param attrFactors 属性系数
    * @param isSpecial 是否特殊敌人
    * @param waveIndex 波次索引
+   * @param beanId 豆豆ID（可选，如果不提供则自动生成）
    */
   private createBeanFromWaveManager(
     beanType: string,
     position: Vector2D,
     attrFactors: { [key: string]: number | undefined } = {},
     isSpecial: boolean = false,
-    waveIndex: number = 0
+    waveIndex: number = 0,
+    beanId: string
   ): void {
     try {
       // 将字符串类型转换为BeanType枚举
       let beanTypeEnum: BeanType;
 
-      // 尝试将字符串类型转换为BeanType枚举
-      if (typeof beanType === 'string') {
+      // 处理不同类型的beanType
+      if (typeof beanType === 'number') {
+        // 如果是数字ID，从ConfigManager获取对应的豆豆配置
+        try {
+          const configManager = ConfigManager.getInstance();
+          const beanConfig = configManager.getBeanConfigById(beanType);
+
+          // 根据豆豆名称映射到BeanType
+          beanTypeEnum = this.mapChineseNameToBeanType(beanConfig.name);
+          logger.debug(`根据豆豆ID ${beanType} 获取到豆豆类型 ${beanTypeEnum}`);
+        } catch (error) {
+          logger.warn(`无法根据ID获取豆豆类型: ${beanType}，使用默认类型NORMAL`);
+          beanTypeEnum = BeanType.NORMAL;
+        }
+      } else if (typeof beanType === 'string') {
         if (beanType in BeanType) {
           // 如果是枚举键名（如'RAGE'），直接使用
           beanTypeEnum = BeanType[beanType as keyof typeof BeanType];
@@ -989,8 +1006,8 @@ export class BattleManager {
         beanTypeEnum = beanType as BeanType;
       }
 
-      // 生成唯一ID
-      const beanId = `bean_${waveIndex + 1}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      // 使用传入的ID或生成唯一ID
+      const finalBeanId =  `bean_${waveIndex + 1}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
       // 获取基础属性
       const baseStats = this.getBeanBaseStats(beanTypeEnum);
@@ -1008,7 +1025,7 @@ export class BattleManager {
 
       // 创建豆豆实体
       const bean = new Bean(
-        beanId,
+        finalBeanId,
         beanName,
         position,
         stats,
@@ -1033,7 +1050,18 @@ export class BattleManager {
       // 添加到豆豆映射
       this.beans.set(bean.getId(), bean);
 
-      logger.info(`创建豆豆: 类型=${beanTypeEnum}, ID=${beanId}, 位置=(${position.x}, ${position.y}), 特殊=${isSpecial}`);
+      logger.info(`创建豆豆: 类型=${beanTypeEnum}, ID=${finalBeanId}, 位置=(${position.x}, ${position.y}), 特殊=${isSpecial}`);
+
+      // 获取豆豆的emoji
+      let beanEmoji = '🟢'; // 默认emoji
+      try {
+        // 尝试从ConfigManager获取豆豆配置
+        let b =ConfigManager.getInstance().getBeanConfigById(Number(beanId))
+        // @ts-ignore
+        beanEmoji =b.emoji
+      } catch (error) {
+        logger.error(`获取豆豆emoji失败: ${error}`);
+      }
 
       // 触发豆豆创建事件
       const entityCreatedData: EntityCreatedEventData = {
@@ -1042,7 +1070,9 @@ export class BattleManager {
         // 添加entityType字段，确保与EntityCreatedEvent接口兼容
         entityType: 'bean',
         position: bean.getPosition(),
-        stats: bean.getStats()
+        stats: bean.getStats(),
+        // 添加emoji字段
+        emoji: beanEmoji
       };
       this.eventManager.emit(EventType.ENTITY_CREATED, entityCreatedData);
     } catch (error) {
