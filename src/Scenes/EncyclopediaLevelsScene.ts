@@ -3,6 +3,7 @@ import { ConfigManager } from '@/Managers/ConfigManager';
 import { ChapterPanel } from '@/UI/Encyclopedia/ChapterPanel';
 import { LevelDetailsPanel } from '@/UI/Encyclopedia/LevelDetailsPanel';
 import { LevelConfig } from '@/DesignConfig/Level';
+import { DepthLayers } from '@/Constants/DepthLayers';
 
 /**
  * 百科视图场景 - 关卡页面
@@ -206,35 +207,65 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
    * @param levels 关卡数据
    */
   private createScrollArea(chapters: any[], levels: LevelConfig[]): void {
-    // 创建滚动容器
-    this.scrollView = this.add.container(0, 0);
-
     // 计算滚动区域大小
     const padding = 20;
     const scrollAreaWidth = this.cameras.main.width - (padding * 2);
     const scrollAreaHeight = this.cameras.main.height - 150;
+    const scrollAreaY = 100; // 滚动区域顶部Y坐标
 
-    // 创建滚动区域背景
+    // 创建滚动区域背景 - 使用更明显的颜色以便调试
     const scrollBg = this.add.rectangle(
       this.cameras.main.width / 2,
-      100 + scrollAreaHeight / 2,
+      scrollAreaY + scrollAreaHeight / 2,
       scrollAreaWidth,
       scrollAreaHeight,
-      0x000000,
-      0.7
+      0x222222, // 深灰色背景
+      0.8 // 提高不透明度
     );
-    scrollBg.setStrokeStyle(2, 0xffffff, 0.5);
+    scrollBg.setStrokeStyle(2, 0xffffff, 0.8); // 更明显的边框
+    scrollBg.setDepth(DepthLayers.UI_BACKGROUND); // 设置深度为UI背景层
+
+    // 添加调试文本，确认滚动区域可见
+    const debugText = this.add.text(
+      this.cameras.main.width / 2,
+      scrollAreaY + 30,
+      '滚动区域',
+      {
+        fontSize: '18px',
+        fontFamily: 'Arial',
+        color: '#ffffff'
+      }
+    );
+    debugText.setOrigin(0.5, 0.5);
+    debugText.setDepth(DepthLayers.UI_FOREGROUND); // 设置深度为UI前景层，确保在其他元素之上
+
+    // 创建滚动容器 - 设置初始位置在滚动区域顶部
+    this.scrollView = this.add.container(this.cameras.main.width / 2, scrollAreaY);
+    this.scrollView.setDepth(DepthLayers.UI_CONTAINER); // 设置深度为UI容器层
+
+    // 创建遮罩 - 限制内容只在滚动区域内显示
+    const mask = this.add.graphics();
+    mask.fillStyle(0xffffff);
+    mask.fillRect(
+      (this.cameras.main.width - scrollAreaWidth) / 2,
+      scrollAreaY,
+      scrollAreaWidth,
+      scrollAreaHeight
+    );
+
+    // 应用遮罩到滚动容器
+    this.scrollView.setMask(new Phaser.Display.Masks.GeometryMask(this, mask));
 
     // 添加章节列表标题
     this.createChapterListTitle(scrollAreaWidth);
 
     // 创建章节面板
-    let yPosition = 200; // 起始Y位置
+    let yPosition = 70; // 起始Y位置 (相对于滚动容器)
     for (const chapter of chapters) {
-      // 创建章节面板
+      // 创建章节面板 - 注意x坐标为0，因为是相对于滚动容器的中心点
       const chapterPanel = new ChapterPanel(
         this,
-        this.cameras.main.width / 2,
+        0, // 相对于滚动容器的中心点
         yPosition,
         chapter,
         levels,
@@ -250,7 +281,7 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
     }
 
     // 添加滚动功能
-    this.addScrolling(yPosition);
+    this.addScrolling(yPosition, scrollAreaY, scrollAreaHeight);
   }
 
   /**
@@ -258,11 +289,11 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
    * @param scrollAreaWidth 滚动区域宽度
    */
   private createChapterListTitle(scrollAreaWidth: number): void {
-    const yPosition = 120;
+    const yPosition = 20; // 相对于滚动容器的位置
 
     // 创建标题背景
     const titleBg = this.add.rectangle(
-      this.cameras.main.width / 2,
+      0, // 相对于滚动容器的中心点
       yPosition,
       scrollAreaWidth - 20,
       50,
@@ -274,7 +305,7 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
 
     // 创建标题文本
     const chapterListTitle = this.add.text(
-      this.cameras.main.width / 2,
+      0, // 相对于滚动容器的中心点
       yPosition,
       '章节列表',
       {
@@ -292,23 +323,62 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
   /**
    * 添加滚动功能
    * @param contentHeight 内容高度
+   * @param scrollAreaY 滚动区域Y坐标
+   * @param scrollAreaHeight 滚动区域高度
    */
-  private addScrolling(contentHeight: number): void {
+  private addScrolling(contentHeight: number, scrollAreaY: number, scrollAreaHeight: number): void {
+    // 添加调试信息
+    console.log(`[DEBUG] 滚动区域: Y=${scrollAreaY}, 高度=${scrollAreaHeight}`);
+    console.log(`[DEBUG] 内容高度: ${contentHeight}`);
+
+    // 添加滚动指示器
+    const scrollIndicator = this.add.text(
+      this.cameras.main.width - 20,
+      scrollAreaY + 20,
+      '↕️',
+      {
+        fontSize: '24px',
+        fontFamily: 'Arial',
+        color: '#ffffff'
+      }
+    );
+    scrollIndicator.setOrigin(0.5, 0.5);
+    scrollIndicator.setDepth(DepthLayers.UI_FOREGROUND); // 设置深度为UI前景层，确保在其他UI元素之上，确保在其他UI元素之上
+
+    // 添加滚动事件监听
     this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: any, deltaY: any, _deltaZ: any) => {
+      // 添加调试信息
+      console.log(`[DEBUG] 滚动: deltaY=${deltaY}, 当前Y=${this.scrollView.y}`);
+
       if (deltaY > 0) {
         // 向下滚动
-        this.scrollView.y -= 20;
+        this.scrollView.y -= 30; // 增加滚动速度
       } else {
         // 向上滚动
-        this.scrollView.y += 20;
+        this.scrollView.y += 30; // 增加滚动速度
       }
 
-      // 限制滚动范围
+      // 限制滚动范围 - 确保内容不会滚动出滚动区域
+      const minY = scrollAreaY - Math.max(0, contentHeight - scrollAreaHeight); // 最小Y值（内容底部对齐滚动区域底部）
+      const maxY = scrollAreaY; // 最大Y值（内容顶部对齐滚动区域顶部）
+
+      // 添加调试信息
+      console.log(`[DEBUG] 滚动范围: ${minY} ~ ${maxY}`);
+
       this.scrollView.y = Phaser.Math.Clamp(
         this.scrollView.y,
-        -(contentHeight - this.cameras.main.height + 100),
-        0
+        minY,
+        maxY
       );
+
+      // 更新滚动指示器颜色
+      if (this.scrollView.y <= minY) {
+        scrollIndicator.setColor('#ff0000'); // 红色表示已到底部
+      } else if (this.scrollView.y >= maxY) {
+        scrollIndicator.setColor('#00ff00'); // 绿色表示已到顶部
+      } else {
+        scrollIndicator.setColor('#ffffff'); // 白色表示中间位置
+      }
     });
   }
 

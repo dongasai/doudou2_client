@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { LevelConfig } from '@/DesignConfig/Level';
+import { DepthLayers } from '@/Constants/DepthLayers';
 
 /**
  * 关卡详情面板组件
@@ -35,6 +36,9 @@ export class LevelDetailsPanel extends Phaser.GameObjects.Container {
 
     // 设置面板名称，方便后续查找
     this.setName('levelDetailsPanel');
+
+    // 设置深度层级，确保显示在所有其他UI元素之上
+    this.setDepth(DepthLayers.SYSTEM_POPUP);
 
     // 将容器添加到场景
     scene.add.existing(this);

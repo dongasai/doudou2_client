@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { LevelButton } from './LevelButton';
 import { LevelConfig } from '@/DesignConfig/Level';
 import { Chapter } from '@/DesignConfig/Chapter';
+import { DepthLayers } from '@/Constants/DepthLayers';
 
 /**
  * 章节面板组件
@@ -51,32 +52,60 @@ export class ChapterPanel extends Phaser.GameObjects.Container {
   private createChapterUI(): void {
     const padding = 20;
 
-    // 创建章节标题背景
+    // 添加调试边框，帮助我们确认章节面板的位置和大小
+    const debugBorder = this.scene.add.rectangle(
+      0,
+      0,
+      this.scrollAreaWidth,
+      this.getHeight(),
+      0x0000ff,
+      0.1
+    );
+    debugBorder.setStrokeStyle(2, 0x0000ff, 0.5);
+    debugBorder.setDepth(1); // 设置相对深度为1，确保在章节面板的最底层
+    this.add(debugBorder);
+
+    // 创建章节标题背景 - 使用更明显的颜色
     const chapterTitleBg = this.scene.add.rectangle(
       0,
       0,
       this.scrollAreaWidth - 40,
-      40,
-      0x222222,
-      0.8
+      50, // 增加高度
+      0x0066cc, // 蓝色背景
+      1.0 // 完全不透明
     );
-    chapterTitleBg.setStrokeStyle(1, 0x444444, 0.8);
+    chapterTitleBg.setStrokeStyle(3, 0xffffff, 1.0); // 白色边框
+    chapterTitleBg.setDepth(2); // 设置相对深度为2，确保在调试边框之上
     this.add(chapterTitleBg);
 
-    // 创建章节标题
+    // 设置章节面板的深度
+    this.setDepth(DepthLayers.UI_PANEL); // 设置深度为UI面板层
+
+    // 添加闪烁动画，使章节标题更加明显
+    this.scene.tweens.add({
+      targets: chapterTitleBg,
+      alpha: 0.8,
+      duration: 1000,
+      yoyo: true,
+      repeat: -1
+    });
+
+    // 创建章节标题 - 使用更明显的颜色和描边
     const chapterTitle = this.scene.add.text(
       0,
       0,
-      `${this.chapter.name}`,
+      `${this.chapter.name} (ID: ${this.chapter.id})`, // 添加ID以便调试
       {
-        fontSize: '24px',
+        fontSize: '28px', // 增大字体
         fontFamily: 'Arial',
-        color: '#ffffff',
+        color: '#ffffff', // 白色文本
         stroke: '#000000',
-        strokeThickness: 2
+        strokeThickness: 4, // 增加描边厚度
+        shadow: { color: '#000000', fill: true, offsetX: 2, offsetY: 2, blur: 4 } // 添加阴影
       }
     );
     chapterTitle.setOrigin(0.5, 0.5);
+    chapterTitle.setDepth(3); // 设置相对深度为3，确保在标题背景之上
     this.add(chapterTitle);
 
     // 获取该章节的关卡
@@ -112,15 +141,21 @@ export class ChapterPanel extends Phaser.GameObjects.Container {
     const buttonWidth = (availableWidth - buttonSpacingX) / buttonsPerRow;
     const buttonHeight = 120;
 
+    // 添加调试信息
+    console.log(`[DEBUG] 章节 ${this.chapter.id} 关卡数量: ${chapterLevels.length}`);
+    console.log(`[DEBUG] 按钮尺寸: ${buttonWidth}x${buttonHeight}`);
+
     for (let i = 0; i < chapterLevels.length; i++) {
       const level = chapterLevels[i];
       const row = Math.floor(i / buttonsPerRow);
       const col = i % buttonsPerRow;
 
-      // 计算按钮位置
-      const startX = (this.scrollAreaWidth - (buttonsPerRow * buttonWidth + (buttonsPerRow - 1) * buttonSpacingX)) / 2 - this.scrollAreaWidth / 2;
-      const x = startX + col * (buttonWidth + buttonSpacingX) + buttonWidth / 2;
+      // 简化按钮位置计算
+      const buttonGap = buttonWidth + buttonSpacingX;
+      const x = col === 0 ? -buttonGap/2 : buttonGap/2;
       const y = 70 + row * (buttonHeight + buttonSpacingY);
+
+      console.log(`[DEBUG] 按钮 ${i} 位置: (${x}, ${y})`);
 
       // 创建关卡按钮
       const levelButton = new LevelButton(
@@ -134,6 +169,20 @@ export class ChapterPanel extends Phaser.GameObjects.Container {
       );
 
       this.add(levelButton);
+
+      // 添加调试文本，显示按钮索引
+      const debugText = this.scene.add.text(
+        x,
+        y - buttonHeight/2 - 10,
+        `按钮 ${i}`,
+        {
+          fontSize: '12px',
+          fontFamily: 'Arial',
+          color: '#ffff00'
+        }
+      );
+      debugText.setOrigin(0.5, 0.5);
+      this.add(debugText);
     }
   }
 
@@ -152,12 +201,12 @@ export class ChapterPanel extends Phaser.GameObjects.Container {
     const buttonHeight = 120;
     const buttonSpacingY = 30;
     const rowCount = Math.ceil(chapterLevels.length / buttonsPerRow);
-    
+
     // 如果没有关卡，返回基础高度
     if (chapterLevels.length === 0) {
       return 100; // 标题高度 + 提示文本高度
     }
-    
+
     // 返回章节总高度
     return 70 + rowCount * (buttonHeight + buttonSpacingY);
   }
