@@ -820,6 +820,26 @@ export class UIManager {
   }
 
   /**
+   * 获取所有技能UI组件
+   * @returns 技能UI组件数组
+   */
+  public getAllSkillUIComponents(): SkillUIComponent[] {
+    try {
+      const components: SkillUIComponent[] = [];
+
+      // 将Map转换为数组
+      for (const skillUI of this.skillUIComponents.values()) {
+        components.push(skillUI);
+      }
+
+      return components;
+    } catch (error) {
+      console.error('[ERROR] 获取技能UI组件失败:', error);
+      return [];
+    }
+  }
+
+  /**
    * 获取所有UI元素
    * @returns UI元素数组
    */

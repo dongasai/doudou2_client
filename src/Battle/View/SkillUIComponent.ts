@@ -169,33 +169,45 @@ export class SkillUIComponent {
 
   /**
    * 设置交互
+   * 针对触摸设备优化的交互方式
    */
   private setupInteractions(): void {
-    // 鼠标悬停
-    this.background.on('pointerover', () => {
-      if (this.isAvailable) {
-        // Arc对象没有setTint方法，使用fillColor代替
-        this.background.fillColor = 0xaaaaaa;
-      }
-      this.tooltip.setVisible(true);
-    });
-
-    // 鼠标离开
-    this.background.on('pointerout', () => {
-      if (this.isAvailable) {
-        // Arc对象没有clearTint方法，使用fillColor代替
-        this.background.fillColor = 0x333333;
-      }
-      this.tooltip.setVisible(false);
-    });
-
-    // 鼠标按下
+    // 触摸按下事件
     this.background.on('pointerdown', () => {
       if (this.isAvailable) {
-        this.setSelected(true);
+        // 切换选中状态
+        const newSelectedState = !this.isSelected;
+        this.setSelected(newSelectedState);
 
-        // 触发技能选择事件
-        this.scene.events.emit('skillSelected', this.skillId);
+        // 切换提示框显示状态
+        this.tooltip.setVisible(newSelectedState);
+
+        // 高亮效果
+        if (newSelectedState) {
+          this.background.fillColor = 0xaaaaaa;
+
+          // 触发技能选择事件
+          this.scene.events.emit('skillSelected', this.skillId);
+        } else {
+          // 恢复正常外观
+          this.background.fillColor = 0x333333;
+          if (this.uiConfig.borderColor) {
+            const color = Phaser.Display.Color.HexStringToColor(this.uiConfig.borderColor).color;
+            this.background.fillColor = color;
+          }
+
+          // 触发技能取消选择事件
+          this.scene.events.emit('skillDeselected', this.skillId);
+        }
+      }
+    });
+
+    // 监听技能取消选择事件，用于在选择其他技能时取消当前技能的选择
+    this.scene.events.on('skillDeselected', (deselectedSkillId: string) => {
+      // 如果不是当前技能被取消选择，但当前技能处于选中状态，则取消选中
+      if (deselectedSkillId !== this.skillId && this.isSelected) {
+        this.setSelected(false);
+        this.tooltip.setVisible(false);
       }
     });
   }
@@ -391,6 +403,14 @@ export class SkillUIComponent {
    */
   public getContainer(): Phaser.GameObjects.Container {
     return this.container;
+  }
+
+  /**
+   * 获取提示框
+   * @returns 提示框容器
+   */
+  public getTooltip(): Phaser.GameObjects.Container {
+    return this.tooltip;
   }
 
   /**

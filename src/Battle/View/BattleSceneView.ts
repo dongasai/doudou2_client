@@ -116,6 +116,10 @@ export class BattleSceneView {
       console.log('[INFO] 触发初始化事件...');
       this.triggerInitialEvents();
 
+      // 确保所有技能按钮的提示框都是隐藏的
+      console.log('[INFO] 确保技能提示框隐藏...');
+      this.ensureSkillTooltipsHidden();
+
       console.log('[INFO] BattleSceneView初始化完成');
     } catch (error) {
       console.error('[ERROR] BattleSceneView初始化失败:', error);
@@ -496,6 +500,43 @@ export class BattleSceneView {
 
     // 开始轮询
     pollForUIElements();
+  }
+
+  /**
+   * 确保所有技能按钮的提示框都是隐藏的
+   * 这个方法用于初始化时确保没有技能提示框被错误地显示
+   */
+  private ensureSkillTooltipsHidden(): void {
+    try {
+      // 获取所有技能UI组件
+      const skillUIComponents = this.uiManager.getAllSkillUIComponents();
+
+      if (!skillUIComponents || skillUIComponents.length === 0) {
+        console.log('[INFO] 没有找到技能UI组件');
+        return;
+      }
+
+      // 遍历所有技能UI组件，确保它们的提示框都是隐藏的
+      for (const skillUI of skillUIComponents) {
+        if (skillUI) {
+          // 设置为未选中状态
+          skillUI.setSelected(false);
+
+          // 确保提示框隐藏
+          const tooltip = skillUI.getTooltip();
+          if (tooltip) {
+            tooltip.setVisible(false);
+          }
+        }
+      }
+
+      // 触发技能取消选择事件，确保TouchController也重置状态
+      this.scene.events.emit('skillDeselected', '');
+
+      console.log('[INFO] 已确保所有技能提示框隐藏');
+    } catch (error) {
+      console.error('[ERROR] 确保技能提示框隐藏失败:', error);
+    }
   }
 
   /**

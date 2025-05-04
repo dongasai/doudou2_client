@@ -53,6 +53,9 @@ export class TouchController {
     // 监听技能选择事件
     this.scene.events.on('skillSelected', this.onSkillSelected, this);
 
+    // 监听技能取消选择事件
+    this.scene.events.on('skillDeselected', this.onSkillDeselected, this);
+
     // 设置触摸输入
     this.scene.input.on('pointerdown', this.onPointerDown, this);
     this.scene.input.on('pointermove', this.onPointerMove, this);
@@ -64,10 +67,27 @@ export class TouchController {
    * @param skillId 技能ID
    */
   private onSkillSelected(skillId: string): void {
+    // 如果已经选择了这个技能，则不做任何操作
+    // 因为取消选择的逻辑已经在SkillUIComponent中处理
+    if (this.selectedSkillId === skillId) {
+      return;
+    }
+
     this.selectedSkillId = skillId;
 
     // 显示范围指示器
     this.showRangeIndicator(skillId);
+  }
+
+  /**
+   * 技能取消选择事件处理
+   * @param skillId 技能ID
+   */
+  private onSkillDeselected(skillId: string): void {
+    // 如果当前选中的技能被取消选择，则重置状态
+    if (this.selectedSkillId === skillId) {
+      this.resetTouchState();
+    }
   }
 
   // 移动模式枚举
@@ -152,13 +172,13 @@ export class TouchController {
   private sendMoveCommand(start: Vector2D, end: Vector2D): void {
     // 转换为世界坐标
     const worldPos = this.screenToWorldPosition(end);
-    
+
     // 获取当前英雄ID
     const heroId = this.getCurrentHeroId();
-    
+
     // 计算有效位置索引（1-5）
     const positionIndex = this.calculatePositionIndex(worldPos);
-    
+
     // 创建移动指令
     const command: BattleCommand = {
       frame: 0, // 由战斗引擎设置
@@ -169,7 +189,7 @@ export class TouchController {
         newPos: positionIndex
       }
     };
-    
+
     // 发送指令
     this.battleEngine.sendCommand(command);
   }
@@ -183,7 +203,7 @@ export class TouchController {
     const angle = Math.atan2(position.y - 1500, position.x - 1500);
     const normalizedAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
     const rawIndex = Math.floor(normalizedAngle / (2 * Math.PI / 5)) + 1;
-    
+
     // 确保索引在1-5范围内
     return Math.max(1, Math.min(5, rawIndex));
   }
@@ -486,6 +506,7 @@ export class TouchController {
   public destroy(): void {
     // 移除事件监听
     this.scene.events.off('skillSelected', this.onSkillSelected, this);
+    this.scene.events.off('skillDeselected', this.onSkillDeselected, this);
     this.scene.input.off('pointerdown', this.onPointerDown, this);
     this.scene.input.off('pointermove', this.onPointerMove, this);
     this.scene.input.off('pointerup', this.onPointerUp, this);
