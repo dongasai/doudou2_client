@@ -255,12 +255,12 @@ export class ConfigManager {
         // 尝试加载豆豆配置（单一文件）
         const beansData = await this.loadJsonFileWithXHR(`/DesignConfig/beans.json`);
 
-        if (beansData && Array.isArray(beansData)) {
-          this.beansConfig = beansData;
-          console.log(`[INFO] 豆豆配置加载完成，共加载 ${beansData.length} 个豆豆配置`);
+        if (beansData && beansData.beans && Array.isArray(beansData.beans)) {
+          this.beansConfig = beansData.beans;
+          console.log(`[INFO] 豆豆配置加载完成，共加载 ${beansData.beans.length} 个豆豆配置`);
           return;
         } else {
-          console.error(`[ERROR] 豆豆配置格式不正确，应为数组`);
+          console.error(`[ERROR] 豆豆配置格式不正确，应包含beans数组`);
         }
       } catch (error) {
         console.error(`[ERROR] 加载豆豆配置失败:`, error);
