@@ -15,7 +15,6 @@ export class EntityRenderer {
 
   // 实体显示对象
   private entitySprites: Map<string, Phaser.GameObjects.Sprite>;
-  private entityHealthBars: Map<string, Phaser.GameObjects.Graphics>;
 
   // 伤害数字组
   private damageTexts: Phaser.GameObjects.Group;
@@ -31,7 +30,6 @@ export class EntityRenderer {
 
     // 初始化实体显示对象
     this.entitySprites = new Map();
-    this.entityHealthBars = new Map();
 
     // 创建伤害数字组
     this.damageTexts = scene.add.group();
@@ -122,19 +120,12 @@ export class EntityRenderer {
       this.entitySprites.set(entityId, sprite as any);
       console.log('[INFO] 实体添加到映射:', entityId);
 
-      // 创建生命值条
-      const healthBar = this.scene.add.graphics();
-      healthBar.setDepth(DepthLayers.WORLD_ENTITY + 1); // 设置比实体略高的深度，确保显示在实体上方
-      this.entityHealthBars.set(entityId, healthBar);
-
       // 确保stats数据存在
       if (!event.stats) {
         event.stats = { hp: 100, maxHp: 100 };
       }
 
-      // 更新生命值条
-      this.updateHealthBar(entityId, event.stats.hp, event.stats.maxHp);
-      console.log('[INFO] 生命值条更新完成:', entityId);
+      console.log('[INFO] 实体创建完成:', entityId);
 
     } catch (error) {
       console.error('[ERROR] 创建实体出错:', error);
@@ -172,82 +163,9 @@ export class EntityRenderer {
       sprite.y = screenPos.y;
     }
 
-    // 更新生命值条位置
-    const healthBar = this.entityHealthBars.get(entityId);
-    if (healthBar) {
-      healthBar.x = sprite.x;
-      healthBar.y = sprite.y;
-    }
+    // 不再更新生命值条位置
   }
 
-  /**
-   * 更新生命值条
-   * @param entityId 实体ID
-   * @param currentHp 当前生命值
-   * @param maxHp 最大生命值
-   */
-  public updateHealthBar(entityId: string, currentHp: number, maxHp: number): void {
-    // 检查参数有效性
-    if (currentHp === undefined || isNaN(currentHp)) {
-      currentHp = 100;
-    }
-
-    if (maxHp === undefined || isNaN(maxHp) || maxHp <= 0) {
-      maxHp = 100;
-    }
-
-    // 获取屏幕尺寸
-    const screenWidth = this.scene.cameras.main.width;
-
-    // 获取生命值条
-    const healthBar = this.entityHealthBars.get(entityId);
-    if (!healthBar) {
-      return;
-    }
-
-    // 获取实体精灵
-    const sprite = this.entitySprites.get(entityId);
-    if (!sprite) {
-      return;
-    }
-
-    // 计算生命值比例
-    const ratio = Math.max(0, Math.min(1, currentHp / maxHp));
-
-    // 计算生命值条尺寸 (根据屏幕宽度和实体类型调整)
-    let barWidth, barHeight, barOffsetY;
-
-    // 根据实体类型调整生命值条尺寸
-    if (entityId.startsWith('hero_') || entityId.startsWith('crystal_')) {
-      // 英雄和水晶使用较大的生命值条
-      barWidth = Math.min(50, Math.max(30, screenWidth * 0.1)); // 宽度
-      barHeight = Math.min(8, Math.max(4, screenWidth * 0.015)); // 高度
-      barOffsetY = Math.min(40, Math.max(25, screenWidth * 0.08)); // 上方偏移
-    } else {
-      // 豆豆使用较小的生命值条
-      barWidth = Math.min(40, Math.max(20, screenWidth * 0.08)); // 宽度
-      barHeight = Math.min(6, Math.max(3, screenWidth * 0.01)); // 高度
-      barOffsetY = Math.min(30, Math.max(20, screenWidth * 0.06)); // 上方偏移
-    }
-
-    // 计算生命值条位置
-    const barX = -barWidth / 2; // 水平居中
-
-    // 更新生命值条
-    healthBar.clear();
-
-    // 绘制背景 (半透明黑色矩形)
-    healthBar.fillStyle(0x000000, 0.5);
-    healthBar.fillRect(barX, -barOffsetY, barWidth, barHeight);
-
-    // 绘制生命值 (绿色矩形，宽度根据生命值比例变化)
-    healthBar.fillStyle(0x00ff00);
-    healthBar.fillRect(barX, -barOffsetY, barWidth * ratio, barHeight);
-
-    // 设置位置 (跟随实体精灵)
-    healthBar.x = sprite.x;
-    healthBar.y = sprite.y;
-  }
 
   /**
    * 显示伤害数字
@@ -325,12 +243,7 @@ export class EntityRenderer {
         sprite.destroy();
         this.entitySprites.delete(entityId);
 
-        // 移除生命值条
-        const healthBar = this.entityHealthBars.get(entityId);
-        if (healthBar) {
-          healthBar.destroy();
-          this.entityHealthBars.delete(entityId);
-        }
+        // 不再处理生命值条
       }
     });
   }
@@ -362,12 +275,6 @@ export class EntityRenderer {
       sprite.destroy();
     }
     this.entitySprites.clear();
-
-    // 销毁所有生命值条
-    for (const healthBar of this.entityHealthBars.values()) {
-      healthBar.destroy();
-    }
-    this.entityHealthBars.clear();
 
     // 清除所有伤害数字
     this.damageTexts.clear(true, true);

@@ -339,9 +339,6 @@ export class BattleSceneView {
             // 更新位置
             this.entityRenderer.updateEntityPosition(hero.id, hero.position, false);
 
-            // 更新生命值条
-            this.entityRenderer.updateHealthBar(hero.id, hero.hp, hero.maxHp);
-
             // 聚焦摄像机到英雄
             this.cameraController.focusOnPosition(hero.position);
           } else if (hero.id) {
@@ -385,8 +382,6 @@ export class BattleSceneView {
 
         const sprite = this.entityRenderer.getEntitySprite('crystal_1');
         if (sprite) {
-          // 更新生命值条
-          this.entityRenderer.updateHealthBar('crystal_1', hp, maxHp);
         } else {
           // 如果水晶精灵不存在但有水晶状态，尝试创建
           console.log('[INFO] 水晶状态存在但精灵不存在，尝试创建');
@@ -412,8 +407,6 @@ export class BattleSceneView {
               // 更新位置
               this.entityRenderer.updateEntityPosition(bean.id, bean.position, false);
 
-              // 更新生命值条
-              this.entityRenderer.updateHealthBar(bean.id, bean.hp, bean.maxHp);
             } else {
               // 如果豆豆精灵不存在但有豆豆状态，尝试创建
               console.log('[INFO] 豆豆状态存在但精灵不存在，尝试创建:', bean.id);
