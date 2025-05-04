@@ -27,7 +27,7 @@ const battleConfig = {
       { type: "毒豆", weight: 1 }
     ]
   },
-  
+
   // 英雄配置
   hero: {
     id: 1,
@@ -71,7 +71,7 @@ const battleConfig = {
       }
     ]
   },
-  
+
   // 豆豆配置
   beans: {
     "普通豆": {
@@ -93,7 +93,7 @@ const battleConfig = {
       poisonDuration: 4000
     }
   },
-  
+
   // 水晶配置
   crystal: {
     hp: 1000,
@@ -138,21 +138,21 @@ function createEntities() {
     })),
     alive: true
   };
-  
+
   // 创建水晶
   battleState.entities.crystal = {
     id: 'crystal_1',
     type: 'crystal',
     name: '水晶',
     position: { x: 1500, y: 1500 },
-    stats: { 
+    stats: {
       hp: battleConfig.crystal.hp,
       currentHp: battleConfig.crystal.hp,
       defense: battleConfig.crystal.defense
     },
     alive: true
   };
-  
+
   console.log(`创建英雄: ${battleState.entities.hero.name}`);
   console.log(`创建水晶: HP=${battleState.entities.crystal.stats.currentHp}`);
 }
@@ -162,12 +162,12 @@ function spawnBean() {
   if (battleState.stats.beansSpawned >= battleConfig.stage.totalBeans) {
     return null;
   }
-  
+
   // 根据权重随机选择豆豆类型
   const totalWeight = battleConfig.stage.beanRatios.reduce((sum, ratio) => sum + ratio.weight, 0);
   let random = Math.random() * totalWeight;
   let selectedType = battleConfig.stage.beanRatios[0].type;
-  
+
   for (const ratio of battleConfig.stage.beanRatios) {
     random -= ratio.weight;
     if (random <= 0) {
@@ -175,18 +175,18 @@ function spawnBean() {
       break;
     }
   }
-  
+
   // 获取豆豆配置
   const beanConfig = battleConfig.beans[selectedType];
-  
+
   // 随机生成位置（在水晶周围的圆环上）
   const angle = Math.random() * Math.PI * 2;
-  const distance = 250; // 生成距离
+  const distance = 800; // 生成距离，增加到800，确保豆豆生成在离水晶足够远的位置
   const position = {
     x: 1500 + Math.cos(angle) * distance,
     y: 1500 + Math.sin(angle) * distance
   };
-  
+
   // 创建豆豆
   const bean = {
     id: `bean_${battleState.stats.beansSpawned + 1}`,
@@ -199,16 +199,16 @@ function spawnBean() {
     lastAttackTime: 0,
     alive: true
   };
-  
+
   // 添加到豆豆列表
   battleState.entities.beans.push(bean);
   battleState.stats.beansSpawned++;
-  
+
   console.log(`生成豆豆: ${bean.name}, ID=${bean.id}, 位置=(${position.x.toFixed(0)}, ${position.y.toFixed(0)})`);
-  
+
   // 触发豆豆生成事件
   eventEmitter.emit('beanSpawned', bean);
-  
+
   return bean;
 }
 
@@ -224,7 +224,7 @@ function updatePositions(deltaTime) {
   // 更新豆豆位置
   for (const bean of battleState.entities.beans) {
     if (!bean.alive) continue;
-    
+
     // 获取目标
     let target = null;
     if (bean.target === 'crystal_1') {
@@ -232,24 +232,24 @@ function updatePositions(deltaTime) {
     } else if (bean.target.startsWith('hero_')) {
       target = battleState.entities.hero;
     }
-    
+
     if (!target || !target.alive) continue;
-    
+
     // 计算方向
     const dx = target.position.x - bean.position.x;
     const dy = target.position.y - bean.position.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    
+
     // 如果已经到达攻击范围，停止移动
     if (dist <= bean.stats.attackRange) {
       continue;
     }
-    
+
     // 移动豆豆
     const speed = bean.stats.speed * (deltaTime / 1000);
     bean.position.x += (dx / dist) * speed;
     bean.position.y += (dy / dist) * speed;
-    
+
     // 触发豆豆移动事件
     eventEmitter.emit('beanMoved', {
       id: bean.id,
@@ -263,7 +263,7 @@ function processAttacks(currentTime) {
   // 豆豆攻击
   for (const bean of battleState.entities.beans) {
     if (!bean.alive) continue;
-    
+
     // 获取目标
     let target = null;
     if (bean.target === 'crystal_1') {
@@ -271,19 +271,19 @@ function processAttacks(currentTime) {
     } else if (bean.target.startsWith('hero_')) {
       target = battleState.entities.hero;
     }
-    
+
     if (!target || !target.alive) continue;
-    
+
     // 检查是否在攻击范围内
     const dist = distance(bean.position, target.position);
     if (dist > bean.stats.attackRange) continue;
-    
+
     // 检查攻击冷却
     if (currentTime - bean.lastAttackTime < bean.stats.attackInterval) continue;
-    
+
     // 执行攻击
     bean.lastAttackTime = currentTime;
-    
+
     // 计算伤害
     let damage = bean.stats.attack;
     if (target.stats.defense) {
@@ -291,13 +291,13 @@ function processAttacks(currentTime) {
       const reduction = target.stats.defense / (target.stats.defense + 100);
       damage = Math.max(1, Math.floor(damage * (1 - reduction)));
     }
-    
+
     // 应用伤害
     target.stats.currentHp = Math.max(0, target.stats.currentHp - damage);
     battleState.stats.damageTaken += damage;
-    
+
     console.log(`${bean.name}攻击${target.name}，造成${damage}点伤害，目标剩余HP: ${target.stats.currentHp}`);
-    
+
     // 触发伤害事件
     eventEmitter.emit('damageDealt', {
       source: bean,
@@ -305,16 +305,16 @@ function processAttacks(currentTime) {
       damage: damage,
       type: 'physical'
     });
-    
+
     // 检查目标是否死亡
     if (target.stats.currentHp <= 0) {
       target.alive = false;
-      
+
       if (target.type === 'crystal') {
         console.log(`水晶被摧毁！`);
         battleState.status = 'completed';
         battleState.result = 'defeat';
-        
+
         // 触发游戏结束事件
         eventEmitter.emit('gameOver', {
           result: 'defeat',
@@ -322,7 +322,7 @@ function processAttacks(currentTime) {
         });
       } else if (target.type === 'hero') {
         console.log(`英雄${target.name}阵亡！`);
-        
+
         // 触发英雄死亡事件
         eventEmitter.emit('heroDied', {
           id: target.id,
@@ -330,11 +330,11 @@ function processAttacks(currentTime) {
         });
       }
     }
-    
+
     // 特殊效果（如毒豆的毒素效果）
     if (bean.beanType === '毒豆' && target.alive) {
       console.log(`${target.name}被毒豆毒素影响，将在接下来的${bean.stats.poisonDuration / 1000}秒内每秒受到${bean.stats.poisonDamage}点伤害`);
-      
+
       // 这里简化处理，实际应该添加一个持续效果
     }
   }
@@ -344,11 +344,11 @@ function processAttacks(currentTime) {
 function processSkillCast(currentTime) {
   // 检查是否有技能释放指令
   const skillCommands = battleState.commands.filter(cmd => cmd.type === 'castSkill' && !cmd.processed);
-  
+
   for (const command of skillCommands) {
     const hero = battleState.entities.hero;
     if (!hero || !hero.alive) continue;
-    
+
     // 查找技能
     const skill = hero.skills.find(s => s.id === command.data.skillId);
     if (!skill) {
@@ -356,20 +356,20 @@ function processSkillCast(currentTime) {
       command.processed = true;
       continue;
     }
-    
+
     // 检查冷却
     if (currentTime - skill.lastCastTime < skill.cooldown) {
       console.log(`技能${skill.name}冷却中，剩余${((skill.lastCastTime + skill.cooldown) - currentTime) / 1000}秒`);
       continue;
     }
-    
+
     // 检查魔法值
     if (hero.stats.mp < skill.cost) {
       console.log(`魔法值不足，无法释放${skill.name}，需要${skill.cost}点魔法值`);
       command.processed = true;
       continue;
     }
-    
+
     // 查找目标
     let targets = [];
     if (skill.targetType === 'single') {
@@ -385,28 +385,28 @@ function processSkillCast(currentTime) {
       const centerY = command.data.targetPos || 1500;
       const center = { x: centerX, y: centerY };
       const radius = 150; // 技能影响范围
-      
+
       // 查找范围内的所有豆豆
       targets = battleState.entities.beans.filter(bean => {
         if (!bean.alive) return false;
         return distance(bean.position, center) <= radius;
       });
     }
-    
+
     if (targets.length === 0) {
       console.log(`没有有效目标，无法释放${skill.name}`);
       command.processed = true;
       continue;
     }
-    
+
     // 消耗魔法值
     hero.stats.mp -= skill.cost;
-    
+
     // 更新冷却
     skill.lastCastTime = currentTime;
-    
+
     console.log(`英雄${hero.name}释放技能${skill.name}，目标数量: ${targets.length}`);
-    
+
     // 触发技能释放事件
     eventEmitter.emit('skillCast', {
       casterId: hero.id,
@@ -414,27 +414,27 @@ function processSkillCast(currentTime) {
       skillName: skill.name,
       targets: targets.map(t => t.id)
     });
-    
+
     // 应用技能效果
     for (const target of targets) {
       // 计算伤害
       let damage = skill.baseDamage;
-      
+
       // 考虑魔法攻击力加成
       damage += hero.stats.magicAttack * 0.5;
-      
+
       // 考虑目标魔法防御
       if (target.stats.magicDefense) {
         const reduction = target.stats.magicDefense / (target.stats.magicDefense + 100);
         damage = Math.max(1, Math.floor(damage * (1 - reduction)));
       }
-      
+
       // 应用伤害
       target.stats.currentHp = Math.max(0, target.stats.currentHp - damage);
       battleState.stats.damageDealt += damage;
-      
+
       console.log(`${target.name}受到${damage}点伤害，剩余HP: ${target.stats.currentHp}`);
-      
+
       // 触发技能命中事件
       eventEmitter.emit('skillHit', {
         skillId: skill.id,
@@ -442,14 +442,14 @@ function processSkillCast(currentTime) {
         targetId: target.id,
         damage: damage
       });
-      
+
       // 检查目标是否死亡
       if (target.stats.currentHp <= 0) {
         target.alive = false;
         battleState.stats.beansDefeated++;
-        
+
         console.log(`${target.name}被击败！`);
-        
+
         // 触发豆豆死亡事件
         eventEmitter.emit('beanDefeated', {
           id: target.id,
@@ -457,15 +457,15 @@ function processSkillCast(currentTime) {
           position: target.position
         });
       }
-      
+
       // 特殊效果（如火球术的灼烧效果）
       if (skill.id === 1 && target.alive) {
         console.log(`${target.name}被火球术灼烧，将在接下来的${skill.burnDuration / 1000}秒内每秒受到${skill.burnDamage}点伤害`);
-        
+
         // 这里简化处理，实际应该添加一个持续效果
       }
     }
-    
+
     // 标记指令为已处理
     command.processed = true;
   }
@@ -474,21 +474,21 @@ function processSkillCast(currentTime) {
 // 检查胜利条件
 function checkVictoryCondition() {
   // 检查是否所有豆豆都被击败
-  if (battleState.stats.beansDefeated >= battleConfig.stage.totalBeans && 
+  if (battleState.stats.beansDefeated >= battleConfig.stage.totalBeans &&
       battleState.stats.beansSpawned >= battleConfig.stage.totalBeans) {
     console.log(`所有豆豆都被击败了！`);
     battleState.status = 'completed';
     battleState.result = 'victory';
-    
+
     // 触发游戏结束事件
     eventEmitter.emit('gameOver', {
       result: 'victory',
       reason: '所有敌人都被击败'
     });
-    
+
     return true;
   }
-  
+
   return false;
 }
 
@@ -497,22 +497,22 @@ function updateBattle(deltaTime, currentTime) {
   // 更新帧号
   battleState.frame++;
   battleState.time += deltaTime;
-  
+
   // 生成豆豆
-  if (battleState.time % battleConfig.stage.spawnInterval < deltaTime && 
+  if (battleState.time % battleConfig.stage.spawnInterval < deltaTime &&
       battleState.stats.beansSpawned < battleConfig.stage.totalBeans) {
     spawnBean();
   }
-  
+
   // 更新位置
   updatePositions(deltaTime);
-  
+
   // 处理攻击
   processAttacks(currentTime);
-  
+
   // 处理技能释放
   processSkillCast(currentTime);
-  
+
   // 检查胜利条件
   checkVictoryCondition();
 }
@@ -524,7 +524,7 @@ function addCommand(command) {
     processed: false,
     timestamp: Date.now()
   });
-  
+
   console.log(`添加指令: ${command.type}, 数据:`, command.data);
 }
 
@@ -568,41 +568,41 @@ function startBattle() {
     console.log(`无法开始战斗，当前状态: ${battleState.status}`);
     return;
   }
-  
+
   // 创建实体
   createEntities();
-  
+
   // 更新状态
   battleState.status = 'running';
   battleState.time = 0;
   battleState.frame = 0;
-  
+
   console.log(`战斗开始！`);
-  
+
   // 触发战斗开始事件
   eventEmitter.emit('battleStart', {
     time: Date.now(),
     hero: battleState.entities.hero.name,
     stage: battleConfig.stage.name
   });
-  
+
   // 开始战斗循环
   let lastTime = Date.now();
   const frameInterval = 100; // 100ms per frame (10fps)
-  
+
   const battleLoop = setInterval(() => {
     const currentTime = Date.now();
     const deltaTime = currentTime - lastTime;
     lastTime = currentTime;
-    
+
     // 更新战斗状态
     updateBattle(deltaTime, currentTime);
-    
+
     // 检查战斗是否结束
     if (battleState.status === 'completed') {
       clearInterval(battleLoop);
       console.log(`战斗结束，结果: ${battleState.result}`);
-      
+
       // 输出战斗统计
       console.log(`战斗统计:`);
       console.log(`- 总帧数: ${battleState.frame}`);
@@ -611,12 +611,12 @@ function startBattle() {
       console.log(`- 击败豆豆数: ${battleState.stats.beansDefeated}`);
       console.log(`- 造成伤害: ${battleState.stats.damageDealt}`);
       console.log(`- 受到伤害: ${battleState.stats.damageTaken}`);
-      
+
       if (battleState.entities.hero && battleState.entities.hero.alive) {
         console.log(`- 英雄剩余HP: ${battleState.entities.hero.stats.currentHp}/${battleState.entities.hero.stats.hp}`);
         console.log(`- 英雄剩余MP: ${battleState.entities.hero.stats.mp}/${battleState.entities.hero.stats.mp}`);
       }
-      
+
       if (battleState.entities.crystal && battleState.entities.crystal.alive) {
         console.log(`- 水晶剩余HP: ${battleState.entities.crystal.stats.currentHp}/${battleState.entities.crystal.stats.hp}`);
       }

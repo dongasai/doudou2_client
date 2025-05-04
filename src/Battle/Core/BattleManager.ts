@@ -656,6 +656,9 @@ export class BattleManager {
     // 设置波次管理器的中心点
     this.waveManager.setCenterPosition({ x: 1500, y: 1500 });
 
+    // 设置豆豆生成范围，确保豆豆生成在离水晶足够远的位置
+    this.waveManager.setSpawnRange(800, 1200);
+
     logger.info(`创建水晶: HP=${maxHp}`);
 
     // 触发水晶创建事件

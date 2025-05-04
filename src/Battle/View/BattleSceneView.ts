@@ -282,8 +282,8 @@ export class BattleSceneView {
                   id: beanId,
                   entityType: 'bean',
                   position: {
-                    x: 1500 + Math.random() * 300 - 150,
-                    y: 1500 + Math.random() * 300 - 150
+                    x: 1500 + Math.cos(Math.random() * Math.PI * 2) * 800,
+                    y: 1500 + Math.sin(Math.random() * Math.PI * 2) * 800
                   },
                   stats: {
                     hp: 50,
