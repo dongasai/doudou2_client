@@ -124,7 +124,7 @@ export class WaveManager {
     this.eventManager.on('entityDeath', (event:EntityDeathEventData) => {
       // @ts-ignore
       if (event.entity.getType() === EntityType.BEAN) {
-        this.onEnemyDefeated(event.entity.getId());
+        this.onEnemyDefeated(event.entity.id);
       }
     });
 

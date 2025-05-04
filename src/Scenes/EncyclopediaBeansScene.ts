@@ -2,8 +2,9 @@ import Phaser from 'phaser';
 import { ConfigManager } from '@/Managers/ConfigManager';
 import { BeanTypePanel } from '@/UI/Encyclopedia/BeanTypePanel';
 import { BeanDetailsPanel } from '@/UI/Encyclopedia/BeanDetailsPanel';
-import { Bean } from '@/DesignConfig/GameBean';
+
 import { DepthLayers } from '@/Constants/DepthLayers';
+import {CharacterBean} from "@/DesignConfig";
 
 /**
  * 百科视图场景 - 豆豆页面
@@ -232,7 +233,7 @@ export class EncyclopediaBeansScene extends Phaser.Scene {
    * 创建滚动区域
    * @param beans 豆豆数据
    */
-  private createScrollArea(beans: Bean[]): void {
+  private createScrollArea(beans: CharacterBean[]): void {
     // 计算滚动区域大小
     const padding = 20;
     const scrollAreaWidth = this.cameras.main.width - (padding * 2);
@@ -391,7 +392,7 @@ export class EncyclopediaBeansScene extends Phaser.Scene {
    * 显示豆豆详情
    * @param bean 豆豆配置
    */
-  private showBeanDetails(bean: Bean): void {
+  private showBeanDetails(bean: CharacterBean): void {
     try {
       // 清除之前的详情面板
       const existingPanel = this.children.getByName('beanDetailsPanel');

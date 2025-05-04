@@ -58,7 +58,7 @@ export class BattleSceneView {
   private boundEventHandlers: Map<string, EventHandler<any>> = new Map();
 
   // UI容器，用于存放所有UI元素
-  private uiContainer: Phaser.GameObjects.Container;
+  private uiContainer: Phaser.GameObjects.Container ;
 
   /**
    * 构造函数

@@ -2,7 +2,6 @@ import { LevelConfig } from '@/DesignConfig/Level';
 import { Hero } from '@/DesignConfig/GameHero';
 import { CharacterBean } from '@/DesignConfig/CharacterBean';
 import { Chapter } from '@/DesignConfig/Chapter';
-import {Bean} from "@/DesignConfig/GameBean";
 
 
 
@@ -18,7 +17,7 @@ export class ConfigManager {
   private chaptersConfig: Chapter[] = [];
   private levelsConfig: LevelConfig[] = [];
   private heroesConfig: Hero[] = [];
-  private beansConfig: Bean[] = [];
+  private beansConfig: CharacterBean[] = [];
 
   /**
    * 私有构造函数，防止外部直接创建实例
@@ -330,12 +329,11 @@ export class ConfigManager {
    * 根据ID获取豆豆配置
    * @param id 豆豆ID
    */
-  public getBeanConfigById(id: number): Bean  {
-    let  b= this.beansConfig.find(bean => bean.id === id);
+  public getBeanConfigById(id: number): CharacterBean  {
+    let b = this.beansConfig.find(bean => bean.id === id);
     if(b){
       return b;
     }
     throw new Error('[getBeanConfigById] <id> not found');
-
   }
 }

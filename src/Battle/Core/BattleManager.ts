@@ -11,7 +11,7 @@ import { DamageManager } from './DamageManager';
 import { SkillManager } from './SkillManager'; // 使用兼容层
 import { WaveManager } from './WaveManager';
 import { RandomManager } from './RandomManager';
-import { BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '../../DesignConfig/BattleCommand';
+import { BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '@/DesignConfig';
 import { BattleInitParams } from '@/DesignConfig';
 import { BattleReplayData } from '@/DesignConfig';
 import { Entity, EntityType, EntityStats } from '../Entities/Entity';
@@ -35,8 +35,8 @@ import {
   WaveCompletedEventData,
   AllWavesCompletedEventData
 } from '../Types/EventData';
-import { EventType } from '../../Event/EventTypes';
-import { BattleParamsService } from '../../services/BattleParamsService';
+import { EventType } from '@/Event/EventTypes';
+import { BattleParamsService } from '@/services/BattleParamsService';
 
 // 战斗状态枚举
 export enum BattleState {

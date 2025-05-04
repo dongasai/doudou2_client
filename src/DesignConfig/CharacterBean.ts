@@ -11,17 +11,19 @@ interface CharacterBean {
   id: number;
   /** 豆豆名称 - 显示在游戏中的名称 */
   name: string;
+  /** 豆豆图标 - 表情符号 */
+  emoji: string;
   /** 豆豆类型 - 近战/远程/防御/治疗等类型 */
   type: string;
-  /** 初始位置坐标 */
-  position: {
-    x: number;
-    y: number;
-  };
   /** 技能配置 - 包含豆豆的主动/被动技能 */
   skill: Skill;
   /** 基础属性 - 包含生命值/攻击力/防御力等战斗属性 */
   stats: BaseStats;
+  /** 初始位置坐标（可选） */
+  position?: {
+    x: number;
+    y: number;
+  };
 }
 
 export type { CharacterBean };

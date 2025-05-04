@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { CharacterBean } from '@/DesignConfig/CharacterBean';
 import { DepthLayers } from '@/Constants/DepthLayers';
 
+
 /**
  * 豆豆详情面板组件
  * 负责显示豆豆详情弹窗

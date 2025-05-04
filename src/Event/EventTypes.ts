@@ -30,6 +30,7 @@ import { MoveCommandEvent } from './v2b/MoveCommand';
 import { PlayerInputEvent } from './v2b/PlayerInput';
 import { SkillSelectedEvent } from './v2b/SkillSelected';
 import { TargetSelectedEvent } from './v2b/TargetSelected';
+import {EntityCreatedEvent} from "@/Event/b2v/EntityCreated";
 
 // 事件类型枚举
 export enum EventType {

@@ -6,7 +6,7 @@
 import { Vector2D } from './Vector2D';
 
 /**
- * 英雄统计数据
+ * 英雄状态数据
  */
 export interface HeroStats {
   /** 英雄ID */

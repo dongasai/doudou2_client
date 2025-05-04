@@ -104,6 +104,7 @@ export class TargetSelector {
               caster.getPosition(),
               target.getPosition()
             );
+            // @ts-ignore
             return distance <= skill.config.range;
           });
         }
@@ -127,6 +128,7 @@ export class TargetSelector {
               caster.getPosition(),
               target.getPosition()
             );
+            // @ts-ignore
             return distance <= skill.config.range;
           });
         }

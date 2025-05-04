@@ -6,7 +6,7 @@
  */
 
 import { logger } from './Logger';
-import { BattleCommand } from '../../DesignConfig/BattleCommand';
+import { BattleCommand } from '@/DesignConfig';
 
 // 帧率配置
 export const LOGIC_FRAME_RATE = 10; // 逻辑帧率（帧/秒）

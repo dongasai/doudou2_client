@@ -6,10 +6,10 @@
 import { BattleResult } from '../Core/BattleManager';
 import { EntityStats } from '../Entities/Entity';
 import { Vector2D } from './Vector2D';
-import { BattleInitParams } from '../../DesignConfig/BattleInitParams';
+import { BattleInitParams } from '@/DesignConfig';
 import { BeanState } from '../Entities/Bean';
 import { CrystalState } from '../Entities/Crystal';
-import { EffectType, ControlType } from '../../SkillKernel/type';
+import { EffectType, ControlType } from '@/SkillKernel/type';
 
 /**
  * 战斗开始事件数据

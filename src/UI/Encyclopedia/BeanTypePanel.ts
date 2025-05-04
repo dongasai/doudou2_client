@@ -3,6 +3,7 @@ import { BeanButton } from './BeanButton';
 import { CharacterBean } from '@/DesignConfig/CharacterBean';
 import { DepthLayers } from '@/Constants/DepthLayers';
 
+
 /**
  * 豆豆类型面板组件
  * 负责显示单个豆豆类型及其豆豆

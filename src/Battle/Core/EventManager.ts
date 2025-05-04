@@ -5,7 +5,7 @@
  */
 
 import { logger } from './Logger';
-import { EventType, EventDataMap } from '../../Event/EventTypes';
+import { EventType, EventDataMap } from '@/Event/EventTypes';
 
 // 事件处理函数类型
 export type EventHandler<T = any> = (event: T) => void;
