@@ -29,5 +29,6 @@
     },
     "background": "boss",
     "availableHeroSlots": 3,
+    "waveCount": 10,
     "isBossLevel": true
 }

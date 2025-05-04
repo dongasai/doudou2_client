@@ -829,54 +829,58 @@ export class BattleManager {
       return levelData.waves;
     }
 
-    // 否则，根据关卡数据生成波次配置
-    // 这里简化处理，将豆豆分成3波
+    // 获取波次数量，默认为3波，如果配置了waveCount则使用配置的值
+    const waveCount = levelData.waveCount || 3;
     const totalBeans = levelData.totalBeans || 30;
-    const beansPerWave = Math.ceil(totalBeans / 3);
 
-    // 创建波次配置
-    const waves = [
-      {
-        id: 'wave_1',
-        name: '第一波',
+    // 计算每波的豆豆数量
+    const beansPerWave = Math.ceil(totalBeans / waveCount);
+
+    // 创建波次配置数组
+    const waves = [];
+
+    // 生成每一波的配置
+    for (let i = 0; i < waveCount; i++) {
+      // 计算当前波次的豆豆数量
+      let currentWaveEnemies = beansPerWave;
+      if (i === waveCount - 1) {
+        // 最后一波调整数量，确保总数正确
+        currentWaveEnemies = totalBeans - beansPerWave * (waveCount - 1);
+      }
+
+      // 计算当前波次的生成间隔
+      // 波次越后，生成间隔越短（难度递增）
+      const intervalFactor = Math.max(0.5, 1 - (i * 0.05));
+      const spawnInterval = Math.max(500, Math.floor((levelData.spawnInterval || 1000) * intervalFactor));
+
+      // 创建波次配置
+      const wave: any = {
+        id: `wave_${i + 1}`,
+        name: `第${i + 1}波`,
         enemyTypes: levelData.beanRatios.map((ratio: any) => ({
           type: ratio.type,
           weight: ratio.weight
         })),
-        totalEnemies: beansPerWave,
-        spawnInterval: levelData.spawnInterval || 1000
-      },
-      {
-        id: 'wave_2',
-        name: '第二波',
-        enemyTypes: levelData.beanRatios.map((ratio: any) => ({
-          type: ratio.type,
-          weight: ratio.weight
-        })),
-        totalEnemies: beansPerWave,
-        spawnInterval: Math.max(800, (levelData.spawnInterval || 1000) * 0.8),
-        delay: 3000
-      },
-      {
-        id: 'wave_3',
-        name: '第三波',
-        enemyTypes: levelData.beanRatios.map((ratio: any) => ({
-          type: ratio.type,
-          weight: ratio.weight
-        })),
-        totalEnemies: totalBeans - beansPerWave * 2,
-        spawnInterval: Math.max(700, (levelData.spawnInterval || 1000) * 0.7),
-        delay: 3000,
-        specialEnemies: [
+        totalEnemies: currentWaveEnemies,
+        spawnInterval: spawnInterval,
+        delay: i === 0 ? 0 : 3000 // 第一波没有延迟，后续波次有3秒延迟
+      };
+
+      // 为最后一波添加特殊敌人
+      if (i === waveCount - 1) {
+        wave.specialEnemies = [
           {
             type: BeanType.ARMORED,
             count: 1,
             spawnTime: 10000
           }
-        ]
+        ];
       }
-    ];
 
+      waves.push(wave);
+    }
+
+    logger.info(`根据waveCount=${waveCount}生成了${waves.length}波配置`);
     return waves;
   }
 

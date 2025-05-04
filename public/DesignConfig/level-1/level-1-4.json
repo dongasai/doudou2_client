@@ -39,5 +39,6 @@
         "type": "crystalDestroyed"
     },
     "background": "snowfield",
-    "availableHeroSlots": 3
+    "availableHeroSlots": 3,
+    "waveCount": 10
 }
