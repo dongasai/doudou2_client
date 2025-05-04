@@ -220,11 +220,11 @@ export class UIManager {
       const fontSize = Math.min(24, Math.max(16, screenWidth * 0.05)); // 最小16px，最大24px
       console.log('[INFO] 波次指示器字体大小:', fontSize);
 
-      // 创建波次指示器 (位于屏幕右上角，距离右边缘120像素，距离上边缘10像素)
+      // 创建波次指示器 (位于屏幕右上角，距离右边缘60像素，距离上边缘10像素)
       this.waveIndicator = this.scene.add.text(
-        screenWidth - 120,         // X坐标：屏幕宽度减去120像素，为暂停按钮留出空间
-        10,                        // Y坐标：距离顶部10像素
-        'Wave: 1',
+        screenWidth - 140,         // X坐标：屏幕宽度减去60像素，进一步向左移动
+        10,                       // Y坐标：距离顶部10像素
+        'Wave:1',
         {
           fontSize: `${fontSize}px`,
           color: '#ffffff',        // 白色文本
@@ -234,8 +234,8 @@ export class UIManager {
       );
       this.waveIndicator.setOrigin(1, 0); // 设置原点为右上角，使文本右对齐
 
-      // 设置深度和可见性
-      this.waveIndicator.setDepth(DepthLayers.UI_ELEMENT);
+      // 设置深度和可见性（使用UI_FOREGROUND确保显示在暂停按钮上方）
+      this.waveIndicator.setDepth(DepthLayers.UI_FOREGROUND);
       this.waveIndicator.setVisible(true);
       this.waveIndicator.setAlpha(1);
 
@@ -594,7 +594,7 @@ export class UIManager {
    * @param waveNumber 波次编号
    */
   public updateWaveIndicator(waveNumber: number): void {
-    this.waveIndicator.setText(`Wave: ${waveNumber}`);
+    this.waveIndicator.setText(`Wave:${waveNumber}`);
   }
 
   /**
