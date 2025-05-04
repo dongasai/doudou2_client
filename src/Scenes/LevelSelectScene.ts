@@ -351,21 +351,22 @@ export class LevelSelectScene extends Phaser.Scene {
       // 如果关卡已解锁，添加交互功能
       if (isUnlocked) {
         buttonBackground.setInteractive({ useHandCursor: true });
-        buttonBackground.on('pointerdown', () => this.onLevelButtonClick(level));
 
-        // 鼠标悬停效果，考虑选中状态
-        buttonBackground.on('pointerover', () => {
-          // 如果不是当前选中的关卡，才改变颜色
+        // 为触摸设备优化的点击效果
+        buttonBackground.on('pointerdown', () => {
+          // 如果不是当前选中的关卡，提供视觉反馈
           if (!isSelected) {
+            // 点击时改变颜色
             buttonBackground.setFillStyle(0x6a8aaa, 0.8);
-          }
-        });
 
-        // 鼠标离开效果，考虑选中状态
-        buttonBackground.on('pointerout', () => {
-          // 如果不是当前选中的关卡，才恢复原来的颜色
-          if (!isSelected) {
-            buttonBackground.setFillStyle(0x4a6a8a, 0.8);
+            // 短暂延迟后执行操作，让用户看到按钮状态变化
+            this.time.delayedCall(150, () => {
+              // 处理关卡选择
+              this.onLevelButtonClick(level);
+            });
+          } else {
+            // 已选中的关卡直接处理点击
+            this.onLevelButtonClick(level);
           }
         });
       }

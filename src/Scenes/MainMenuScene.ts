@@ -171,9 +171,21 @@ export class MainMenuScene extends Phaser.Scene {
     this.startButton = this.add.text(centerX, 350, '开始游戏 ▶️', buttonStyle);
     this.startButton.setOrigin(0.5);
     this.startButton.setInteractive({ useHandCursor: true });
-    this.startButton.on('pointerdown', this.onStartButtonClick, this);
-    this.startButton.on('pointerover', () => this.startButton.setTint(0xffff00));
-    this.startButton.on('pointerout', () => this.startButton.clearTint());
+
+    // 为触摸设备优化的点击效果
+    this.startButton.on('pointerdown', () => {
+      // 点击时添加黄色高亮效果
+      this.startButton.setTint(0xffff00);
+
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.time.delayedCall(150, () => {
+        // 恢复原来的颜色
+        this.startButton.clearTint();
+
+        // 处理点击事件
+        this.onStartButtonClick();
+      });
+    });
 
     // 快速开始按钮（第一关，1号英雄）
     this.quickStartButton = this.add.text(centerX, 420, '快速开始 ⚡', {
@@ -182,9 +194,21 @@ export class MainMenuScene extends Phaser.Scene {
     });
     this.quickStartButton.setOrigin(0.5);
     this.quickStartButton.setInteractive({ useHandCursor: true });
-    this.quickStartButton.on('pointerdown', this.onQuickStartButtonClick, this);
-    this.quickStartButton.on('pointerover', () => this.quickStartButton.setTint(0xffff00));
-    this.quickStartButton.on('pointerout', () => this.quickStartButton.clearTint());
+
+    // 为触摸设备优化的点击效果
+    this.quickStartButton.on('pointerdown', () => {
+      // 点击时添加黄色高亮效果
+      this.quickStartButton.setTint(0xffff00);
+
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.time.delayedCall(150, () => {
+        // 恢复原来的颜色
+        this.quickStartButton.clearTint();
+
+        // 处理点击事件
+        this.onQuickStartButtonClick();
+      });
+    });
 
     // 百科按钮
     this.encyclopediaButton = this.add.text(centerX, 490, '游戏百科 📚', {
@@ -193,25 +217,61 @@ export class MainMenuScene extends Phaser.Scene {
     });
     this.encyclopediaButton.setOrigin(0.5);
     this.encyclopediaButton.setInteractive({ useHandCursor: true });
-    this.encyclopediaButton.on('pointerdown', this.onEncyclopediaButtonClick, this);
-    this.encyclopediaButton.on('pointerover', () => this.encyclopediaButton.setTint(0xffff00));
-    this.encyclopediaButton.on('pointerout', () => this.encyclopediaButton.clearTint());
+
+    // 为触摸设备优化的点击效果
+    this.encyclopediaButton.on('pointerdown', () => {
+      // 点击时添加黄色高亮效果
+      this.encyclopediaButton.setTint(0xffff00);
+
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.time.delayedCall(150, () => {
+        // 恢复原来的颜色
+        this.encyclopediaButton.clearTint();
+
+        // 处理点击事件
+        this.onEncyclopediaButtonClick();
+      });
+    });
 
     // 设置按钮
     this.settingsButton = this.add.text(centerX, 560, '设置 ⚙️', buttonStyle);
     this.settingsButton.setOrigin(0.5);
     this.settingsButton.setInteractive({ useHandCursor: true });
-    this.settingsButton.on('pointerdown', this.onSettingsButtonClick, this);
-    this.settingsButton.on('pointerover', () => this.settingsButton.setTint(0xffff00));
-    this.settingsButton.on('pointerout', () => this.settingsButton.clearTint());
+
+    // 为触摸设备优化的点击效果
+    this.settingsButton.on('pointerdown', () => {
+      // 点击时添加黄色高亮效果
+      this.settingsButton.setTint(0xffff00);
+
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.time.delayedCall(150, () => {
+        // 恢复原来的颜色
+        this.settingsButton.clearTint();
+
+        // 处理点击事件
+        this.onSettingsButtonClick();
+      });
+    });
 
     // 制作人员按钮
     this.creditsButton = this.add.text(centerX, 630, '制作人员 👥', buttonStyle);
     this.creditsButton.setOrigin(0.5);
     this.creditsButton.setInteractive({ useHandCursor: true });
-    this.creditsButton.on('pointerdown', this.onCreditsButtonClick, this);
-    this.creditsButton.on('pointerover', () => this.creditsButton.setTint(0xffff00));
-    this.creditsButton.on('pointerout', () => this.creditsButton.clearTint());
+
+    // 为触摸设备优化的点击效果
+    this.creditsButton.on('pointerdown', () => {
+      // 点击时添加黄色高亮效果
+      this.creditsButton.setTint(0xffff00);
+
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.time.delayedCall(150, () => {
+        // 恢复原来的颜色
+        this.creditsButton.clearTint();
+
+        // 处理点击事件
+        this.onCreditsButtonClick();
+      });
+    });
 
     // 添加版本信息
     const versionText = this.add.text(
@@ -321,12 +381,21 @@ export class MainMenuScene extends Phaser.Scene {
       }
     );
     closeButton.setInteractive({ useHandCursor: true });
+
+    // 为触摸设备优化的点击效果
     closeButton.on('pointerdown', () => {
-      settingsPanel.destroy();
-      closeButton.destroy();
-      // 销毁所有设置控件
-      this.settingsControls.forEach(control => control.destroy());
-      this.settingsControls = [];
+      // 点击时添加黄色高亮效果
+      closeButton.setTint(0xffff00);
+
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.time.delayedCall(100, () => {
+        // 销毁面板和控件
+        settingsPanel.destroy();
+        closeButton.destroy();
+        // 销毁所有设置控件
+        this.settingsControls.forEach(control => control.destroy());
+        this.settingsControls = [];
+      });
     });
   }
 
@@ -434,14 +503,25 @@ export class MainMenuScene extends Phaser.Scene {
     );
     saveButton.setOrigin(0.5);
     saveButton.setInteractive({ useHandCursor: true });
-    saveButton.on('pointerdown', () => {
-      // 保存设置
-      gameState.saveState();
 
-      // 关闭设置面板
-      panel.destroy();
-      this.settingsControls.forEach(control => control.destroy());
-      this.settingsControls = [];
+    // 为触摸设备优化的点击效果
+    saveButton.on('pointerdown', () => {
+      // 点击时改变背景色，提供视觉反馈
+      saveButton.setStyle({ backgroundColor: '#5a7a9a' });
+
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.time.delayedCall(150, () => {
+        // 恢复原来的背景色
+        saveButton.setStyle({ backgroundColor: '#4a6a8a' });
+
+        // 保存设置
+        gameState.saveState();
+
+        // 关闭设置面板
+        panel.destroy();
+        this.settingsControls.forEach(control => control.destroy());
+        this.settingsControls = [];
+      });
     });
     this.settingsControls.push(saveButton);
 
@@ -501,11 +581,20 @@ export class MainMenuScene extends Phaser.Scene {
       }
     );
     closeButton.setInteractive({ useHandCursor: true });
+
+    // 为触摸设备优化的点击效果
     closeButton.on('pointerdown', () => {
-      creditsPanel.destroy();
-      title.destroy();
-      credits.destroy();
-      closeButton.destroy();
+      // 点击时添加黄色高亮效果
+      closeButton.setTint(0xffff00);
+
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.time.delayedCall(100, () => {
+        // 销毁面板和控件
+        creditsPanel.destroy();
+        title.destroy();
+        credits.destroy();
+        closeButton.destroy();
+      });
     });
   }
 }

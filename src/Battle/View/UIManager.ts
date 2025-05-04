@@ -298,18 +298,18 @@ export class UIManager {
       // 设置为交互式
       this.pauseButton.setInteractive();
 
-      // 添加点击效果
-      this.pauseButton.on('pointerover', () => {
-        this.pauseButton.setStyle({ backgroundColor: '#5a769d' });
-      });
-
-      this.pauseButton.on('pointerout', () => {
-        this.pauseButton.setStyle({ backgroundColor: '#4a668d' });
-      });
-
-      // 点击暂停/继续按钮
+      // 为触摸设备优化的点击效果
       this.pauseButton.on('pointerdown', () => {
+        // 点击时改变背景色，提供视觉反馈
+        this.pauseButton.setStyle({ backgroundColor: '#5a769d' });
+
+        // 切换暂停状态
         this.togglePause();
+
+        // 300毫秒后恢复原来的背景色
+        this.scene.time.delayedCall(300, () => {
+          this.pauseButton.setStyle({ backgroundColor: '#4a668d' });
+        });
       });
 
       console.log('[INFO] 暂停按钮创建成功，位置:', this.pauseButton.x, this.pauseButton.y);
@@ -673,23 +673,20 @@ export class UIManager {
     continueButton.setInteractive();
     continueButton.setScrollFactor(0); // 确保不随相机移动
 
-    // 添加点击效果
-    continueButton.on('pointerover', () => {
-      continueButton.setStyle({ backgroundColor: '#5a769d' });
-    });
-
-    continueButton.on('pointerout', () => {
-      continueButton.setStyle({ backgroundColor: '#4a668d' });
-    });
-
-    // 点击继续按钮时开始下一波
+    // 为触摸设备优化的点击效果
     continueButton.on('pointerdown', () => {
-      // 销毁提示和按钮
-      completeText.destroy();
-      continueButton.destroy();
+      // 点击时改变背景色，提供视觉反馈
+      continueButton.setStyle({ backgroundColor: '#5a769d' });
 
-      // 调用继续回调
-      onContinue();
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.scene.time.delayedCall(150, () => {
+        // 销毁提示和按钮
+        completeText.destroy();
+        continueButton.destroy();
+
+        // 调用继续回调
+        onContinue();
+      });
     });
   }
 
@@ -746,9 +743,16 @@ export class UIManager {
     button.setInteractive();
     button.setScrollFactor(0); // 确保不随相机移动
 
+    // 为触摸设备优化的点击效果
     button.on('pointerdown', () => {
-      // 调用返回回调
-      onReturn();
+      // 点击时改变背景色，提供视觉反馈
+      button.setStyle({ backgroundColor: '#555555' });
+
+      // 短暂延迟后执行操作，让用户看到按钮状态变化
+      this.scene.time.delayedCall(150, () => {
+        // 调用返回回调
+        onReturn();
+      });
     });
   }
 
