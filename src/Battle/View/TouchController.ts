@@ -70,17 +70,25 @@ export class TouchController {
     this.showRangeIndicator(skillId);
   }
 
+  // 移动模式枚举
+  private mode: 'skill' | 'move' = 'skill';
+
   /**
    * 指针按下事件处理
    * @param pointer 指针
    */
   private onPointerDown(pointer: Phaser.Input.Pointer): void {
-    // 如果没有选择技能，不处理
+    // 如果没有选择技能，进入移动模式
     if (!this.selectedSkillId) {
+      this.mode = 'move';
+      this.touchStartPosition = { x: pointer.x, y: pointer.y };
+      this.currentTouchPosition = { x: pointer.x, y: pointer.y };
+      this.isTouchActive = true;
       return;
     }
 
-    // 记录触摸开始位置
+    // 技能模式
+    this.mode = 'skill';
     this.touchStartPosition = { x: pointer.x, y: pointer.y };
     this.currentTouchPosition = { x: pointer.x, y: pointer.y };
     this.isTouchActive = true;
@@ -119,15 +127,65 @@ export class TouchController {
    */
   private onPointerUp(pointer: Phaser.Input.Pointer): void {
     // 如果触摸未激活，不处理
-    if (!this.isTouchActive || !this.selectedSkillId || !this.touchStartPosition || !this.currentTouchPosition) {
+    if (!this.isTouchActive || !this.touchStartPosition || !this.currentTouchPosition) {
       return;
     }
 
-    // 发送技能释放指令
-    this.castSkill(this.selectedSkillId, this.touchStartPosition, this.currentTouchPosition);
+    // 根据模式处理
+    if (this.mode === 'skill' && this.selectedSkillId) {
+      // 技能模式
+      this.castSkill(this.selectedSkillId, this.touchStartPosition, this.currentTouchPosition);
+    } else if (this.mode === 'move') {
+      // 移动模式
+      this.sendMoveCommand(this.touchStartPosition, this.currentTouchPosition);
+    }
 
     // 重置状态
     this.resetTouchState();
+  }
+
+  /**
+   * 发送移动指令
+   * @param start 起始位置
+   * @param end 结束位置
+   */
+  private sendMoveCommand(start: Vector2D, end: Vector2D): void {
+    // 转换为世界坐标
+    const worldPos = this.screenToWorldPosition(end);
+    
+    // 获取当前英雄ID
+    const heroId = this.getCurrentHeroId();
+    
+    // 计算有效位置索引（1-5）
+    const positionIndex = this.calculatePositionIndex(worldPos);
+    
+    // 创建移动指令
+    const command: BattleCommand = {
+      frame: 0, // 由战斗引擎设置
+      playerId: 'player1',
+      type: 'changePosition',
+      data: {
+        heroId: heroId,
+        newPos: positionIndex
+      }
+    };
+    
+    // 发送指令
+    this.battleEngine.sendCommand(command);
+  }
+
+  /**
+   * 计算有效位置索引（1-5）
+   * @param position 世界坐标位置
+   */
+  private calculatePositionIndex(position: Vector2D): number {
+    // 确保位置在有效范围内
+    const angle = Math.atan2(position.y - 1500, position.x - 1500);
+    const normalizedAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
+    const rawIndex = Math.floor(normalizedAngle / (2 * Math.PI / 5)) + 1;
+    
+    // 确保索引在1-5范围内
+    return Math.max(1, Math.min(5, rawIndex));
   }
 
   /**
@@ -135,6 +193,7 @@ export class TouchController {
    */
   private resetTouchState(): void {
     this.isTouchActive = false;
+    this.mode = 'skill';
     this.selectedSkillId = null;
     this.touchStartPosition = null;
     this.currentTouchPosition = null;
