@@ -848,12 +848,7 @@ export class BattleManager {
         currentWaveEnemies = totalBeans - beansPerWave * (waveCount - 1);
       }
 
-      // 计算当前波次的生成间隔
-      // 波次越后，生成间隔越短（难度递增）
-      const intervalFactor = Math.max(0.5, 1 - (i * 0.05));
-      const spawnInterval = Math.max(500, Math.floor((levelData.spawnInterval || 1000) * intervalFactor));
-
-      // 创建波次配置
+      // 创建波次配置，保持简单，不添加额外数据
       const wave: any = {
         id: `wave_${i + 1}`,
         name: `第${i + 1}波`,
@@ -862,20 +857,9 @@ export class BattleManager {
           weight: ratio.weight
         })),
         totalEnemies: currentWaveEnemies,
-        spawnInterval: spawnInterval,
+        spawnInterval: levelData.spawnInterval || 1000,
         delay: i === 0 ? 0 : 3000 // 第一波没有延迟，后续波次有3秒延迟
       };
-
-      // 为最后一波添加特殊敌人
-      if (i === waveCount - 1) {
-        wave.specialEnemies = [
-          {
-            type: BeanType.ARMORED,
-            count: 1,
-            spawnTime: 10000
-          }
-        ];
-      }
 
       waves.push(wave);
     }
