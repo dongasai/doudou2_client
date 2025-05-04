@@ -9,8 +9,10 @@ import { Vector2D } from './Vector2D';
  * 英雄状态数据
  */
 export interface HeroStats {
-  /** 英雄ID */
+  /** 英雄的实体ID */
   id: string;
+  /* 英雄ID */
+  heroId: number;
   /** 英雄名称 */
   name: string;
   /** 英雄等级 */

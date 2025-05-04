@@ -227,7 +227,7 @@ export class EventHandlers {
     // 检查事件中是否包含hp和maxHp属性
     if (event.changedStats && event.changedStats.hp !== undefined && event.changedStats.maxHp !== undefined) {
       // 更新生命值条
-      this.entityRenderer.updateHealthBar(event.entityId, event.changedStats.hp, event.changedStats.maxHp);
+      // this.entityRenderer.updateHealthBar(event.entityId, event.changedStats.hp, event.changedStats.maxHp);
     }
     
     // 如果是英雄，更新状态栏
@@ -238,7 +238,11 @@ export class EventHandlers {
       // 更新状态栏
       if (battleStats.heroStats && battleStats.heroStats.length > 0) {
         const hero = battleStats.heroStats[0];
-        this.uiManager.updateStatusBar(hero.hp, hero.maxHp, hero.mp, hero.maxMp);
+        if (hero.mp != null) {
+          if (hero.maxMp != null) {
+            this.uiManager.updateStatusBar(hero.hp, hero.maxHp, hero.mp, hero.maxMp);
+          }
+        }
       }
     }
   }

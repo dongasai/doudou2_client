@@ -3,8 +3,8 @@
  * 从战斗引擎传递到视图层的实体创建信息
  */
 export interface EntityCreatedEvent {
-    /** 实体ID */
-    id: string;
+    /* 实体ID */
+    id:string;
     /** 实体类型 */
     entityType: 'hero' | 'bean' | 'crystal';
     /** 实体位置 */
@@ -30,4 +30,8 @@ export interface EntityCreatedEvent {
     appearance?: string;
     /** 表情符号（可选，用于豆豆等实体） */
     emoji: string;
+    // 英雄ID
+    heroId?: number;
+    // 豆豆ID
+    beanId?: number;
 }

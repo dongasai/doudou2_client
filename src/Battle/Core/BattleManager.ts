@@ -455,6 +455,7 @@ export class BattleManager {
       currentWave: this.waveManager.getCurrentWaveInfo(),
       heroStats: Array.from(this.heroes.values()).map(hero => ({
         id: hero.getId(),
+        heroId: hero.getHeroId(),
         name: hero.getName(),
         level: hero.getStat('level'),
         hp: hero.getStat('hp') ?? 0,

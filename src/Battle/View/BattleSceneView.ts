@@ -159,28 +159,22 @@ export class BattleSceneView {
           if (hero.id) {
             console.log('[INFO] 手动创建英雄实体:', hero.id);
             this.entityRenderer.createEntity({
-              id: hero.id,
               entityType: 'hero',
-              position: hero.position || { x: 1500, y: 1500 },
+              position: hero.position || {x: 1500, y: 1500},
               stats: {
                 hp: hero.hp,
                 maxHp: hero.maxHp
-              }
+              },
+              heroId: hero.heroId,
+              emoji: hero.name,
+              id: hero.id
             });
           }
         }
       } else {
-        // 如果没有英雄数据，创建一个默认英雄
+        // 如果没有英雄数据，就报错
         console.log('[INFO] 创建默认英雄实体');
-        this.entityRenderer.createEntity({
-          id: 'hero_1',
-          entityType: 'hero',
-          position: { x: 1500, y: 1500 },
-          stats: {
-            hp: 100,
-            maxHp: 100
-          }
-        });
+        throw '没有英雄数据';
       }
 
       // 手动创建水晶实体
@@ -197,43 +191,24 @@ export class BattleSceneView {
             // 再次检查是否已经创建
             if (!this.entityRenderer.hasEntity('crystal_1')) {
               this.entityRenderer.createEntity({
-                id: 'crystal_1',
                 entityType: 'crystal',
-                position: { x: 1500, y: 1500 },
+                position: {x: 1500, y: 1500},
                 stats: {
                   hp: battleStats.crystalStats?.hp || 1000,
                   maxHp: battleStats.crystalStats?.maxHp || 1000
-                }
+                },
+                emoji: '',
+                id: 'crystal_1'
               });
             }
             this.pendingCreations.delete('crystal_1');
           });
         }
       } else {
-        // 如果没有水晶数据，创建一个默认水晶
+        // 如果没有水晶数据，就报错
+
         console.log('[INFO] 创建默认水晶实体');
-
-        // 检查是否已经尝试创建过
-        if (!this.pendingCreations.has('crystal_1') && !this.entityRenderer.hasEntity('crystal_1')) {
-          this.pendingCreations.add('crystal_1');
-
-          // 延迟100ms创建，避免重复创建
-          this.scene.time.delayedCall(100, () => {
-            // 再次检查是否已经创建
-            if (!this.entityRenderer.hasEntity('crystal_1')) {
-              this.entityRenderer.createEntity({
-                id: 'crystal_1',
-                entityType: 'crystal',
-                position: { x: 1500, y: 1500 },
-                stats: {
-                  hp: 1000,
-                  maxHp: 1000
-                }
-              });
-            }
-            this.pendingCreations.delete('crystal_1');
-          });
-        }
+        throw '如果没有水晶数据';
       }
 
       // 手动创建豆豆实体
@@ -264,14 +239,14 @@ export class BattleSceneView {
                   }
 
                   this.entityRenderer.createEntity({
-                    id: bean.id,
                     entityType: 'bean',
                     position: bean.position || { x: 1500, y: 1500 },
                     stats: {
                       hp: bean.hp,
                       maxHp: bean.maxHp
                     },
-                    emoji: emoji
+                    emoji: emoji,
+                    id: bean.id
                   });
                 }
                 this.pendingCreations.delete(bean.id);
@@ -281,50 +256,9 @@ export class BattleSceneView {
         }
       } else {
         // 如果没有豆豆数据，创建一些默认豆豆
-        console.log('[INFO] 创建默认豆豆实体');
-        for (let i = 1; i <= 5; i++) {
-          const beanId = `bean_${i}`;
+        console.log('[INFO] 如果没有豆豆数据');
 
-          // 检查是否已经尝试创建过
-          if (!this.pendingCreations.has(beanId) && !this.entityRenderer.hasEntity(beanId)) {
-            this.pendingCreations.add(beanId);
 
-            // 延迟创建，避免重复创建
-            this.scene.time.delayedCall(100, () => {
-              // 再次检查是否已经创建
-              if (!this.entityRenderer.hasEntity(beanId)) {
-                // 获取随机emoji
-                let emoji = '🟢';
-                try {
-                  const ConfigManager = require('../../Managers/ConfigManager').ConfigManager;
-                  const configManager = ConfigManager.getInstance();
-                  const beansConfig = configManager.getBeansConfig();
-                  if (beansConfig && beansConfig.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * beansConfig.length);
-                    emoji = beansConfig[randomIndex].emoji || '🟢';
-                  }
-                } catch (error) {
-                  console.error('[ERROR] 获取豆豆emoji失败:', error);
-                }
-
-                this.entityRenderer.createEntity({
-                  id: beanId,
-                  entityType: 'bean',
-                  position: {
-                    x: 1500 + Math.cos(Math.random() * Math.PI * 2) * 800,
-                    y: 1500 + Math.sin(Math.random() * Math.PI * 2) * 800
-                  },
-                  stats: {
-                    hp: 50,
-                    maxHp: 50
-                  },
-                  emoji: emoji
-                });
-              }
-              this.pendingCreations.delete(beanId);
-            });
-          }
-        }
       }
 
       console.log('[INFO] 初始化事件触发完成');
@@ -373,29 +307,9 @@ export class BattleSceneView {
             this.cameraController.focusOnPosition(hero.position);
           } else if (hero.id) {
             // 如果英雄精灵不存在但有英雄状态，检查是否已经尝试创建过
-            console.log('[INFO] 英雄状态存在但精灵不存在，尝试创建:', hero.id);
+            console.log('[INFO] 英雄状态存在但精灵不存在', hero.id);
 
-            // 使用延迟创建，避免在同一帧多次尝试创建
-            if (!this.pendingCreations.has(hero.id)) {
-              this.pendingCreations.add(hero.id);
 
-              // 延迟100ms创建，避免重复创建
-              this.scene.time.delayedCall(100, () => {
-                // 再次检查是否已经创建
-                if (!this.entityRenderer.hasEntity(hero.id)) {
-                  this.entityRenderer.createEntity({
-                    id: hero.id,
-                    entityType: 'hero',
-                    position: hero.position || { x: 1500, y: 1500 },
-                    stats: {
-                      hp: hero.hp,
-                      maxHp: hero.maxHp
-                    }
-                  });
-                }
-                this.pendingCreations.delete(hero.id);
-              });
-            }
           }
         }
       }
@@ -415,16 +329,9 @@ export class BattleSceneView {
         } else {
           // 如果水晶精灵不存在但有水晶状态，尝试创建
           console.log('[INFO] 水晶状态存在但精灵不存在，尝试创建');
+          throw "水晶状态存在但精灵不存在";
 
-          this.entityRenderer.createEntity({
-            id: 'crystal_1',
-            entityType: 'crystal',
-            position: { x: 1500, y: 1500 },
-            stats: {
-              hp: hp,
-              maxHp: maxHp
-            }
-          });
+
         }
       }
 
