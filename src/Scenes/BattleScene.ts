@@ -78,20 +78,7 @@ export class BattleScene extends Phaser.Scene {
       graphics.generateTexture('particle', 8, 8);
       graphics.destroy();
 
-      // 加载技能图标
-      this.load.image('skill_fireball', 'assets/images/skills/fireball.png');
-      this.load.image('skill_heal', 'assets/images/skills/heal.png');
-      this.load.image('skill_shield', 'assets/images/skills/shield.png');
 
-      // 加载UI元素
-      this.load.image('button_bg', 'assets/images/ui/button_bg.png');
-      this.load.image('pause_icon', 'assets/images/ui/pause_icon.png');
-      this.load.image('status_bar_bg', 'assets/images/ui/status_bar_bg.png');
-
-      // 加载音效
-      this.load.audio('hit_sound', 'assets/sounds/hit.mp3');
-      this.load.audio('explosion_sound', 'assets/sounds/explosion.mp3');
-      this.load.audio('heal_sound', 'assets/sounds/heal.mp3');
 
       console.log('[INFO] 预加载资源完成');
     } catch (error) {

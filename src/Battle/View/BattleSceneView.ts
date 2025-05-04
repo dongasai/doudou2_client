@@ -17,6 +17,7 @@ import { CameraController } from '@/Battle/View/CameraController';
 import { EventHandlers } from '@/Battle/View/EventHandlers';
 import { TouchController } from '@/Battle/View/TouchController';
 import { Vector2D } from '@/Battle/Types/Vector2D';
+import { OffscreenIndicatorManager } from '@/Battle/View/OffscreenIndicatorManager';
 
 export class BattleSceneView {
   private scene: Phaser.Scene;
@@ -30,6 +31,7 @@ export class BattleSceneView {
   private skillEffectView: SkillEffectView;
   private eventHandlers: EventHandlers;
   private touchController: TouchController;
+  private offscreenIndicatorManager: OffscreenIndicatorManager;
 
   // 待创建实体集合，用于防止重复创建
   private pendingCreations: Set<string> = new Set();
@@ -81,6 +83,13 @@ export class BattleSceneView {
       // 初始化实体渲染器
       console.log('[INFO] 初始化实体渲染器...');
       this.entityRenderer = new EntityRenderer(scene, this.cameraController);
+
+      // 初始化屏幕外指示器管理器
+      console.log('[INFO] 初始化屏幕外指示器管理器...');
+      this.offscreenIndicatorManager = new OffscreenIndicatorManager(scene, this.cameraController);
+
+      // 设置实体渲染器的屏幕外指示器管理器
+      this.entityRenderer.setOffscreenIndicatorManager(this.offscreenIndicatorManager);
 
       // 初始化UI管理器
       console.log('[INFO] 初始化UI管理器...');

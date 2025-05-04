@@ -19,6 +19,12 @@ export class EntityRenderer {
   // 伤害数字组
   private damageTexts: Phaser.GameObjects.Group;
 
+  // 屏幕外指示器管理器
+  private offscreenIndicatorManager: any = null;
+
+  // 实体表情符号映射 (实体ID -> 表情符号)
+  private entityEmojis: Map<string, string> = new Map();
+
   /**
    * 构造函数
    * @param scene Phaser场景
@@ -33,6 +39,14 @@ export class EntityRenderer {
 
     // 创建伤害数字组
     this.damageTexts = scene.add.group();
+  }
+
+  /**
+   * 设置屏幕外指示器管理器
+   * @param manager 指示器管理器
+   */
+  public setOffscreenIndicatorManager(manager: any): void {
+    this.offscreenIndicatorManager = manager;
   }
 
   /**
@@ -91,11 +105,26 @@ export class EntityRenderer {
           let beanEmoji = event.emoji || '🟢'; // 使用事件中的emoji或默认emoji
           console.log(`[INFO] 使用豆豆emoji: ${beanEmoji} 用于 ${entityId}`);
 
+          // 保存豆豆的表情符号，用于屏幕外指示器
+          this.entityEmojis.set(entityId, beanEmoji);
+
+          // 创建豆豆精灵
           sprite = this.scene.add.text(screenPos.x, screenPos.y, beanEmoji, {
             fontSize: `${beanSize}px`
           });
           sprite.setOrigin(0.5);
           sprite.setDepth(DepthLayers.WORLD_ENTITY);
+          sprite.name = entityId; // 设置名称，便于后续查找
+
+          // 检查豆豆是否在屏幕内
+          const isVisible = this.isEntityVisible(position);
+          console.log(`[INFO] 豆豆${entityId}是否在屏幕内: ${isVisible}`);
+
+          // 更新屏幕外指示器
+          if (this.offscreenIndicatorManager) {
+            this.offscreenIndicatorManager.updateIndicator(entityId, position, beanEmoji, isVisible);
+          }
+
           console.log('[INFO] 豆豆创建成功:', entityId);
           break;
 
@@ -167,7 +196,37 @@ export class EntityRenderer {
       sprite.y = screenPos.y;
     }
 
-    // 不再更新生命值条位置
+    // 如果是豆豆实体，检查是否在屏幕内并更新指示器
+    if (entityId.startsWith('bean_') && this.offscreenIndicatorManager) {
+      const isVisible = this.isEntityVisible(position);
+      const emoji = this.entityEmojis.get(entityId) || '🟢';
+      this.offscreenIndicatorManager.updateIndicator(entityId, position, emoji, isVisible);
+    }
+  }
+
+  /**
+   * 检查实体是否在屏幕内可见
+   * @param worldPosition 实体世界坐标
+   * @returns 是否在屏幕内可见
+   */
+  public isEntityVisible(worldPosition: Vector2D): boolean {
+    // 转换为屏幕坐标
+    const screenPos = this.cameraController.worldToScreenPosition(worldPosition);
+
+    // 获取屏幕尺寸
+    const screenWidth = this.scene.cameras.main.width;
+    const screenHeight = this.scene.cameras.main.height;
+
+    // 添加边缘缓冲区
+    const buffer = 50;
+
+    // 检查是否在屏幕内（包含缓冲区）
+    return (
+      screenPos.x >= -buffer &&
+      screenPos.x <= screenWidth + buffer &&
+      screenPos.y >= -buffer &&
+      screenPos.y <= screenHeight + buffer
+    );
   }
 
 
@@ -282,5 +341,13 @@ export class EntityRenderer {
 
     // 清除所有伤害数字
     this.damageTexts.clear(true, true);
+
+    // 清除实体表情符号映射
+    this.entityEmojis.clear();
+
+    // 清除所有屏幕外指示器
+    if (this.offscreenIndicatorManager) {
+      this.offscreenIndicatorManager.clearAllIndicators();
+    }
   }
 }
