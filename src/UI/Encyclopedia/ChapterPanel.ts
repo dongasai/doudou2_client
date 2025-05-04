@@ -134,12 +134,11 @@ export class ChapterPanel extends Phaser.GameObjects.Container {
     }
 
     // 创建关卡按钮
-    const buttonsPerRow = 2; // 每行显示2个按钮
-    const buttonSpacingX = 20; // 按钮水平间距
-    const buttonSpacingY = 30; // 按钮垂直间距
+    const buttonsPerRow = 1; // 每行只显示1个按钮，避免重叠
+    const buttonSpacingY = 40; // 增加按钮垂直间距
     const availableWidth = this.scrollAreaWidth - (padding * 2);
-    const buttonWidth = (availableWidth - buttonSpacingX) / buttonsPerRow;
-    const buttonHeight = 120;
+    const buttonWidth = Math.min(availableWidth * 0.9, 350); // 限制按钮最大宽度
+    const buttonHeight = 140; // 增加按钮高度，给文本留出更多空间
 
     // 添加调试信息
     console.log(`[DEBUG] 章节 ${this.chapter.id} 关卡数量: ${chapterLevels.length}`);
@@ -147,13 +146,11 @@ export class ChapterPanel extends Phaser.GameObjects.Container {
 
     for (let i = 0; i < chapterLevels.length; i++) {
       const level = chapterLevels[i];
-      const row = Math.floor(i / buttonsPerRow);
-      const col = i % buttonsPerRow;
+      const row = i; // 每行只有一个按钮
 
-      // 简化按钮位置计算
-      const buttonGap = buttonWidth + buttonSpacingX;
-      const x = col === 0 ? -buttonGap/2 : buttonGap/2;
-      const y = 70 + row * (buttonHeight + buttonSpacingY);
+      // 计算按钮位置 - 居中显示
+      const x = 0; // 居中
+      const y = 100 + row * (buttonHeight + buttonSpacingY); // 增加起始Y位置
 
       console.log(`[DEBUG] 按钮 ${i} 位置: (${x}, ${y})`);
 
@@ -170,19 +167,7 @@ export class ChapterPanel extends Phaser.GameObjects.Container {
 
       this.add(levelButton);
 
-      // 添加调试文本，显示按钮索引
-      const debugText = this.scene.add.text(
-        x,
-        y - buttonHeight/2 - 10,
-        `按钮 ${i}`,
-        {
-          fontSize: '12px',
-          fontFamily: 'Arial',
-          color: '#ffff00'
-        }
-      );
-      debugText.setOrigin(0.5, 0.5);
-      this.add(debugText);
+      // 移除调试文本，避免与按钮重叠
     }
   }
 
@@ -197,17 +182,17 @@ export class ChapterPanel extends Phaser.GameObjects.Container {
       return idParts.length >= 3 && parseInt(idParts[1]) === this.chapter.id;
     });
 
-    const buttonsPerRow = 2;
-    const buttonHeight = 120;
-    const buttonSpacingY = 30;
-    const rowCount = Math.ceil(chapterLevels.length / buttonsPerRow);
+    const buttonsPerRow = 1; // 每行只显示1个按钮
+    const buttonHeight = 140; // 按钮高度
+    const buttonSpacingY = 40; // 按钮垂直间距
+    const rowCount = chapterLevels.length; // 行数等于按钮数量
 
     // 如果没有关卡，返回基础高度
     if (chapterLevels.length === 0) {
       return 100; // 标题高度 + 提示文本高度
     }
 
-    // 返回章节总高度
-    return 70 + rowCount * (buttonHeight + buttonSpacingY);
+    // 返回章节总高度 - 增加底部边距
+    return 100 + rowCount * (buttonHeight + buttonSpacingY) + 50; // 增加顶部和底部边距
   }
 }

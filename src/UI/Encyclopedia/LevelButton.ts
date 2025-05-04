@@ -70,7 +70,7 @@ export class LevelButton extends Phaser.GameObjects.Container {
 
     // 创建关卡标题 - 使用更明显的颜色和描边
     const levelTitle = this.scene.add.text(
-      0,
+      -width/2 + 20, // 左对齐
       -height/2 + 25,
       `关卡 ${levelNumber}`,
       {
@@ -82,7 +82,7 @@ export class LevelButton extends Phaser.GameObjects.Container {
         shadow: { color: '#000000', fill: true, offsetX: 2, offsetY: 2, blur: 4 } // 添加阴影
       }
     );
-    levelTitle.setOrigin(0.5, 0.5);
+    levelTitle.setOrigin(0, 0.5); // 左对齐
     levelTitle.setDepth(2); // 设置相对深度为2，确保在按钮背景之上
     this.add(levelTitle);
 
@@ -98,7 +98,8 @@ export class LevelButton extends Phaser.GameObjects.Container {
         stroke: '#000000',
         strokeThickness: 3, // 增加描边厚度
         shadow: { color: '#000000', fill: true, offsetX: 2, offsetY: 2, blur: 4 }, // 添加阴影
-        wordWrap: { width: width - 20 }
+        wordWrap: { width: width - 40 }, // 减小文本宽度，避免文本溢出
+        align: 'center' // 居中对齐
       }
     );
     levelName.setOrigin(0.5, 0.5);
@@ -111,7 +112,7 @@ export class LevelButton extends Phaser.GameObjects.Container {
       '未知';
 
     const difficultyText = this.scene.add.text(
-      0,
+      width/2 - 20, // 右对齐
       height/2 - 25,
       `难度: ${difficulty}`,
       {
@@ -122,7 +123,7 @@ export class LevelButton extends Phaser.GameObjects.Container {
         strokeThickness: 2 // 添加描边
       }
     );
-    difficultyText.setOrigin(0.5, 0.5);
+    difficultyText.setOrigin(1, 0.5); // 右对齐
     difficultyText.setDepth(2); // 设置相对深度为2，确保在按钮背景之上
     this.add(difficultyText);
 
