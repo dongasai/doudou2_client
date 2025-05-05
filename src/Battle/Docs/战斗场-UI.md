@@ -623,7 +623,7 @@ private updateUI(): void {
       heroMaxMp
     );
 
-    console.log(`[INFO] 更新UI - 水晶: ${crystalHp}/${crystalMaxHp}, 英雄: HP=${heroHp}/${heroMaxHp}, MP=${heroMp}/${heroMaxMp}`);
+    // console.log(`[INFO] 更新UI - 水晶: ${crystalHp}/${crystalMaxHp}, 英雄: HP=${heroHp}/${heroMaxHp}, MP=${heroMp}/${heroMaxMp}`);
 
     // 更新波次指示器
     if (battleStats.currentWave) {

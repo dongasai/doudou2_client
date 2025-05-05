@@ -111,6 +111,13 @@ export class UIManager {
       this.skillButtonsContainer.setAlpha(1);
       this.skillButtonsContainer.setDepth(DepthLayers.UI_ELEMENT);
 
+      // 确保暂停覆盖层初始时是隐藏的
+      if (this.pauseOverlay) {
+        this.pauseOverlay.setVisible(false);
+        this.pauseOverlay.setAlpha(0);
+        console.log('[INFO] 确保暂停覆盖层初始时隐藏');
+      }
+
       console.log('[INFO] UI元素创建完成');
 
       // 打印UI元素位置和尺寸信息，用于调试
@@ -587,10 +594,10 @@ export class UIManager {
       if (this.pauseOverlay) {
         this.pauseOverlay.setScrollFactor(0);
         this.pauseOverlay.setDepth(DepthLayers.UI_OVERLAY);
-        // 初始时隐藏覆盖层
+        // 初始时隐藏覆盖层，确保游戏开始时不显示暂停蒙层
         this.pauseOverlay.setVisible(false);
-        this.pauseOverlay.setAlpha(1);
-        console.log('[INFO] 固定暂停覆盖层成功');
+        this.pauseOverlay.setAlpha(0); // 设置透明度为0
+        console.log('[INFO] 固定暂停覆盖层成功，初始状态：隐藏');
       }
 
       this.skillButtonsContainer.setScrollFactor(0);

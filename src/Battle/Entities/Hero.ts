@@ -300,6 +300,8 @@ export class Hero extends Entity {
         logger.info(`目标${this.targetId}不存在或已死亡，清除目标`);
         this.targetId = null;
       }
+    }else{
+      console.debug(`英雄${this.id}无法攻击，目标ID: ${this.targetId}`);
     }
   }
 

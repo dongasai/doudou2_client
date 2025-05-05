@@ -37,7 +37,7 @@ export class HeroAI {
     // 获取所有豆豆
     const beans = this.getAllBeans();
     if (beans.length === 0) {
-      logger.info(`英雄${hero.getId()}没有可选择的豆豆目标`);
+      console.info(`英雄${hero.getId()}没有可选择的豆豆目标`);
       return null;
     }
 

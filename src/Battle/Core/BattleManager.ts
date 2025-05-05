@@ -516,8 +516,13 @@ export class BattleManager {
 
     // 遍历所有英雄
     for (const hero of this.heroes.values()) {
-      // 如果英雄存活，更新AI
+      // 如果英雄存活，确保设置了伤害管理器和实体管理器，然后更新AI
       if (hero.isAlive()) {
+        // 确保英雄设置了伤害管理器和实体管理器
+        hero.setDamageManager(this.damageManager);
+        hero.setEntityManager(this.entityManager);
+
+        // 更新AI
         this.heroAI.update(hero);
       }
     }
@@ -688,11 +693,9 @@ export class BattleManager {
       return;
     }
 
-    // 设置伤害管理器和实体管理器（如果尚未设置）
-    if (!hero.getTargetId()) {
-      hero.setDamageManager(this.damageManager);
-      hero.setEntityManager(this.entityManager);
-    }
+    // 始终设置伤害管理器和实体管理器，确保英雄可以正常攻击
+    hero.setDamageManager(this.damageManager);
+    hero.setEntityManager(this.entityManager);
 
     // 查找目标豆豆
     // 如果targetId是-1，则使用完整的豆豆ID
