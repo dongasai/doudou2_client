@@ -570,6 +570,35 @@ export class TouchController {
 
     // 播放攻击视觉效果
     this.playAttackVisualEffect(beanId);
+
+    // 设置英雄的持续攻击目标
+    this.setHeroAttackTarget(heroId, beanId);
+  }
+
+  /**
+   * 设置英雄的持续攻击目标
+   * @param heroId 英雄ID
+   * @param targetId 目标ID
+   */
+  private setHeroAttackTarget(heroId: number, targetId: string): void {
+    // 创建设置目标的命令（这是一个自定义命令，需要在BattleManager中处理）
+    const command: BattleCommand = {
+      frame: 0, // 由战斗引擎设置
+      playerId: 'player1',
+      type: 'attack',
+      data: {
+        heroId: heroId,
+        targetId: parseInt(targetId.replace('bean_', ''))
+      }
+    };
+
+    // 使用类型断言添加自定义属性
+    (command.data as any).setAsTarget = true;
+
+    // 发送指令
+    this.battleEngine.sendCommand(command);
+
+    console.log(`[INFO] 设置英雄${heroId}的持续攻击目标为${targetId}`);
   }
 
   /**
@@ -584,7 +613,7 @@ export class TouchController {
     }
 
     // 获取目标实体的精灵
-    const targetSprite = this.scene.children.getByName(targetId);
+    const targetSprite = this.scene.children.getByName(targetId) as Phaser.GameObjects.Text;
     if (!targetSprite) {
       return;
     }

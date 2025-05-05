@@ -643,6 +643,8 @@ export class BattleManager {
    */
   private processAttackCommand(command: AttackCommand): void {
     const { heroId, targetId } = command.data;
+    // 检查是否是设置持续攻击目标的命令
+    const setAsTarget = (command.data as any).setAsTarget === true;
 
     // 查找英雄
     let hero: Hero | undefined;
@@ -676,11 +678,33 @@ export class BattleManager {
     // 设置攻击目标
     hero.setTargetId(targetBeanId);
 
+    // 如果只是设置目标，不执行攻击，直接返回
+    if (setAsTarget) {
+      logger.info(`英雄${heroId}设置攻击目标为豆豆${targetId}`);
+      return;
+    }
+
     // 尝试攻击目标
     const attackResult = hero.attackTarget(targetBeanId);
 
     if (attackResult.success) {
       logger.info(`英雄${heroId}攻击豆豆${targetId}成功，造成${attackResult.damage}点伤害`);
+
+      // 触发伤害事件，确保UI能够显示伤害效果
+      this.eventManager.emit('damageDealt', {
+        sourceId: hero.getId(),
+        targetId: targetBeanId,
+        damage: attackResult.damage || 0,
+        isCritical: false
+      });
+
+      // 如果豆豆死亡，触发死亡事件
+      if (!targetBean.isAlive()) {
+        this.eventManager.emit('entityDeath', {
+          entityId: targetBeanId,
+          killerId: hero.getId()
+        });
+      }
     } else {
       logger.warn(`英雄${heroId}攻击豆豆${targetId}失败: ${attackResult.message}`);
     }

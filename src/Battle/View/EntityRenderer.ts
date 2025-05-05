@@ -291,11 +291,64 @@ export class EntityRenderer {
       return;
     }
 
-    // 播放受击动画
+    // 停止之前的动画（如果有）
+    this.scene.tweens.killTweensOf(sprite);
+
+    // 播放受击动画 - 红色闪烁效果
     sprite.setTint(0xff0000);
-    this.scene.time.delayedCall(100, () => {
+
+    // 添加震动效果
+    const originalX = sprite.x;
+    const originalY = sprite.y;
+
+    // 创建震动动画
+    this.scene.tweens.add({
+      targets: sprite,
+      x: { from: originalX - 5, to: originalX + 5 },
+      y: { from: originalY - 2, to: originalY + 2 },
+      duration: 50,
+      yoyo: true,
+      repeat: 2,
+      ease: 'Sine.easeInOut',
+      onComplete: () => {
+        // 恢复原始位置
+        sprite.x = originalX;
+        sprite.y = originalY;
+      }
+    });
+
+    // 添加缩放效果
+    this.scene.tweens.add({
+      targets: sprite,
+      scale: { from: 1.2, to: 1.0 },
+      duration: 200,
+      ease: 'Back.easeOut'
+    });
+
+    // 清除红色着色
+    this.scene.time.delayedCall(150, () => {
       sprite.clearTint();
     });
+
+    // 如果是豆豆，添加特殊效果
+    if (entityId.startsWith('bean_')) {
+      // 创建闪光效果
+      const flash = this.scene.add.graphics();
+      flash.fillStyle(0xffffff, 0.8);
+      flash.fillCircle(sprite.x, sprite.y, 30);
+      flash.setDepth(DepthLayers.WORLD_EFFECT);
+
+      // 闪光消失动画
+      this.scene.tweens.add({
+        targets: flash,
+        alpha: 0,
+        scale: 1.5,
+        duration: 200,
+        onComplete: () => {
+          flash.destroy();
+        }
+      });
+    }
   }
 
   /**
