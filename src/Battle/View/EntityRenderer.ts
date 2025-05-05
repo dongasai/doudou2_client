@@ -116,6 +116,19 @@ export class EntityRenderer {
           sprite.setDepth(DepthLayers.WORLD_ENTITY);
           sprite.name = entityId; // 设置名称，便于后续查找
 
+          // 添加点击交互
+          sprite.setInteractive({ useHandCursor: true });
+
+          // 添加点击事件
+          sprite.on('pointerdown', () => {
+            console.log(`[INFO] 豆豆被点击: ${entityId}`);
+            // 触发豆豆点击事件
+            this.scene.events.emit('beanClicked', {
+              beanId: entityId,
+              position: position
+            });
+          });
+
           // 检查豆豆是否在屏幕内
           const isVisible = this.isEntityVisible(position);
           console.log(`[INFO] 豆豆${entityId}是否在屏幕内: ${isVisible}`);

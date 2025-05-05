@@ -56,6 +56,9 @@ export class TouchController {
     // 监听技能取消选择事件
     this.scene.events.on('skillDeselected', this.onSkillDeselected, this);
 
+    // 监听豆豆点击事件
+    this.scene.events.on('beanClicked', this.onBeanClicked, this);
+
     // 设置触摸输入
     this.scene.input.on('pointerdown', this.onPointerDown, this);
     this.scene.input.on('pointermove', this.onPointerMove, this);
@@ -87,6 +90,25 @@ export class TouchController {
     // 如果当前选中的技能被取消选择，则重置状态
     if (this.selectedSkillId === skillId) {
       this.resetTouchState();
+    }
+  }
+
+  /**
+   * 豆豆点击事件处理
+   * @param event 豆豆点击事件数据
+   */
+  private onBeanClicked(event: { beanId: string, position: Vector2D }): void {
+    console.log(`[INFO] 处理豆豆点击事件: ${event.beanId}`);
+
+    // 如果当前有选中的技能，则使用技能攻击豆豆
+    if (this.selectedSkillId) {
+      // 使用技能攻击豆豆
+      this.castSkillAtBean(this.selectedSkillId, event.beanId);
+      // 重置状态
+      this.resetTouchState();
+    } else {
+      // 普通攻击豆豆
+      this.attackBean(event.beanId);
     }
   }
 
@@ -489,6 +511,99 @@ export class TouchController {
   }
 
   /**
+   * 使用技能攻击豆豆
+   * @param skillId 技能ID
+   * @param beanId 豆豆ID
+   */
+  private castSkillAtBean(skillId: string, beanId: string): void {
+    // 获取当前英雄ID
+    const heroId = this.getCurrentHeroId();
+
+    // 从豆豆ID中提取数字部分（假设格式为"bean_数字"）
+    const beanIdNumber = parseInt(beanId.replace('bean_', ''));
+
+    // 创建指令
+    const command: BattleCommand = {
+      frame: 0, // 由战斗引擎设置
+      playerId: 'player1',
+      type: 'castSkill',
+      data: {
+        heroId: heroId,
+        skillId: parseInt(skillId.replace('skill_', '')),
+        targetType: 'enemy',
+        targetId: beanIdNumber
+      }
+    };
+
+    // 发送指令
+    this.battleEngine.sendCommand(command);
+
+    console.log(`[INFO] 发送技能攻击指令: 英雄${heroId}使用技能${skillId}攻击豆豆${beanId}`);
+  }
+
+  /**
+   * 普通攻击豆豆
+   * @param beanId 豆豆ID
+   */
+  private attackBean(beanId: string): void {
+    // 获取当前英雄ID
+    const heroId = this.getCurrentHeroId();
+
+    // 从豆豆ID中提取数字部分（假设格式为"bean_数字"）
+    const beanIdNumber = parseInt(beanId.replace('bean_', ''));
+
+    // 创建攻击指令
+    const command: BattleCommand = {
+      frame: 0, // 由战斗引擎设置
+      playerId: 'player1',
+      type: 'attack',
+      data: {
+        heroId: heroId,
+        targetId: beanIdNumber
+      }
+    };
+
+    // 发送指令
+    this.battleEngine.sendCommand(command);
+
+    console.log(`[INFO] 发送普通攻击指令: 英雄${heroId}攻击豆豆${beanId}`);
+
+    // 播放攻击视觉效果
+    this.playAttackVisualEffect(beanId);
+  }
+
+  /**
+   * 播放攻击视觉效果
+   * @param targetId 目标ID
+   */
+  private playAttackVisualEffect(targetId: string): void {
+    // 获取英雄位置
+    const heroPosition = this.getHeroPosition();
+    if (!heroPosition) {
+      return;
+    }
+
+    // 获取目标实体的精灵
+    const targetSprite = this.scene.children.getByName(targetId);
+    if (!targetSprite) {
+      return;
+    }
+
+    // 绘制攻击线
+    const graphics = this.scene.add.graphics();
+    graphics.lineStyle(3, 0xff0000, 0.8);
+    graphics.beginPath();
+    graphics.moveTo(heroPosition.x, heroPosition.y);
+    graphics.lineTo(targetSprite.x, targetSprite.y);
+    graphics.strokePath();
+
+    // 短暂显示后消失
+    this.scene.time.delayedCall(200, () => {
+      graphics.destroy();
+    });
+  }
+
+  /**
    * 更新
    * @param time 当前时间
    * @param delta 时间增量
@@ -507,6 +622,7 @@ export class TouchController {
     // 移除事件监听
     this.scene.events.off('skillSelected', this.onSkillSelected, this);
     this.scene.events.off('skillDeselected', this.onSkillDeselected, this);
+    this.scene.events.off('beanClicked', this.onBeanClicked, this);
     this.scene.input.off('pointerdown', this.onPointerDown, this);
     this.scene.input.off('pointermove', this.onPointerMove, this);
     this.scene.input.off('pointerup', this.onPointerUp, this);

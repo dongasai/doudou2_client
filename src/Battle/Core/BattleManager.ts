@@ -11,7 +11,7 @@ import { DamageManager } from './DamageManager';
 import { SkillManager } from './SkillManager'; // 使用兼容层
 import { WaveManager } from './WaveManager';
 import { RandomManager } from './RandomManager';
-import { BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '@/DesignConfig';
+import { AttackCommand, BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '@/DesignConfig';
 import { BattleInitParams } from '@/DesignConfig';
 import { BattleReplayData } from '@/DesignConfig';
 import { Entity, EntityType, EntityStats } from '../Entities/Entity';
@@ -517,6 +517,10 @@ export class BattleManager {
         case 'useItem':
           this.processUseItemCommand(command as UseItemCommand);
           break;
+
+        case 'attack':
+          this.processAttackCommand(command as AttackCommand);
+          break;
       }
     }
   }
@@ -634,6 +638,55 @@ export class BattleManager {
   }
 
   /**
+   * 处理攻击指令
+   * @param command 指令
+   */
+  private processAttackCommand(command: AttackCommand): void {
+    const { heroId, targetId } = command.data;
+
+    // 查找英雄
+    let hero: Hero | undefined;
+    for (const h of this.heroes.values()) {
+      if (h.getId() === `hero_${heroId}`) {
+        hero = h;
+        break;
+      }
+    }
+
+    if (!hero) {
+      logger.warn(`攻击失败: 找不到英雄 ${heroId}`);
+      return;
+    }
+
+    // 设置伤害管理器和实体管理器（如果尚未设置）
+    if (!hero.getTargetId()) {
+      hero.setDamageManager(this.damageManager);
+      hero.setEntityManager(this.entityManager);
+    }
+
+    // 查找目标豆豆
+    const targetBeanId = `bean_${targetId}`;
+    const targetBean = this.entityManager.getEntity(targetBeanId);
+
+    if (!targetBean) {
+      logger.warn(`攻击失败: 找不到目标豆豆 ${targetId}`);
+      return;
+    }
+
+    // 设置攻击目标
+    hero.setTargetId(targetBeanId);
+
+    // 尝试攻击目标
+    const attackResult = hero.attackTarget(targetBeanId);
+
+    if (attackResult.success) {
+      logger.info(`英雄${heroId}攻击豆豆${targetId}成功，造成${attackResult.damage}点伤害`);
+    } else {
+      logger.warn(`英雄${heroId}攻击豆豆${targetId}失败: ${attackResult.message}`);
+    }
+  }
+
+  /**
    * 创建水晶
    * @param crystalConfig 水晶配置
    */
@@ -733,6 +786,10 @@ export class BattleManager {
 
     // 添加到实体管理器
     this.entityManager.addEntity(hero);
+
+    // 设置伤害管理器和实体管理器
+    hero.setDamageManager(this.damageManager);
+    hero.setEntityManager(this.entityManager);
 
     // 添加到英雄映射
     this.heroes.set(hero.getId(), hero);

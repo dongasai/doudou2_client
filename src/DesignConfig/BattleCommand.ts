@@ -1,16 +1,17 @@
 /**
  * 战斗指令类型
  */
-export type BattleCommandType = 
+export type BattleCommandType =
   | 'learnSkill'    // 学习技能
   | 'changePosition' // 更换位置
   | 'useItem'       // 使用道具
-  | 'castSkill';    // 施放技能
+  | 'castSkill'     // 施放技能
+  | 'attack';       // 普通攻击
 
 /**
  * 技能目标类型
  */
-export type SkillTargetType = 
+export type SkillTargetType =
   | 'enemy'     // 敌方目标
   | 'ally'      // 友方英雄
   | 'position'  // 指定位置
@@ -35,12 +36,12 @@ export interface LearnSkillCommand extends BaseBattleCommand {
   type: 'learnSkill';
   data: {
     heroId: number;    // 英雄ID
-    skillId: number;   // 技能ID  
+    skillId: number;   // 技能ID
   };
 }
 
 /**
- * 更换位置指令 
+ * 更换位置指令
  */
 export interface ChangePositionCommand extends BaseBattleCommand {
   type: 'changePosition';
@@ -76,10 +77,22 @@ export interface CastSkillCommand extends BaseBattleCommand {
 }
 
 /**
+ * 普通攻击指令
+ */
+export interface AttackCommand extends BaseBattleCommand {
+  type: 'attack';
+  data: {
+    heroId: number;       // 英雄ID
+    targetId: number;     // 目标ID
+  };
+}
+
+/**
  * 战斗指令联合类型
  */
-export type BattleCommand = 
+export type BattleCommand =
   | LearnSkillCommand
   | ChangePositionCommand
   | UseItemCommand
-  | CastSkillCommand;
+  | CastSkillCommand
+  | AttackCommand;
