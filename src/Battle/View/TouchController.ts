@@ -22,6 +22,7 @@ export class TouchController {
   private targetIndicator: Phaser.GameObjects.Image;
   private rangeIndicator: Phaser.GameObjects.Graphics;
   private directionLine: Phaser.GameObjects.Graphics;
+  private attackRangeIndicator: Phaser.GameObjects.Graphics; // 攻击范围指示器
 
   /**
    * 构造函数
@@ -41,6 +42,9 @@ export class TouchController {
 
     // 创建方向线
     this.directionLine = scene.add.graphics();
+
+    // 创建攻击范围指示器
+    this.attackRangeIndicator = scene.add.graphics();
 
     // 设置输入事件
     this.setupInputEvents();
@@ -244,6 +248,7 @@ export class TouchController {
     this.targetIndicator.setVisible(false);
     this.rangeIndicator.clear();
     this.directionLine.clear();
+    this.attackRangeIndicator.clear();
 
     // 触发技能取消选择事件
     this.scene.events.emit('skillDeselected');
@@ -549,8 +554,10 @@ export class TouchController {
     // 获取当前英雄ID
     const heroId = this.getCurrentHeroId();
 
-    // 从豆豆ID中提取数字部分（假设格式为"bean_数字"）
-    const beanIdNumber = parseInt(beanId.replace('bean_', ''));
+    // 我们需要将豆豆ID传递给BattleManager
+    // 但由于BattleCommand接口期望targetId是数字，我们需要做一些调整
+    // 使用一个特殊的标记，让BattleManager知道这是完整的豆豆ID
+    const beanIdNumber = -1; // 使用-1作为特殊标记
 
     // 创建攻击指令
     const command: BattleCommand = {
@@ -562,6 +569,9 @@ export class TouchController {
         targetId: beanIdNumber
       }
     };
+
+    // 添加完整的豆豆ID
+    (command.data as any).fullBeanId = beanId;
 
     // 发送指令
     this.battleEngine.sendCommand(command);
@@ -588,9 +598,12 @@ export class TouchController {
       type: 'attack',
       data: {
         heroId: heroId,
-        targetId: parseInt(targetId.replace('bean_', ''))
+        targetId: -1 // 使用-1作为特殊标记
       }
     };
+
+    // 添加完整的豆豆ID
+    (command.data as any).fullBeanId = targetId;
 
     // 使用类型断言添加自定义属性
     (command.data as any).setAsTarget = true;
@@ -599,6 +612,58 @@ export class TouchController {
     this.battleEngine.sendCommand(command);
 
     console.log(`[INFO] 设置英雄${heroId}的持续攻击目标为${targetId}`);
+  }
+
+  /**
+   * 显示英雄攻击范围
+   */
+  private showAttackRange(): void {
+    // 清除之前的攻击范围指示器
+    this.attackRangeIndicator.clear();
+
+    // 获取英雄位置
+    const heroPosition = this.getHeroPosition();
+    if (!heroPosition) {
+      return;
+    }
+
+    // 获取英雄攻击范围
+    const attackRange = this.getHeroAttackRange();
+    if (!attackRange) {
+      return;
+    }
+
+    // 绘制攻击范围圈
+    this.attackRangeIndicator.lineStyle(2, 0xff6666, 0.5);
+    this.attackRangeIndicator.strokeCircle(heroPosition.x, heroPosition.y, attackRange);
+
+    // 添加半透明填充
+    this.attackRangeIndicator.fillStyle(0xff6666, 0.1);
+    this.attackRangeIndicator.fillCircle(heroPosition.x, heroPosition.y, attackRange);
+  }
+
+  /**
+   * 获取英雄攻击范围
+   * @returns 攻击范围（屏幕坐标系中的像素值）
+   */
+  private getHeroAttackRange(): number | null {
+    // 获取战斗状态
+    const battleStats = this.battleEngine.getBattleStats();
+
+    // 检查是否有英雄
+    if (!battleStats.heroStats || battleStats.heroStats.length === 0) {
+      return null;
+    }
+
+    // 获取英雄攻击范围
+    // 由于我们无法直接从BattleEngine获取实体，我们使用默认值
+    // 实际项目中，应该通过适当的API获取英雄的攻击范围
+    const attackRange = 150; // 默认攻击范围
+
+    // 将世界坐标系中的攻击范围转换为屏幕坐标系中的像素值
+    // 这里简化处理，假设世界坐标和屏幕坐标的比例是1:1
+    // 实际应该根据相机缩放比例进行转换
+    return attackRange;
   }
 
   /**
@@ -618,6 +683,9 @@ export class TouchController {
       return;
     }
 
+    // 显示攻击范围
+    this.showAttackRange();
+
     // 绘制攻击线
     const graphics = this.scene.add.graphics();
     graphics.lineStyle(3, 0xff0000, 0.8);
@@ -626,9 +694,35 @@ export class TouchController {
     graphics.lineTo(targetSprite.x, targetSprite.y);
     graphics.strokePath();
 
+    // 计算距离
+    const dx = targetSprite.x - heroPosition.x;
+    const dy = targetSprite.y - heroPosition.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // 获取攻击范围
+    const attackRange = this.getHeroAttackRange() || 150;
+
+    // 如果目标超出攻击范围，显示警告提示
+    if (distance > attackRange) {
+      // 在攻击线上添加警告标记
+      const warningX = heroPosition.x + (dx * attackRange / distance);
+      const warningY = heroPosition.y + (dy * attackRange / distance);
+
+      // 绘制警告标记
+      graphics.lineStyle(2, 0xffff00, 1);
+      graphics.beginPath();
+      graphics.moveTo(warningX - 10, warningY - 10);
+      graphics.lineTo(warningX + 10, warningY + 10);
+      graphics.moveTo(warningX + 10, warningY - 10);
+      graphics.lineTo(warningX - 10, warningY + 10);
+      graphics.strokePath();
+    }
+
     // 短暂显示后消失
-    this.scene.time.delayedCall(200, () => {
+    this.scene.time.delayedCall(1000, () => {
       graphics.destroy();
+      // 清除攻击范围指示器
+      this.attackRangeIndicator.clear();
     });
   }
 
@@ -660,5 +754,6 @@ export class TouchController {
     this.targetIndicator.destroy();
     this.rangeIndicator.destroy();
     this.directionLine.destroy();
+    this.attackRangeIndicator.destroy();
   }
 }

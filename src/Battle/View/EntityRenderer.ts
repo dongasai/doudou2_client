@@ -25,6 +25,12 @@ export class EntityRenderer {
   // 实体表情符号映射 (实体ID -> 表情符号)
   private entityEmojis: Map<string, string> = new Map();
 
+  // 当前选中的实体ID
+  private selectedEntityId: string | null = null;
+
+  // 选中效果图形对象
+  private selectionIndicator: Phaser.GameObjects.Graphics | null = null;
+
   /**
    * 构造函数
    * @param scene Phaser场景
@@ -534,25 +540,107 @@ export class EntityRenderer {
    * @param entityId 实体ID
    */
   public playDeathAnimation(entityId: string): void {
+    console.log(`[INFO] 播放实体${entityId}的死亡动画`);
+
     const sprite = this.entitySprites.get(entityId);
     if (!sprite) {
+      console.warn(`[WARN] 找不到实体${entityId}的精灵，无法播放死亡动画`);
       return;
     }
 
-    // 播放死亡动画
-    this.scene.tweens.add({
-      targets: sprite,
-      alpha: 0,
-      y: sprite.y + 20,
-      duration: 500,
-      ease: 'Power2',
-      onComplete: () => {
-        sprite.destroy();
-        this.entitySprites.delete(entityId);
+    console.log(`[INFO] 找到实体${entityId}的精灵，开始播放死亡动画`);
 
-        // 不再处理生命值条
+    // 根据实体类型播放不同的死亡动画
+    if (entityId.startsWith('bean_')) {
+      // ===== 豆豆死亡动画 =====
+
+      // 创建爆炸效果
+      const explosion = this.scene.add.graphics();
+      explosion.fillStyle(0xffff00, 0.7);
+      explosion.fillCircle(sprite.x, sprite.y, 30);
+      explosion.setDepth(DepthLayers.WORLD_EFFECT);
+
+      // 爆炸效果动画
+      this.scene.tweens.add({
+        targets: explosion,
+        alpha: 0,
+        scale: 2,
+        duration: 300,
+        ease: 'Power2',
+        onComplete: () => {
+          explosion.destroy();
+        }
+      });
+
+      // 创建碎片效果
+      for (let i = 0; i < 8; i++) {
+        const particle = this.scene.add.graphics();
+        particle.fillStyle(0xffff00, 0.6);
+        particle.fillCircle(0, 0, 5);
+        particle.setPosition(sprite.x, sprite.y);
+        particle.setDepth(DepthLayers.WORLD_EFFECT);
+
+        // 随机角度和距离
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 50 + Math.random() * 50;
+
+        // 粒子飞散动画
+        this.scene.tweens.add({
+          targets: particle,
+          x: sprite.x + Math.cos(angle) * distance,
+          y: sprite.y + Math.sin(angle) * distance,
+          alpha: 0,
+          scale: 0.5,
+          duration: 400 + Math.random() * 200,
+          ease: 'Power2',
+          onComplete: () => {
+            particle.destroy();
+          }
+        });
       }
-    });
+
+      // 主精灵淡出动画
+      this.scene.tweens.add({
+        targets: sprite,
+        alpha: 0,
+        scale: 1.5,
+        y: sprite.y - 20, // 向上飘一点
+        duration: 500,
+        ease: 'Power2',
+        onComplete: () => {
+          console.log(`[INFO] 实体${entityId}的死亡动画完成，销毁精灵`);
+          sprite.destroy();
+          this.entitySprites.delete(entityId);
+
+          // 移除屏幕外指示器（如果有）
+          if (this.offscreenIndicatorManager) {
+            this.offscreenIndicatorManager.removeIndicator(entityId);
+          }
+        }
+      });
+
+    } else {
+      // ===== 默认死亡动画（用于其他类型实体）=====
+
+      // 播放死亡动画
+      this.scene.tweens.add({
+        targets: sprite,
+        alpha: 0,
+        y: sprite.y + 20,
+        duration: 500,
+        ease: 'Power2',
+        onComplete: () => {
+          console.log(`[INFO] 实体${entityId}的死亡动画完成，销毁精灵`);
+          sprite.destroy();
+          this.entitySprites.delete(entityId);
+
+          // 移除屏幕外指示器（如果有）
+          if (this.offscreenIndicatorManager) {
+            this.offscreenIndicatorManager.removeIndicator(entityId);
+          }
+        }
+      });
+    }
   }
 
   /**

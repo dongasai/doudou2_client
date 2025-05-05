@@ -280,12 +280,24 @@ export class Hero extends Entity {
       if (targetEntity && targetEntity.isAlive()) {
         // 检查目标是否在攻击范围内
         const distance = Vector2DUtils.distance(this.position, targetEntity.getPosition());
+        logger.debug(`英雄${this.id}到目标${this.targetId}的距离: ${distance}, 攻击范围: ${this.attackRange}`);
+
         if (distance <= this.attackRange) {
           // 执行攻击
-          this.attackTarget();
+          logger.info(`英雄${this.id}自动攻击目标${this.targetId}`);
+          const attackResult = this.attackTarget();
+
+          if (attackResult.success) {
+            logger.info(`英雄${this.id}自动攻击成功，造成${attackResult.damage}点伤害`);
+          } else {
+            logger.warn(`英雄${this.id}自动攻击失败: ${attackResult.message}`);
+          }
+        } else {
+          logger.debug(`目标${this.targetId}超出攻击范围，距离: ${distance}, 攻击范围: ${this.attackRange}`);
         }
       } else {
         // 目标不存在或已死亡，清除目标
+        logger.info(`目标${this.targetId}不存在或已死亡，清除目标`);
         this.targetId = null;
       }
     }
@@ -546,6 +558,16 @@ export class Hero extends Entity {
         ignoreDefense: false // 不忽略防御
       }
     );
+
+    // 记录详细的伤害结果，用于调试
+    logger.debug(`伤害结果: ${JSON.stringify({
+      originalAmount: damageResult.originalAmount,
+      actualAmount: damageResult.actualAmount,
+      isCritical: damageResult.isCritical,
+      isEvaded: damageResult.isEvaded,
+      isBlocked: damageResult.isBlocked
+    })}`);
+
 
     // 记录目标实体的新生命值
     const targetHpAfter = targetEntity.getStat('hp');

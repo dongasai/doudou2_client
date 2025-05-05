@@ -15,7 +15,7 @@ import { AttackCommand, BattleCommand, CastSkillCommand, ChangePositionCommand, 
 import { BattleInitParams } from '@/DesignConfig';
 import { BattleReplayData } from '@/DesignConfig';
 import { Entity, EntityType, EntityStats } from '../Entities/Entity';
-import { Vector2D } from '../Types/Vector2D';
+import { Vector2D, Vector2DUtils } from '../Types/Vector2D';
 import { Hero } from '../Entities/Hero';
 import { Bean, BeanType, BeanState } from '../Entities/Bean';
 import { Crystal } from '../Entities/Crystal';
@@ -667,46 +667,74 @@ export class BattleManager {
     }
 
     // 查找目标豆豆
-    const targetBeanId = `bean_${targetId}`;
-    const targetBean = this.entityManager.getEntity(targetBeanId);
+    // 如果targetId是-1，则使用完整的豆豆ID
+    const targetBeanId = targetId === -1 ? (command.data as any).fullBeanId : `bean_${targetId}`;
 
+    // 如果没有提供完整ID，尝试查找所有豆豆
+    let targetBean = this.entityManager.getEntity(targetBeanId);
+
+    // 如果找不到目标豆豆，尝试直接使用传入的ID
+    if (!targetBean && (command.data as any).fullBeanId) {
+      targetBean = this.entityManager.getEntity((command.data as any).fullBeanId);
+    }
+
+    // 如果仍然找不到，记录警告并返回
     if (!targetBean) {
-      logger.warn(`攻击失败: 找不到目标豆豆 ${targetId}`);
+      logger.warn(`攻击失败: 找不到目标豆豆 ${targetBeanId}`);
       return;
     }
+
+    logger.info(`找到目标豆豆: ${targetBean.getId()}`);
+
+    // 记录豆豆位置和英雄位置，用于调试
+    logger.debug(`豆豆位置: ${JSON.stringify(targetBean.getPosition())}, 英雄位置: ${JSON.stringify(hero.getPosition())}`);
+
+    // 计算距离
+    const distance = Vector2DUtils.distance(hero.getPosition(), targetBean.getPosition());
+    logger.debug(`英雄到豆豆的距离: ${distance}, 英雄攻击范围: ${hero.getAttackRange()}`);
+
 
     // 设置攻击目标
     hero.setTargetId(targetBeanId);
 
     // 如果只是设置目标，不执行攻击，直接返回
     if (setAsTarget) {
-      logger.info(`英雄${heroId}设置攻击目标为豆豆${targetId}`);
+      logger.info(`英雄${heroId}设置攻击目标为豆豆${targetBean.getId()}`);
       return;
     }
 
     // 尝试攻击目标
-    const attackResult = hero.attackTarget(targetBeanId);
+    const attackResult = hero.attackTarget(targetBean.getId());
 
     if (attackResult.success) {
-      logger.info(`英雄${heroId}攻击豆豆${targetId}成功，造成${attackResult.damage}点伤害`);
+      logger.info(`英雄${heroId}攻击豆豆${targetBean.getId()}成功，造成${attackResult.damage}点伤害`);
 
       // 触发伤害事件，确保UI能够显示伤害效果
       this.eventManager.emit('damageDealt', {
         sourceId: hero.getId(),
-        targetId: targetBeanId,
+        targetId: targetBean.getId(),
         damage: attackResult.damage || 0,
         isCritical: false
       });
 
       // 如果豆豆死亡，触发死亡事件
       if (!targetBean.isAlive()) {
+        logger.info(`豆豆${targetBean.getId()}已被击杀，触发死亡事件`);
+
+        // 触发实体死亡事件（使用EventType常量）
+        this.eventManager.emit(EventType.ENTITY_DEATH, {
+          entityId: targetBean.getId(),
+          killerId: hero.getId()
+        });
+
+        // 同时触发字符串版本的事件，确保兼容性
         this.eventManager.emit('entityDeath', {
-          entityId: targetBeanId,
+          entityId: targetBean.getId(),
           killerId: hero.getId()
         });
       }
     } else {
-      logger.warn(`英雄${heroId}攻击豆豆${targetId}失败: ${attackResult.message}`);
+      logger.warn(`英雄${heroId}攻击豆豆${targetBean.getId()}失败: ${attackResult.message}`);
     }
   }
 

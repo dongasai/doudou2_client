@@ -87,6 +87,10 @@ export class EventHandlers {
     bindEventHandler(EventType.SKILL_EFFECT_APPLIED, this.onSkillEffectApplied);
     bindEventHandler(EventType.SKILL_COOLDOWN_UPDATE, this.onSkillCooldownUpdate);
 
+    // 实体死亡事件
+    bindEventHandler(EventType.ENTITY_DEATH, this.onEntityDeath);
+    bindEventHandler('entityDeath', this.onEntityDeath); // 添加字符串版本的事件监听
+
     // 波次事件
     bindEventHandler(EventType.WAVE_COMPLETED, this.onWaveCompleted);
 
@@ -218,6 +222,27 @@ export class EventHandlers {
     if (event.state === 'dead') {
       this.entityRenderer.playDeathAnimation(event.entityId);
     }
+  }
+
+  /**
+   * 实体死亡事件处理
+   * @param event 事件数据
+   */
+  private onEntityDeath(event: any): void {
+    console.log(`[INFO] 收到实体死亡事件:`, event);
+
+    // 获取实体ID
+    const entityId = event.entityId || (event.entity && event.entity.id);
+
+    if (!entityId) {
+      console.warn(`[WARN] 实体死亡事件缺少实体ID`);
+      return;
+    }
+
+    console.log(`[INFO] 实体${entityId}死亡，播放死亡动画`);
+
+    // 播放死亡动画
+    this.entityRenderer.playDeathAnimation(entityId);
   }
 
   /**
