@@ -12,8 +12,6 @@ export class CameraController {
 
   // 相机配置
   private zoomFactor: number = 2.0; // 默认缩放因子，值越大视角越近
-  private worldCenterX: number = 1500; // 世界中心X坐标
-  private worldCenterY: number = 1500; // 世界中心Y坐标
   private worldSize: number = 3000; // 世界大小
 
   // UI元素引用，用于确保它们不受相机移动影响
@@ -41,10 +39,13 @@ export class CameraController {
 
       // 设置相机初始缩放级别
       // 值越大，视角越近（显示的世界范围越小）
-      // 根据用户反馈，相机位置太高，所以增加缩放因子
-      const initialZoom = 1.5; // 使用原始缩放级别
+      // 降低初始缩放级别，确保水晶在视图内
+      const initialZoom = 0.5; // 使用较小的缩放级别，确保能看到更大范围
       mainCamera.setZoom(initialZoom);
+      // 同时更新zoomFactor
+      this.setZoomFactor(initialZoom);
 
+      console.log(`[INFO] 相机初始缩放级别设置为: ${initialZoom}`);
       // 设置相机背景色为纯黑色
       mainCamera.setBackgroundColor('#000000');
 
@@ -66,18 +67,21 @@ export class CameraController {
    * @returns 屏幕坐标
    */
   public worldToScreenPosition(position: Vector2D): Vector2D {
-    // 获取屏幕尺寸
-    const screenWidth = this.scene.cameras.main.width;
-    const screenHeight = this.scene.cameras.main.height;
+    // 获取主相机
+    const camera = this.scene.cameras.main;
 
-    // 计算相对于世界中心的偏移
-    const offsetX = position.x - this.worldCenterX;
-    const offsetY = position.y - this.worldCenterY;
+    // 使用Phaser的相机API进行坐标转换
+    // 计算相对于相机的偏移
+    const offsetX = position.x - camera.scrollX;
+    const offsetY = position.y - camera.scrollY;
 
-    // 应用缩放并转换到屏幕坐标
+    // 应用缩放
+    const screenX = offsetX * camera.zoom;
+    const screenY = offsetY * camera.zoom;
+
     return {
-      x: (screenWidth / 2) + (offsetX * screenWidth / (this.worldSize / this.zoomFactor)),
-      y: (screenHeight / 2) + (offsetY * screenHeight / (this.worldSize / this.zoomFactor))
+      x: screenX,
+      y: screenY
     };
   }
 
@@ -92,18 +96,20 @@ export class CameraController {
    * @returns 世界坐标
    */
   public screenToWorldPosition(screenPos: Vector2D): Vector2D {
-    // 获取屏幕尺寸
-    const screenWidth = this.scene.cameras.main.width;
-    const screenHeight = this.scene.cameras.main.height;
+    // 获取主相机
+    const camera = this.scene.cameras.main;
 
-    // 计算相对于屏幕中心的偏移
-    const offsetX = screenPos.x - (screenWidth / 2);
-    const offsetY = screenPos.y - (screenHeight / 2);
+    // 将屏幕坐标除以缩放级别，得到相对于相机视口的坐标
+    const viewportX = screenPos.x / camera.zoom;
+    const viewportY = screenPos.y / camera.zoom;
 
-    // 应用缩放并转换到世界坐标
+    // 加上相机的滚动位置，得到世界坐标
+    const worldX = viewportX + camera.scrollX;
+    const worldY = viewportY + camera.scrollY;
+
     return {
-      x: this.worldCenterX + (offsetX * (this.worldSize / this.zoomFactor) / screenWidth),
-      y: this.worldCenterY + (offsetY * (this.worldSize / this.zoomFactor) / screenHeight)
+      x: worldX,
+      y: worldY
     };
   }
 
@@ -136,10 +142,15 @@ export class CameraController {
   public setZoom(zoomLevel: number): void {
     try {
       // 限制缩放级别在合理范围内
-      const zoom = Math.max(0.5, Math.min(3.0, zoomLevel));
+      const zoom = Math.max(0.5, Math.min(5, zoomLevel));
 
       // 应用缩放
       this.scene.cameras.main.setZoom(zoom);
+
+      // 同时更新zoomFactor，确保坐标转换正确
+      this.setZoomFactor(zoom);
+
+      console.log(`[INFO] 相机缩放级别设置为: ${zoom}`);
     } catch (error) {
       console.error('[ERROR] 设置相机缩放级别失败:', error);
     }
@@ -296,5 +307,13 @@ export class CameraController {
    */
   public setZoomFactor(factor: number): void {
     this.zoomFactor = factor;
+  }
+
+  /**
+   * 获取世界大小
+   * @returns 世界大小
+   */
+  public getWorldSize(): number {
+    return this.worldSize;
   }
 }

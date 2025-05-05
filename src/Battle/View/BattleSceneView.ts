@@ -18,6 +18,7 @@ import { EventHandlers } from '@/Battle/View/EventHandlers';
 import { TouchController } from '@/Battle/View/TouchController';
 import { Vector2D } from '@/Battle/Types/Vector2D';
 import { OffscreenIndicatorManager } from '@/Battle/View/OffscreenIndicatorManager';
+import { PositionUtils } from '@/Battle/Utils/PositionUtils';
 
 export class BattleSceneView {
   private scene: Phaser.Scene;
@@ -177,9 +178,11 @@ export class BattleSceneView {
         for (const hero of battleStats.heroStats) {
           if (hero.id) {
             console.log('[INFO] 手动创建英雄实体:', hero.id);
+            // 使用共享的位置计算方法，确保前端和后端使用相同的逻辑
+            const position = hero.position || this.calculateHeroPosition(hero.heroId || 1);
             this.entityRenderer.createEntity({
               entityType: 'hero',
-              position: hero.position || {x: 1500, y: 1500},
+              position: position,
               stats: {
                 hp: hero.hp,
                 maxHp: hero.maxHp
@@ -209,15 +212,34 @@ export class BattleSceneView {
           this.scene.time.delayedCall(100, () => {
             // 再次检查是否已经创建
             if (!this.entityRenderer.hasEntity('crystal_1')) {
+              // 使用从battleStats获取的水晶位置，如果没有则使用默认位置
+              const crystalPosition = battleStats.crystalStats?.position || {x: 1500, y: 1500};
+              console.log('[INFO] 创建水晶，位置:', crystalPosition);
+
               this.entityRenderer.createEntity({
                 entityType: 'crystal',
-                position: {x: 1500, y: 1500},
+                position: crystalPosition,
                 stats: {
                   hp: battleStats.crystalStats?.hp || 1000,
                   maxHp: battleStats.crystalStats?.maxHp || 1000
                 },
                 emoji: '',
                 id: 'crystal_1'
+              });
+
+              // 强制设置较小的缩放级别，确保水晶在视图内
+              this.cameraController.setZoom(0.2);
+              console.log('[INFO] 强制设置相机缩放级别为0.2，确保水晶在视图内');
+
+              // 立即聚焦相机到水晶位置，使用0持续时间确保立即生效
+              this.cameraController.focusOnPosition(crystalPosition, 0);
+              console.log('[INFO] 创建水晶后强制相机立即聚焦到位置:', crystalPosition);
+
+              // 再次设置缩放级别，确保水晶在视图内
+              this.scene.time.delayedCall(100, () => {
+                this.cameraController.setZoom(0.2);
+                this.cameraController.focusOnPosition(crystalPosition, 0);
+                console.log('[INFO] 延迟100ms后再次设置相机位置和缩放级别');
               });
             }
             this.pendingCreations.delete('crystal_1');
@@ -348,9 +370,27 @@ export class BattleSceneView {
         } else {
           // 如果水晶精灵不存在但有水晶状态，尝试创建
           console.log('[INFO] 水晶状态存在但精灵不存在，尝试创建');
-          throw "水晶状态存在但精灵不存在";
 
+          // 使用从battleStats获取的水晶位置，如果没有则使用默认位置
+          const crystalPosition = battleStats.crystalStats.position || {x: 1500, y: 1500};
 
+          this.entityRenderer.createEntity({
+            entityType: 'crystal',
+            position: crystalPosition,
+            stats: {
+              hp: battleStats.crystalStats.hp || 1000,
+              maxHp: battleStats.crystalStats.maxHp || 1000
+            },
+            emoji: '',
+            id: 'crystal_1'
+          });
+
+          // 强制设置较小的缩放级别，确保水晶在视图内
+          this.cameraController.setZoom(0.2);
+
+          // 立即聚焦相机到水晶位置
+          this.cameraController.focusOnPosition(crystalPosition, 0);
+          console.log('[INFO] 创建水晶并聚焦相机到位置:', crystalPosition);
         }
       }
 
@@ -476,6 +516,16 @@ export class BattleSceneView {
    */
   public setCameraZoom(zoomLevel: number): void {
     this.cameraController.setZoom(zoomLevel);
+  }
+
+  /**
+   * 计算英雄位置
+   * 使用共享的位置工具类，确保前端和后端使用相同的逻辑
+   * @param positionIndex 位置索引（1-5）
+   * @returns 位置坐标
+   */
+  public calculateHeroPosition(positionIndex: number): Vector2D {
+    return PositionUtils.calculateHeroPosition(positionIndex);
   }
 
   /**

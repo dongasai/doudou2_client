@@ -197,15 +197,14 @@ export class EntityRenderer {
       return;
     }
 
-    // 转换为屏幕坐标
-    const screenPos = this.cameraController.worldToScreenPosition(position);
+    // 使用世界坐标（不需要转换为屏幕坐标）
 
     if (animate) {
       // 使用动画移动精灵
       this.scene.tweens.add({
         targets: sprite,
-        x: screenPos.x,
-        y: screenPos.y,
+        x: position.x,
+        y: position.y,
         duration: 100,
         ease: 'Linear',
         onUpdate: () => {
@@ -217,8 +216,8 @@ export class EntityRenderer {
       });
     } else {
       // 直接设置位置
-      sprite.x = screenPos.x;
-      sprite.y = screenPos.y;
+      sprite.x = position.x;
+      sprite.y = position.y;
 
       // 如果这个实体是当前选中的实体，更新选中效果的位置
       if (this.selectedEntityId === entityId && this.selectionIndicator) {

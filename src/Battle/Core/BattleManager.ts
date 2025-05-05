@@ -20,6 +20,7 @@ import { Vector2D, Vector2DUtils } from '../Types/Vector2D';
 import { Hero } from '../Entities/Hero';
 import { Bean, BeanType, BeanState } from '../Entities/Bean';
 import { Crystal } from '../Entities/Crystal';
+import { PositionUtils } from '../Utils/PositionUtils';
 import {ConfigManager} from "@/Managers/ConfigManager";
 import {
   BattleStartEventData,
@@ -472,7 +473,8 @@ export class BattleManager {
       })),
       crystalStats: this.crystal ? {
         hp: this.crystal.getStat('hp') ?? 1000,
-        maxHp: this.crystal.getStat('maxHp') ?? 1000
+        maxHp: this.crystal.getStat('maxHp') ?? 1000,
+        position: this.crystal.getPosition() // 添加水晶位置信息
       } : null
     };
   }
@@ -870,9 +872,10 @@ export class BattleManager {
     // 添加到实体管理器
     this.entityManager.addEntity(hero);
 
-    // 设置伤害管理器和实体管理器
+    // 设置伤害管理器、实体管理器和事件管理器
     hero.setDamageManager(this.damageManager);
     hero.setEntityManager(this.entityManager);
+    hero.setEventManager(this.eventManager);
 
     // 添加到英雄映射
     this.heroes.set(hero.getId(), hero);
@@ -905,18 +908,8 @@ export class BattleManager {
    * @returns 坐标
    */
   private calculateHeroPosition(positionIndex: number): Vector2D {
-    // 简化处理，实际应该根据游戏坐标系统计算
-    const baseX = 1500;
-    const baseY = 1500;
-    const radius = 100;
-
-    // 计算角度（均匀分布在半圆上）
-    const angle = Math.PI * (0.5 + (positionIndex - 1) / 4);
-
-    return {
-      x: baseX + Math.cos(angle) * radius,
-      y: baseY + Math.sin(angle) * radius
-    };
+    // 使用共享的位置工具类计算英雄位置
+    return PositionUtils.calculateHeroPosition(positionIndex);
   }
 
   /**

@@ -75,7 +75,10 @@ export enum EventType {
   MOVE_COMMAND = 'moveCommand',
   PLAYER_INPUT = 'playerInput',
   SKILL_SELECTED = 'skillSelected',
-  TARGET_SELECTED = 'targetSelected'
+  TARGET_SELECTED = 'targetSelected',
+
+  // 英雄事件
+  HERO_TARGET_CHANGED = 'heroTargetChanged'
 }
 
 // 事件数据类型映射

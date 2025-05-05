@@ -8,6 +8,9 @@ import { Entity, EntityStats, EntityType } from './Entity';
 import { Vector2D, Vector2DUtils } from '../Types/Vector2D';
 import { DamageManager, DamageType } from '../Core/DamageManager';
 import { EntityManager } from '../Core/EntityManager';
+import { EventManager } from '../Core/EventManager';
+import { EventType } from '@/Event/EventTypes';
+import { PositionUtils } from '../Utils/PositionUtils';
 
 export class Hero extends Entity {
   // 玩家ID
@@ -38,6 +41,8 @@ export class Hero extends Entity {
   private damageManager: DamageManager | null = null;
   // 实体管理器
   private entityManager: EntityManager | null = null;
+  // 事件管理器
+  private eventManager: EventManager | null = null;
 
   /**
    * 构造函数
@@ -322,23 +327,8 @@ export class Hero extends Entity {
    * @returns 位置索引（1-5）
    */
   private calculatePositionIndex(position: Vector2D): number {
-    // 简化处理，实际应该根据游戏坐标系统计算
-    // 这里假设位置是围绕中心点(1500,1500)的圆形分布
-
-    const centerX = 1500;
-    const centerY = 1500;
-
-    // 计算与中心点的角度
-    const dx = position.x - centerX;
-    const dy = position.y - centerY;
-    const angle = Math.atan2(dy, dx);
-
-    // 将角度映射到位置索引（1-5）
-    // 假设角度0对应位置3，顺时针增加
-    const normalizedAngle = (angle + 2 * Math.PI) % (2 * Math.PI);
-    const posIndex = Math.floor(normalizedAngle / (2 * Math.PI / 5)) + 1;
-
-    return posIndex;
+    // 使用共享的位置工具类计算位置索引
+    return PositionUtils.calculatePositionIndex(position);
   }
 
   /**
@@ -347,18 +337,8 @@ export class Hero extends Entity {
    * @returns 位置坐标
    */
   private calculatePositionCoordinates(positionIndex: number): Vector2D {
-    // 简化处理，实际应该根据游戏坐标系统计算
-    const centerX = 1500;
-    const centerY = 1500;
-    const radius = 100;
-
-    // 计算角度（均匀分布在圆上）
-    const angle = (positionIndex - 1) * (2 * Math.PI / 5);
-
-    return {
-      x: centerX + Math.cos(angle) * radius,
-      y: centerY + Math.sin(angle) * radius
-    };
+    // 使用共享的位置工具类计算位置坐标
+    return PositionUtils.calculatePositionCoordinates(positionIndex);
   }
 
   /**
@@ -434,6 +414,14 @@ export class Hero extends Entity {
   }
 
   /**
+   * 设置事件管理器
+   * @param eventManager 事件管理器
+   */
+  public setEventManager(eventManager: EventManager): void {
+    this.eventManager = eventManager;
+  }
+
+  /**
    * 获取攻击范围
    */
   public getAttackRange(): number {
@@ -475,7 +463,37 @@ export class Hero extends Entity {
    * @param targetId 目标ID
    */
   public setTargetId(targetId: string | null): void {
+    // 如果目标没有变化，不做任何处理
+    if (this.targetId === targetId) {
+      return;
+    }
+
+    // 保存旧目标，设置新目标
+    const oldTargetId = this.targetId;
     this.targetId = targetId;
+
+    // 如果有事件管理器，触发目标变化事件
+    if (this.eventManager) {
+      // 确定目标类型
+      let targetType: 'bean' | 'crystal' | undefined = undefined;
+      if (targetId) {
+        if (targetId.startsWith('bean_')) {
+          targetType = 'bean';
+        } else if (targetId.startsWith('crystal_')) {
+          targetType = 'crystal';
+        }
+      }
+
+      // 触发英雄目标变化事件
+      this.eventManager.emit(EventType.HERO_TARGET_CHANGED, {
+        heroId: this.id,
+        targetId: targetId,
+        targetType: targetType,
+        timestamp: Date.now()
+      });
+
+      logger.debug(`英雄${this.id}目标变化: ${oldTargetId || '无'} -> ${targetId || '无'}`);
+    }
   }
 
   /**

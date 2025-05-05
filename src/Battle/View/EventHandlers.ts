@@ -14,6 +14,7 @@ import { EntityStatsChangedEvent } from '@/Event/b2v/EntityStatsChanged';
 import { BuffAppliedEvent } from '@/Event/b2v/BuffApplied';
 import { BuffRemovedEvent } from '@/Event/b2v/BuffRemoved';
 import { GameOverEvent } from '@/Event/b2v/GameOver';
+import { HeroTargetChangedEvent } from '@/Event/b2v/HeroTargetChanged';
 import { EntityRenderer } from './EntityRenderer';
 import { UIManager } from './UIManager';
 import { CameraController } from './CameraController';
@@ -100,6 +101,9 @@ export class EventHandlers {
 
     // 游戏结束事件
     bindEventHandler(EventType.GAME_OVER, this.onGameOver);
+
+    // 英雄目标变化事件
+    bindEventHandler(EventType.HERO_TARGET_CHANGED, this.onHeroTargetChanged);
   }
 
   /**
@@ -546,6 +550,25 @@ export class EventHandlers {
         }
       });
     }
+  }
+
+  /**
+   * 英雄目标变化事件处理
+   * @param event 事件数据
+   */
+  private onHeroTargetChanged(event: HeroTargetChangedEvent): void {
+    console.log(`[INFO] 收到英雄目标变化事件:`, event);
+
+    // 如果目标ID为null，清除选中效果
+    if (!event.targetId) {
+      this.entityRenderer.setSelectedEntity(null);
+      console.log(`[INFO] 英雄${event.heroId}清除目标选择`);
+      return;
+    }
+
+    // 设置选中效果
+    this.entityRenderer.setSelectedEntity(event.targetId);
+    console.log(`[INFO] 英雄${event.heroId}选择目标: ${event.targetId}`);
   }
 
   /**
