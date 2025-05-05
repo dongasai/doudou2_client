@@ -18,7 +18,6 @@ export class UIManager {
   private pauseButton!: Phaser.GameObjects.Text;
   private skillButtonsContainer!: Phaser.GameObjects.Container;
   private skillUIComponents: Map<string, SkillUIComponent> = new Map();
-  private uiContainer!: Phaser.GameObjects.Container;
 
   // 状态
   private isPaused: boolean = false;
@@ -135,36 +134,15 @@ export class UIManager {
     this.statusBar.setDepth(DepthLayers.UI_BACKGROUND); // 设置UI背景层级
 
     // 创建背景 (黑色半透明矩形)
-    const bg = this.scene.add.rectangle(0, 0, barWidth, barHeight, 0x000000, 0.7); // 增加不透明度
+    const bg = this.scene.add.rectangle(0, 0, barWidth, barHeight, 0x000000, 0.8); // 增加不透明度
     bg.setOrigin(0, 0);
     bg.setDepth(DepthLayers.UI_BACKGROUND);
     this.statusBar.add(bg);
 
-    // 计算头像大小和位置 (根据状态栏宽度调整)
-    const iconSize = Math.min(40, barWidth * 0.2); // 头像大小
-    const iconX = 10;
-    const iconY = barHeight / 2 + 10; // 将英雄图标下移
-
-    // 创建水晶图标 (使用文本Emoji代替图片)
-    const crystalIcon = this.scene.add.text(iconX, 20, '💎', {
-      fontSize: `${iconSize}px`
-    });
-    crystalIcon.setOrigin(0, 0.5);
-    crystalIcon.setDepth(DepthLayers.UI_ELEMENT);
-    this.statusBar.add(crystalIcon);
-
-    // 创建英雄头像 (使用文本Emoji代替图片)
-    const heroIcon = this.scene.add.text(iconX, iconY, '🧙', {
-      fontSize: `${iconSize}px`
-    });
-    heroIcon.setOrigin(0, 0.5);
-    heroIcon.setDepth(DepthLayers.UI_ELEMENT);
-    this.statusBar.add(heroIcon);
-
     // 计算生命值条和魔法值条的尺寸和位置
-    const barX = iconX + iconSize + 10; // 条形图X坐标
+    const barX = 10; // 条形图X坐标
     const barLength = barWidth - barX - 10; // 条形图长度
-    const barHeight1 = 12; // 条形图高度
+    const barHeight1 = 15; // 条形图高度
 
     const crystalY = 20; // 水晶生命值条Y坐标
     const heroHpY = 45; // 英雄生命值条Y坐标
@@ -207,13 +185,15 @@ export class UIManager {
     this.statusBar.add(heroMpBar);
 
     // 计算文本大小和位置
-    const textSize = Math.min(12, barLength * 0.1); // 文本大小
+    const textSize = Math.min(14, barLength * 0.1); // 文本大小
     const textX = barX + barLength / 2; // 文本X坐标
 
     // 创建水晶生命值文本
     const crystalHpText = this.scene.add.text(textX, crystalY, '水晶: 1000/1000', {
       fontSize: `${textSize}px`,
-      color: '#ffffff'
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 2
     });
     crystalHpText.setOrigin(0.5, 0);
     crystalHpText.setDepth(DepthLayers.UI_FOREGROUND); // 使用前景层级，确保显示在最上方
@@ -222,7 +202,9 @@ export class UIManager {
     // 创建英雄生命值文本
     const heroHpText = this.scene.add.text(textX, heroHpY, '英雄HP: 100/100', {
       fontSize: `${textSize}px`,
-      color: '#ffffff'
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 2
     });
     heroHpText.setOrigin(0.5, 0);
     heroHpText.setDepth(DepthLayers.UI_FOREGROUND); // 使用前景层级，确保显示在最上方
@@ -231,7 +213,9 @@ export class UIManager {
     // 创建英雄魔法值文本
     const heroMpText = this.scene.add.text(textX, heroMpY, '英雄MP: 100/100', {
       fontSize: `${textSize}px`,
-      color: '#ffffff'
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 2
     });
     heroMpText.setOrigin(0.5, 0);
     heroMpText.setDepth(DepthLayers.UI_FOREGROUND); // 使用前景层级，确保显示在最上方
@@ -256,27 +240,47 @@ export class UIManager {
       console.log('[INFO] 屏幕宽度:', screenWidth);
 
       // 计算字体大小 (适配窄屏设备)
-      const fontSize = Math.min(24, Math.max(16, screenWidth * 0.05)); // 最小16px，最大24px
+      const fontSize = Math.min(26, Math.max(18, screenWidth * 0.06)); // 增加字体大小
       console.log('[INFO] 波次指示器字体大小:', fontSize);
 
-      // 创建波次指示器 (位于屏幕右上角，距离右边缘60像素，距离上边缘10像素)
+      // 创建波次指示器背景
+      const bgWidth = 120;
+      const bgHeight = 40;
+      const bgX = screenWidth - 20;
+      const bgY = 10;
+
+      const bg = this.scene.add.rectangle(
+        bgX,
+        bgY + bgHeight / 2,
+        bgWidth,
+        bgHeight,
+        0x000000,
+        0.8
+      );
+      bg.setOrigin(1, 0.5);
+      bg.setDepth(DepthLayers.UI_BACKGROUND);
+      bg.setScrollFactor(0);
+
+      // 创建波次指示器 (位于屏幕右上角)
       this.waveIndicator = this.scene.add.text(
-        screenWidth - 140,         // X坐标：屏幕宽度减去60像素，进一步向左移动
-        10,                       // Y坐标：距离顶部10像素
+        bgX - bgWidth / 2,         // X坐标：居中显示在背景上
+        bgY + bgHeight / 2,        // Y坐标：居中显示在背景上
         'Wave:1',
         {
           fontSize: `${fontSize}px`,
           color: '#ffffff',        // 白色文本
           stroke: '#000000',       // 黑色描边
-          strokeThickness: Math.max(2, fontSize / 6)  // 描边粗细根据字体大小调整
+          strokeThickness: Math.max(3, fontSize / 6),  // 增加描边粗细
+          align: 'center'          // 文本居中对齐
         }
       );
-      this.waveIndicator.setOrigin(1, 0); // 设置原点为右上角，使文本右对齐
+      this.waveIndicator.setOrigin(0.5, 0.5); // 设置原点为中心，使文本居中对齐
 
-      // 设置深度和可见性（使用UI_FOREGROUND确保显示在暂停按钮上方）
+      // 设置深度和可见性（使用UI_FOREGROUND确保显示在背景上方）
       this.waveIndicator.setDepth(DepthLayers.UI_FOREGROUND);
       this.waveIndicator.setVisible(true);
       this.waveIndicator.setAlpha(1);
+      this.waveIndicator.setScrollFactor(0);
 
       console.log('[INFO] 波次指示器创建成功，位置:', this.waveIndicator.x, this.waveIndicator.y);
     } catch (error) {
@@ -295,9 +299,9 @@ export class UIManager {
       const screenWidth = this.scene.cameras.main.width;
       console.log('[INFO] 屏幕宽度:', screenWidth);
 
-      // 计算按钮位置 (右上角，与波次指示器平行)
+      // 计算按钮位置 (右上角，在波次指示器下方)
       const x = screenWidth - 20; // 距离右边缘20像素
-      const y = 10; // 与波次指示器在同一高度
+      const y = 60; // 在波次指示器下方
       console.log('[INFO] 暂停按钮位置:', x, y);
 
       // 创建暂停按钮
@@ -622,10 +626,10 @@ export class UIManager {
   ): void {
     try {
       // 获取条形图的最大长度
-      const barLength = (this.statusBar.getAt(2) as Phaser.GameObjects.Rectangle).width;
+      const barLength = (this.statusBar.getAt(1) as Phaser.GameObjects.Rectangle).width;
 
       // 更新水晶生命值条
-      const crystalHpBar = this.statusBar.getAt(4) as Phaser.GameObjects.Rectangle;
+      const crystalHpBar = this.statusBar.getAt(2) as Phaser.GameObjects.Rectangle;
       const crystalHpRatio = Math.max(0, Math.min(1, crystalHp / crystalMaxHp));
       crystalHpBar.width = barLength * crystalHpRatio;
 
@@ -642,23 +646,23 @@ export class UIManager {
       }
 
       // 更新英雄生命值条
-      const heroHpBar = this.statusBar.getAt(6) as Phaser.GameObjects.Rectangle;
+      const heroHpBar = this.statusBar.getAt(4) as Phaser.GameObjects.Rectangle;
       heroHpBar.width = barLength * (heroHp / heroMaxHp);
 
       // 更新英雄魔法值条
-      const heroMpBar = this.statusBar.getAt(8) as Phaser.GameObjects.Rectangle;
+      const heroMpBar = this.statusBar.getAt(6) as Phaser.GameObjects.Rectangle;
       heroMpBar.width = barLength * (heroMp / heroMaxMp);
 
       // 更新水晶生命值文本
-      const crystalHpText = this.statusBar.getAt(9) as Phaser.GameObjects.Text;
+      const crystalHpText = this.statusBar.getAt(7) as Phaser.GameObjects.Text;
       crystalHpText.setText(`水晶: ${Math.floor(crystalHp)}/${crystalMaxHp}`);
 
       // 更新英雄生命值文本
-      const heroHpText = this.statusBar.getAt(10) as Phaser.GameObjects.Text;
+      const heroHpText = this.statusBar.getAt(8) as Phaser.GameObjects.Text;
       heroHpText.setText(`英雄HP: ${Math.floor(heroHp)}/${heroMaxHp}`);
 
       // 更新英雄魔法值文本
-      const heroMpText = this.statusBar.getAt(11) as Phaser.GameObjects.Text;
+      const heroMpText = this.statusBar.getAt(9) as Phaser.GameObjects.Text;
       heroMpText.setText(`英雄MP: ${Math.floor(heroMp)}/${heroMaxMp}`);
     } catch (error) {
       console.error('[ERROR] 更新状态栏失败:', error);
@@ -1009,16 +1013,21 @@ export class UIManager {
    * 销毁所有UI元素
    */
   public destroy(): void {
-    // 销毁技能UI组件
-    for (const skillUI of this.skillUIComponents.values()) {
-      skillUI.destroy();
-    }
+    try {
+      // 销毁技能UI组件
+      for (const skillUI of this.skillUIComponents.values()) {
+        skillUI.destroy();
+      }
 
-    // 销毁UI元素
-    this.statusBar.destroy();
-    this.waveIndicator.destroy();
-    this.pauseButton.destroy();
-    this.skillButtonsContainer.destroy();
-    this.uiContainer.destroy();
+      // 销毁UI元素
+      if (this.statusBar) this.statusBar.destroy();
+      if (this.waveIndicator) this.waveIndicator.destroy();
+      if (this.pauseButton) this.pauseButton.destroy();
+      if (this.skillButtonsContainer) this.skillButtonsContainer.destroy();
+
+      console.log('[INFO] UI元素销毁完成');
+    } catch (error) {
+      console.error('[ERROR] 销毁UI元素失败:', error);
+    }
   }
 }
