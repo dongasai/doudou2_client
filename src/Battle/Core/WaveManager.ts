@@ -452,6 +452,9 @@ export class WaveManager {
     // 检查是否是最后一波
     const isLastWave = this.currentWaveIndex === this.waves.length - 1;
 
+    // 检查是否是第一波
+    const isFirstWave = this.currentWaveIndex === 0;
+
     if (isLastWave) {
       // 触发所有波次完成事件
       this.eventManager.emit('allWavesCompleted', {
@@ -460,16 +463,28 @@ export class WaveManager {
         totalDuration: waveEndTime - this.battleStartTime
       });
     } else if (this.autoNextWave) {
-      // 自动开始下一波（可能有延迟）
-      const nextWave = this.waves[this.currentWaveIndex + 1];
-      const delay = nextWave.delay || 3000; // 默认3秒延迟
+      // 如果是第一波完成，触发自动暂停事件
+      if (isFirstWave) {
+        logger.info('第一波完成，触发自动暂停');
+        this.eventManager.emit('autoPause', {
+          reason: 'firstWaveCompleted',
+          waveIndex: this.currentWaveIndex,
+          time: waveEndTime
+        });
 
-      logger.debug(`将在${delay}ms后开始下一波`);
+        // 不自动开始下一波，等待玩家手动继续
+      } else {
+        // 自动开始下一波（可能有延迟）
+        const nextWave = this.waves[this.currentWaveIndex + 1];
+        const delay = nextWave.delay || 3000; // 默认3秒延迟
 
-      // 使用setTimeout模拟延迟
-      setTimeout(() => {
-        this.startNextWave();
-      }, delay);
+        logger.debug(`将在${delay}ms后开始下一波`);
+
+        // 使用setTimeout模拟延迟
+        setTimeout(() => {
+          this.startNextWave();
+        }, delay);
+      }
     }
   }
 }

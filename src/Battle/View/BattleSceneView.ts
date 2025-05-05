@@ -156,6 +156,8 @@ export class BattleSceneView {
       if (battleStats.heroStats && battleStats.heroStats.length > 0) {
         const hero = battleStats.heroStats[0];
         this.uiManager.updateStatusBar(
+          battleStats.crystalStats?.hp || 1000,
+          battleStats.crystalStats?.maxHp || 1000,
           hero.hp,
           hero.maxHp,
           hero.mp || 100, // 提供默认值

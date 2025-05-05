@@ -16,6 +16,7 @@ export class UIManager {
   private statusBar!: Phaser.GameObjects.Container;
   private waveIndicator!: Phaser.GameObjects.Text;
   private pauseButton!: Phaser.GameObjects.Text;
+  private pauseOverlay!: Phaser.GameObjects.Container; // 暂停覆盖层
   private skillButtonsContainer!: Phaser.GameObjects.Container;
   private skillUIComponents: Map<string, SkillUIComponent> = new Map();
 
@@ -80,6 +81,10 @@ export class UIManager {
       // 创建暂停/继续按钮 (位于屏幕右上角，波次指示器下方)
       this.createPauseButton();
       console.log('[INFO] 创建暂停按钮成功');
+
+      // 创建暂停覆盖层 (覆盖整个屏幕)
+      this.createPauseOverlay();
+      console.log('[INFO] 创建暂停覆盖层成功');
 
       // 创建技能按钮 (位于屏幕底部中央)
       this.createSkillButtons();
@@ -362,6 +367,79 @@ export class UIManager {
   }
 
   /**
+   * 创建暂停覆盖层
+   */
+  private createPauseOverlay(): void {
+    try {
+      console.log('[INFO] 开始创建暂停覆盖层...');
+
+      // 获取屏幕尺寸
+      const screenWidth = this.scene.cameras.main.width;
+      const screenHeight = this.scene.cameras.main.height;
+
+      // 创建暂停覆盖层容器
+      this.pauseOverlay = this.scene.add.container(0, 0);
+      this.pauseOverlay.setDepth(DepthLayers.UI_OVERLAY);
+
+      // 创建半透明黑色背景
+      const bg = this.scene.add.rectangle(
+        screenWidth / 2,
+        screenHeight / 2,
+        screenWidth,
+        screenHeight,
+        0x000000,
+        0.7
+      );
+      this.pauseOverlay.add(bg);
+
+      // 创建暂停文本
+      const pauseText = this.scene.add.text(
+        screenWidth / 2,
+        screenHeight / 2,
+        '游戏暂停',
+        {
+          fontSize: '48px',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 4,
+          shadow: {
+            offsetX: 2,
+            offsetY: 2,
+            color: '#000000',
+            blur: 5,
+            stroke: true,
+            fill: true
+          }
+        }
+      );
+      pauseText.setOrigin(0.5);
+      this.pauseOverlay.add(pauseText);
+
+      // 创建提示文本
+      const tipText = this.scene.add.text(
+        screenWidth / 2,
+        screenHeight / 2 + 60,
+        '点击右上角按钮继续',
+        {
+          fontSize: '24px',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 2
+        }
+      );
+      tipText.setOrigin(0.5);
+      this.pauseOverlay.add(tipText);
+
+      // 初始时隐藏覆盖层
+      this.pauseOverlay.setVisible(false);
+
+      console.log('[INFO] 暂停覆盖层创建完成');
+    } catch (error) {
+      console.error('[ERROR] 创建暂停覆盖层失败:', error);
+    }
+  }
+
+  /**
    * 创建技能按钮
    */
   private createSkillButtons(): void {
@@ -505,6 +583,16 @@ export class UIManager {
       this.pauseButton.setAlpha(1);
       console.log('[INFO] 固定暂停按钮成功');
 
+      // 固定暂停覆盖层
+      if (this.pauseOverlay) {
+        this.pauseOverlay.setScrollFactor(0);
+        this.pauseOverlay.setDepth(DepthLayers.UI_OVERLAY);
+        // 初始时隐藏覆盖层
+        this.pauseOverlay.setVisible(false);
+        this.pauseOverlay.setAlpha(1);
+        console.log('[INFO] 固定暂停覆盖层成功');
+      }
+
       this.skillButtonsContainer.setScrollFactor(0);
       this.skillButtonsContainer.setDepth(UI_DEPTH);
       this.skillButtonsContainer.setVisible(true);
@@ -576,6 +664,19 @@ export class UIManager {
             fill: true
           }
         });
+
+        // 显示暂停覆盖层
+        if (this.pauseOverlay) {
+          this.pauseOverlay.setVisible(true);
+
+          // 添加淡入动画
+          this.scene.tweens.add({
+            targets: this.pauseOverlay,
+            alpha: { from: 0, to: 1 },
+            duration: 300,
+            ease: 'Power2'
+          });
+        }
       } else {
         // 继续游戏
         this.onResumeCallback();
@@ -601,6 +702,20 @@ export class UIManager {
             fill: true
           }
         });
+
+        // 隐藏暂停覆盖层
+        if (this.pauseOverlay) {
+          // 添加淡出动画
+          this.scene.tweens.add({
+            targets: this.pauseOverlay,
+            alpha: 0,
+            duration: 300,
+            ease: 'Power2',
+            onComplete: () => {
+              this.pauseOverlay.setVisible(false);
+            }
+          });
+        }
       }
     } catch (error) {
       console.error('[ERROR] 切换暂停状态失败:', error);
@@ -971,6 +1086,19 @@ export class UIManager {
         console.log('[INFO] 添加暂停按钮到UI元素列表');
       }
 
+      if (this.pauseOverlay) {
+        elements.push(this.pauseOverlay);
+        console.log('[INFO] 添加暂停覆盖层到UI元素列表');
+
+        // 添加暂停覆盖层的所有子元素
+        for (let i = 0; i < this.pauseOverlay.length; i++) {
+          const child = this.pauseOverlay.getAt(i);
+          if (child) {
+            elements.push(child);
+          }
+        }
+      }
+
       if (this.skillButtonsContainer) {
         elements.push(this.skillButtonsContainer);
         console.log('[INFO] 添加技能按钮容器到UI元素列表');
@@ -1023,6 +1151,7 @@ export class UIManager {
       if (this.statusBar) this.statusBar.destroy();
       if (this.waveIndicator) this.waveIndicator.destroy();
       if (this.pauseButton) this.pauseButton.destroy();
+      if (this.pauseOverlay) this.pauseOverlay.destroy();
       if (this.skillButtonsContainer) this.skillButtonsContainer.destroy();
 
       console.log('[INFO] UI元素销毁完成');

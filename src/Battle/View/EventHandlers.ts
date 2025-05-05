@@ -96,6 +96,7 @@ export class EventHandlers {
 
     // 使用字符串的事件（保留向后兼容性）
     bindEventHandler('waveChanged', this.onWaveChanged);
+    bindEventHandler('autoPause', this.onAutoPause);
 
     // 游戏结束事件
     bindEventHandler(EventType.GAME_OVER, this.onGameOver);
@@ -477,6 +478,74 @@ export class EventHandlers {
       // 调用战斗引擎的波次管理器开始下一波
       this.battleEngine.getWaveManager().startNextWave();
     });
+  }
+
+  /**
+   * 自动暂停事件处理
+   * @param data 事件数据
+   */
+  private onAutoPause(data: any): void {
+    console.log('[INFO] 收到自动暂停事件:', data);
+
+    // 暂停战斗引擎
+    this.battleEngine.pause();
+
+    // 如果是第一波完成导致的暂停，显示提示
+    if (data.reason === 'firstWaveCompleted') {
+      // 获取屏幕尺寸
+      const screenWidth = this.uiManager.getScene().cameras.main.width;
+      const screenHeight = this.uiManager.getScene().cameras.main.height;
+
+      // 创建提示文本
+      const tipText = this.uiManager.getScene().add.text(
+        screenWidth / 2,
+        screenHeight / 2 - 100,
+        '第一波完成！',
+        {
+          fontSize: '36px',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 4,
+          shadow: {
+            offsetX: 2,
+            offsetY: 2,
+            color: '#000000',
+            blur: 5,
+            stroke: true,
+            fill: true
+          }
+        }
+      );
+      tipText.setOrigin(0.5);
+      tipText.setDepth(3000); // 使用高层级确保显示在最上方
+
+      // 创建说明文本
+      const infoText = this.uiManager.getScene().add.text(
+        screenWidth / 2,
+        screenHeight / 2 - 40,
+        '点击右上角继续按钮开始下一波',
+        {
+          fontSize: '24px',
+          color: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 2
+        }
+      );
+      infoText.setOrigin(0.5);
+      infoText.setDepth(3000);
+
+      // 添加淡出动画
+      this.uiManager.getScene().tweens.add({
+        targets: [tipText, infoText],
+        alpha: 0,
+        delay: 5000, // 5秒后开始淡出
+        duration: 1000,
+        onComplete: () => {
+          tipText.destroy();
+          infoText.destroy();
+        }
+      });
+    }
   }
 
   /**

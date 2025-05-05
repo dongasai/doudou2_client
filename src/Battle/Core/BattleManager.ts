@@ -11,6 +11,7 @@ import { DamageManager } from './DamageManager';
 import { SkillManager } from './SkillManager'; // 使用兼容层
 import { WaveManager } from './WaveManager';
 import { RandomManager } from './RandomManager';
+import { HeroAI } from '../AI/HeroAI';
 import { AttackCommand, BattleCommand, CastSkillCommand, ChangePositionCommand, LearnSkillCommand, UseItemCommand } from '@/DesignConfig';
 import { BattleInitParams } from '@/DesignConfig';
 import { BattleReplayData } from '@/DesignConfig';
@@ -64,6 +65,7 @@ export class BattleManager {
   private skillManager: SkillManager;
   private waveManager: WaveManager;
   private randomManager: RandomManager;
+  private heroAI: HeroAI;
 
   // 战斗状态
   private state: BattleState = BattleState.IDLE;
@@ -125,6 +127,10 @@ export class BattleManager {
       this.entityManager,
       this.eventManager
     );
+
+    // 创建英雄AI
+    this.heroAI = new HeroAI(this.entityManager);
+    logger.info('英雄AI初始化完成');
 
     // 注册事件监听
     this.registerEventListeners();
@@ -489,10 +495,32 @@ export class BattleManager {
     // 更新波次
     if (frameType === FrameType.LOGIC) {
       this.waveManager.update(currentTime);
+
+      // 更新英雄AI（每个逻辑帧更新一次）
+      this.updateHeroAI();
     }
 
     // 检查胜负条件
     this.checkBattleResult();
+  }
+
+  /**
+   * 更新英雄AI
+   * 为没有目标的英雄自动选择目标
+   */
+  private updateHeroAI(): void {
+    // 如果战斗暂停或已结束，不更新AI
+    if (this.state !== BattleState.RUNNING) {
+      return;
+    }
+
+    // 遍历所有英雄
+    for (const hero of this.heroes.values()) {
+      // 如果英雄存活，更新AI
+      if (hero.isAlive()) {
+        this.heroAI.update(hero);
+      }
+    }
   }
 
   /**
