@@ -66,6 +66,14 @@ export class BattleEngine {
   }
 
   /**
+   * 获取战斗管理器
+   * @returns 战斗管理器
+   */
+  public getBattleManager() {
+    return this.battleManager;
+  }
+
+  /**
    * 暂停游戏
    */
   public pause(): void {

@@ -46,6 +46,14 @@ export class UIManager {
   }
 
   /**
+   * 获取场景引用
+   * @returns Phaser场景
+   */
+  public getScene(): Phaser.Scene {
+    return this.scene;
+  }
+
+  /**
    * 创建UI元素
    */
   private createUI(): void {
@@ -119,8 +127,8 @@ export class UIManager {
     const screenWidth = this.scene.cameras.main.width;
 
     // 计算状态栏宽度 (适配窄屏设备)
-    const barWidth = Math.min(180, screenWidth * 0.4); // 最大宽度180，或屏幕宽度的40%
-    const barHeight = 60;
+    const barWidth = Math.min(220, screenWidth * 0.5); // 增加宽度以容纳更多信息
+    const barHeight = 90; // 增加高度以容纳水晶HP
 
     // 创建状态栏容器 (位于屏幕左上角，坐标为 10,10)
     this.statusBar = this.scene.add.container(10, 10);
@@ -135,7 +143,15 @@ export class UIManager {
     // 计算头像大小和位置 (根据状态栏宽度调整)
     const iconSize = Math.min(40, barWidth * 0.2); // 头像大小
     const iconX = 10;
-    const iconY = barHeight / 2;
+    const iconY = barHeight / 2 + 10; // 将英雄图标下移
+
+    // 创建水晶图标 (使用文本Emoji代替图片)
+    const crystalIcon = this.scene.add.text(iconX, 20, '💎', {
+      fontSize: `${iconSize}px`
+    });
+    crystalIcon.setOrigin(0, 0.5);
+    crystalIcon.setDepth(DepthLayers.UI_ELEMENT);
+    this.statusBar.add(crystalIcon);
 
     // 创建英雄头像 (使用文本Emoji代替图片)
     const heroIcon = this.scene.add.text(iconX, iconY, '🧙', {
@@ -149,54 +165,77 @@ export class UIManager {
     const barX = iconX + iconSize + 10; // 条形图X坐标
     const barLength = barWidth - barX - 10; // 条形图长度
     const barHeight1 = 12; // 条形图高度
-    const hpY = 20; // 生命值条Y坐标
-    const mpY = 40; // 魔法值条Y坐标
 
-    // 创建生命值条背景
-    const hpBarBg = this.scene.add.rectangle(barX, hpY, barLength, barHeight1, 0x333333);
-    hpBarBg.setOrigin(0, 0);
-    hpBarBg.setDepth(DepthLayers.UI_ELEMENT);
-    this.statusBar.add(hpBarBg);
+    const crystalY = 20; // 水晶生命值条Y坐标
+    const heroHpY = 45; // 英雄生命值条Y坐标
+    const heroMpY = 70; // 英雄魔法值条Y坐标
 
-    // 创建生命值条
-    const hpBar = this.scene.add.rectangle(barX, hpY, barLength, barHeight1, 0xff0000);
-    hpBar.setOrigin(0, 0);
-    hpBar.setDepth(DepthLayers.UI_ELEMENT + 1); // 稍高一层，确保显示在背景上方
-    this.statusBar.add(hpBar);
+    // 创建水晶生命值条背景
+    const crystalHpBarBg = this.scene.add.rectangle(barX, crystalY, barLength, barHeight1, 0x333333);
+    crystalHpBarBg.setOrigin(0, 0);
+    crystalHpBarBg.setDepth(DepthLayers.UI_ELEMENT);
+    this.statusBar.add(crystalHpBarBg);
 
-    // 创建魔法值条背景
-    const mpBarBg = this.scene.add.rectangle(barX, mpY, barLength, barHeight1, 0x333333);
-    mpBarBg.setOrigin(0, 0);
-    mpBarBg.setDepth(DepthLayers.UI_ELEMENT);
-    this.statusBar.add(mpBarBg);
+    // 创建水晶生命值条
+    const crystalHpBar = this.scene.add.rectangle(barX, crystalY, barLength, barHeight1, 0xff5555);
+    crystalHpBar.setOrigin(0, 0);
+    crystalHpBar.setDepth(DepthLayers.UI_ELEMENT + 1); // 稍高一层，确保显示在背景上方
+    this.statusBar.add(crystalHpBar);
 
-    // 创建魔法值条
-    const mpBar = this.scene.add.rectangle(barX, mpY, barLength, barHeight1, 0x0000ff);
-    mpBar.setOrigin(0, 0);
-    mpBar.setDepth(DepthLayers.UI_ELEMENT + 1); // 稍高一层，确保显示在背景上方
-    this.statusBar.add(mpBar);
+    // 创建英雄生命值条背景
+    const heroHpBarBg = this.scene.add.rectangle(barX, heroHpY, barLength, barHeight1, 0x333333);
+    heroHpBarBg.setOrigin(0, 0);
+    heroHpBarBg.setDepth(DepthLayers.UI_ELEMENT);
+    this.statusBar.add(heroHpBarBg);
+
+    // 创建英雄生命值条
+    const heroHpBar = this.scene.add.rectangle(barX, heroHpY, barLength, barHeight1, 0xff0000);
+    heroHpBar.setOrigin(0, 0);
+    heroHpBar.setDepth(DepthLayers.UI_ELEMENT + 1); // 稍高一层，确保显示在背景上方
+    this.statusBar.add(heroHpBar);
+
+    // 创建英雄魔法值条背景
+    const heroMpBarBg = this.scene.add.rectangle(barX, heroMpY, barLength, barHeight1, 0x333333);
+    heroMpBarBg.setOrigin(0, 0);
+    heroMpBarBg.setDepth(DepthLayers.UI_ELEMENT);
+    this.statusBar.add(heroMpBarBg);
+
+    // 创建英雄魔法值条
+    const heroMpBar = this.scene.add.rectangle(barX, heroMpY, barLength, barHeight1, 0x0000ff);
+    heroMpBar.setOrigin(0, 0);
+    heroMpBar.setDepth(DepthLayers.UI_ELEMENT + 1); // 稍高一层，确保显示在背景上方
+    this.statusBar.add(heroMpBar);
 
     // 计算文本大小和位置
     const textSize = Math.min(12, barLength * 0.1); // 文本大小
     const textX = barX + barLength / 2; // 文本X坐标
 
-    // 创建生命值文本
-    const hpText = this.scene.add.text(textX, hpY, '100/100', {
+    // 创建水晶生命值文本
+    const crystalHpText = this.scene.add.text(textX, crystalY, '水晶: 1000/1000', {
       fontSize: `${textSize}px`,
       color: '#ffffff'
     });
-    hpText.setOrigin(0.5, 0);
-    hpText.setDepth(DepthLayers.UI_FOREGROUND); // 使用前景层级，确保显示在最上方
-    this.statusBar.add(hpText);
+    crystalHpText.setOrigin(0.5, 0);
+    crystalHpText.setDepth(DepthLayers.UI_FOREGROUND); // 使用前景层级，确保显示在最上方
+    this.statusBar.add(crystalHpText);
 
-    // 创建魔法值文本
-    const mpText = this.scene.add.text(textX, mpY, '100/100', {
+    // 创建英雄生命值文本
+    const heroHpText = this.scene.add.text(textX, heroHpY, '英雄HP: 100/100', {
       fontSize: `${textSize}px`,
       color: '#ffffff'
     });
-    mpText.setOrigin(0.5, 0);
-    mpText.setDepth(DepthLayers.UI_FOREGROUND); // 使用前景层级，确保显示在最上方
-    this.statusBar.add(mpText);
+    heroHpText.setOrigin(0.5, 0);
+    heroHpText.setDepth(DepthLayers.UI_FOREGROUND); // 使用前景层级，确保显示在最上方
+    this.statusBar.add(heroHpText);
+
+    // 创建英雄魔法值文本
+    const heroMpText = this.scene.add.text(textX, heroMpY, '英雄MP: 100/100', {
+      fontSize: `${textSize}px`,
+      color: '#ffffff'
+    });
+    heroMpText.setOrigin(0.5, 0);
+    heroMpText.setDepth(DepthLayers.UI_FOREGROUND); // 使用前景层级，确保显示在最上方
+    this.statusBar.add(heroMpText);
 
     // 确保状态栏可见
     this.statusBar.setVisible(true);
@@ -566,27 +605,78 @@ export class UIManager {
 
   /**
    * 更新状态栏
+   * @param crystalHp 水晶当前生命值
+   * @param crystalMaxHp 水晶最大生命值
+   * @param heroHp 英雄当前生命值
+   * @param heroMaxHp 英雄最大生命值
+   * @param heroMp 英雄当前魔法值
+   * @param heroMaxMp 英雄最大魔法值
+   */
+  public updateStatusBar(
+    crystalHp: number,
+    crystalMaxHp: number,
+    heroHp: number,
+    heroMaxHp: number,
+    heroMp: number,
+    heroMaxMp: number
+  ): void {
+    try {
+      // 获取条形图的最大长度
+      const barLength = (this.statusBar.getAt(2) as Phaser.GameObjects.Rectangle).width;
+
+      // 更新水晶生命值条
+      const crystalHpBar = this.statusBar.getAt(4) as Phaser.GameObjects.Rectangle;
+      const crystalHpRatio = Math.max(0, Math.min(1, crystalHp / crystalMaxHp));
+      crystalHpBar.width = barLength * crystalHpRatio;
+
+      // 根据生命值百分比改变水晶生命值条颜色
+      if (crystalHpRatio < 0.3) {
+        // 生命值低于30%，显示红色
+        crystalHpBar.fillColor = 0xff0000;
+      } else if (crystalHpRatio < 0.7) {
+        // 生命值低于70%，显示黄色
+        crystalHpBar.fillColor = 0xffff00;
+      } else {
+        // 生命值正常，显示浅红色
+        crystalHpBar.fillColor = 0xff5555;
+      }
+
+      // 更新英雄生命值条
+      const heroHpBar = this.statusBar.getAt(6) as Phaser.GameObjects.Rectangle;
+      heroHpBar.width = barLength * (heroHp / heroMaxHp);
+
+      // 更新英雄魔法值条
+      const heroMpBar = this.statusBar.getAt(8) as Phaser.GameObjects.Rectangle;
+      heroMpBar.width = barLength * (heroMp / heroMaxMp);
+
+      // 更新水晶生命值文本
+      const crystalHpText = this.statusBar.getAt(9) as Phaser.GameObjects.Text;
+      crystalHpText.setText(`水晶: ${Math.floor(crystalHp)}/${crystalMaxHp}`);
+
+      // 更新英雄生命值文本
+      const heroHpText = this.statusBar.getAt(10) as Phaser.GameObjects.Text;
+      heroHpText.setText(`英雄HP: ${Math.floor(heroHp)}/${heroMaxHp}`);
+
+      // 更新英雄魔法值文本
+      const heroMpText = this.statusBar.getAt(11) as Phaser.GameObjects.Text;
+      heroMpText.setText(`英雄MP: ${Math.floor(heroMp)}/${heroMaxMp}`);
+    } catch (error) {
+      console.error('[ERROR] 更新状态栏失败:', error);
+    }
+  }
+
+  /**
+   * 兼容旧版API的更新状态栏方法
    * @param hp 当前生命值
    * @param maxHp 最大生命值
    * @param mp 当前魔法值
    * @param maxMp 最大魔法值
+   * @deprecated 使用新的updateStatusBar方法，该方法支持同时显示水晶HP和英雄HP/MP
    */
-  public updateStatusBar(hp: number, maxHp: number, mp: number, maxMp: number): void {
-    // 更新生命值条
-    const hpBar = this.statusBar.getAt(3) as Phaser.GameObjects.Rectangle;
-    hpBar.width = 130 * (hp / maxHp);
-
-    // 更新魔法值条
-    const mpBar = this.statusBar.getAt(5) as Phaser.GameObjects.Rectangle;
-    mpBar.width = 130 * (mp / maxMp);
-
-    // 更新生命值文本
-    const hpText = this.statusBar.getAt(6) as Phaser.GameObjects.Text;
-    hpText.setText(`${Math.floor(hp)}/${maxHp}`);
-
-    // 更新魔法值文本
-    const mpText = this.statusBar.getAt(7) as Phaser.GameObjects.Text;
-    mpText.setText(`${Math.floor(mp)}/${maxMp}`);
+  public updateStatusBarLegacy(hp: number, maxHp: number, mp: number, maxMp: number): void {
+    // 调用新的方法，将传入的参数作为英雄的生命值和魔法值，水晶生命值保持不变
+    this.updateStatusBar(1000, 1000, hp, maxHp, mp, maxMp);
+    console.warn('[WARN] 使用了已废弃的updateStatusBarLegacy方法，请使用新的updateStatusBar方法');
   }
 
   /**

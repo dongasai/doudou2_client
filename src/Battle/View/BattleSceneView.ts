@@ -402,19 +402,35 @@ export class BattleSceneView {
       // 获取战斗状态
       const battleStats = this.battleEngine.getBattleStats();
 
-      // 更新状态栏
+      // 获取水晶状态
+      const crystalHp = battleStats.crystalStats?.hp || 1000;
+      const crystalMaxHp = battleStats.crystalStats?.maxHp || 1000;
+
+      // 获取英雄状态
+      let heroHp = 100;
+      let heroMaxHp = 100;
+      let heroMp = 100;
+      let heroMaxMp = 100;
+
       if (battleStats.heroStats && battleStats.heroStats.length > 0) {
         const hero = battleStats.heroStats[0];
-        this.uiManager.updateStatusBar(
-          hero.hp,
-          hero.maxHp,
-          hero.mp || 100, // 提供默认值
-          hero.maxMp || 100 // 提供默认值
-        );
-      } else {
-        // 使用默认值更新状态栏
-        this.uiManager.updateStatusBar(100, 100, 100, 100);
+        heroHp = hero.hp || heroHp;
+        heroMaxHp = hero.maxHp || heroMaxHp;
+        heroMp = hero.mp || heroMp;
+        heroMaxMp = hero.maxMp || heroMaxMp;
       }
+
+      // 更新状态栏，同时显示水晶HP和英雄HP/MP
+      this.uiManager.updateStatusBar(
+        crystalHp,
+        crystalMaxHp,
+        heroHp,
+        heroMaxHp,
+        heroMp,
+        heroMaxMp
+      );
+
+      console.log(`[INFO] 更新UI - 水晶: ${crystalHp}/${crystalMaxHp}, 英雄: HP=${heroHp}/${heroMaxHp}, MP=${heroMp}/${heroMaxMp}`);
 
       // 更新波次指示器
       if (battleStats.currentWave) {

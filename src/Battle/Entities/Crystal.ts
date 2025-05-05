@@ -107,6 +107,18 @@ export class Crystal extends Entity {
     return this.invulnerable;
   }
 
+  // 事件管理器
+  private eventManager: any = null;
+
+  /**
+   * 设置事件管理器
+   * @param eventManager 事件管理器
+   */
+  public setEventManager(eventManager: any): void {
+    this.eventManager = eventManager;
+    logger.debug(`水晶${this.id}设置事件管理器`);
+  }
+
   /**
    * 对实体造成伤害
    * @param amount 伤害量
@@ -153,8 +165,31 @@ export class Crystal extends Entity {
       // 触发受伤效果
       this.onDamaged(actualDamage, source);
 
-      // 触发水晶受伤事件（实际实现中，应该通过事件管理器触发）
-      // 这里可以添加事件触发代码
+      // 触发实体属性变化事件
+      if (this.eventManager) {
+        try {
+          // 直接使用字符串事件类型，避免导入问题
+          const ENTITY_STATS_CHANGED = 'entityStatsChanged';
+
+          // 触发实体属性变化事件
+          this.eventManager.emit(ENTITY_STATS_CHANGED, {
+            entityId: this.id,
+            entityType: 'crystal',
+            changedStats: {
+              hp: newHp,
+              maxHp: this.stats.maxHp
+            },
+            reason: '受到伤害',
+            time: Date.now()
+          });
+
+          logger.debug(`水晶${this.id}触发属性变化事件: hp=${newHp}, maxHp=${this.stats.maxHp}`);
+        } catch (error) {
+          logger.error(`水晶${this.id}触发属性变化事件失败:`, error);
+        }
+      } else {
+        logger.warn(`水晶${this.id}没有事件管理器，无法触发属性变化事件`);
+      }
     }
 
     return actualDamage;

@@ -695,6 +695,12 @@ export class BattleManager {
       this.crystal.setDamageCooldown(200); // 设置为200毫秒
       logger.debug(`设置水晶伤害冷却时间为200毫秒`);
     }
+
+    // 设置水晶的事件管理器
+    if (this.crystal.setEventManager) {
+      this.crystal.setEventManager(this.eventManager);
+      logger.debug(`设置水晶事件管理器`);
+    }
   }
 
   /**
@@ -1425,6 +1431,28 @@ export class BattleManager {
   }
 
   /**
+   * 更新水晶状态
+   * @param hp 当前生命值
+   * @param maxHp 最大生命值
+   */
+  public updateCrystalStats(hp: number, maxHp: number): void {
+    if (!this.crystal) {
+      logger.warn('无法更新水晶状态，水晶不存在');
+      return;
+    }
+
+    // 记录原始值，用于日志
+    const oldHp = this.crystal.getStat('hp');
+    const oldMaxHp = this.crystal.getStat('maxHp');
+
+    // 更新水晶状态
+    this.crystal.setStat('hp', hp);
+    this.crystal.setStat('maxHp', maxHp);
+
+    logger.info(`水晶状态更新: HP=${oldHp}->${hp}/${maxHp}`);
+  }
+
+  /**
    * 注册事件监听
    */
   private registerEventListeners(): void {
@@ -1449,6 +1477,19 @@ export class BattleManager {
 
         // 记录日志
         logger.info(`敌人被击败: ID=${event.entity.id}, 位置=(${event.entity.position.x}, ${event.entity.position.y})`);
+      }
+    });
+
+    // 监听实体属性变化事件
+    this.eventManager.on('entityStatsChanged', (event: any) => {
+      // 如果是水晶，更新水晶状态
+      if (event.entityId.startsWith('crystal_') && event.changedStats) {
+        const hp = event.changedStats.hp;
+        const maxHp = event.changedStats.maxHp;
+
+        if (hp !== undefined && maxHp !== undefined) {
+          this.updateCrystalStats(hp, maxHp);
+        }
       }
     });
   }
