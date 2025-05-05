@@ -10,7 +10,7 @@ export interface FrostNovaSkill {
     cost: number;
 
     /* 可调整参数(可选) */
-    /** 作用范围(像素) */
+    /** 作用范围(坐标单位) */
     range?: number;
     /** 减速效果值(百分比) */
     slowValue?: number;

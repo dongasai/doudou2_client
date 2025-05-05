@@ -12,7 +12,7 @@ export interface HealSkill {
     /* 可调整参数(可选) */
     /** 治疗量 */
     healAmount?: number;
-    /** 作用范围(像素) */
+    /** 作用范围(坐标单位) */
     range?: number;
     /** 持续时间(毫秒) */
     duration?: number;

@@ -27,14 +27,14 @@
       "id": "fireball",
       "name": "火球术",
       "type": "伤害",
-      "range": "400像素",
+      "range": "400坐标单位",
       "description": "发射火球造成100点基础伤害，并有20%暴击率"
     },
     {
       "id": "flame_storm",
       "name": "烈焰风暴",
       "type": "范围伤害", 
-      "range": "350像素",
+      "range": "350坐标单位",
       "description": "召唤持续5秒的火焰风暴，每秒造成80点伤害"
     }
   ],

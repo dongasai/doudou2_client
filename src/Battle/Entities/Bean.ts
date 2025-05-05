@@ -39,9 +39,9 @@ export class Bean extends Entity {
   private state: BeanState = BeanState.IDLE;
   // 目标实体ID
   private targetId: string | null = null;
-  // 移动速度（像素/秒）
+  // 移动速度（坐标单位/秒）
   private moveSpeed: number;
-  // 攻击范围（像素）
+  // 攻击范围（坐标单位）
   private attackRange: number;
   // 攻击间隔（毫秒）
   private attackInterval: number;

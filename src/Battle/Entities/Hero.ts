@@ -26,7 +26,7 @@ export class Hero extends Entity {
   private gold: number = 0;
   // 装备的物品ID列表
   private equippedItems: string[] = [];
-  // 攻击范围（像素）
+  // 攻击范围（坐标单位）
   private attackRange: number = 150;
   // 攻击间隔（毫秒）
   private attackInterval: number = 1000;

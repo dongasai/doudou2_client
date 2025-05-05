@@ -10,7 +10,7 @@ export interface SpeedBoostSkill {
     cost: number;
 
     /* 可调整参数(可选) */
-    /** 作用范围(像素) */
+    /** 作用范围(坐标单位) */
     range?: number;
     /** 速度提升值(百分比) */
     speedBoost?: number;

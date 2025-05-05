@@ -27,14 +27,14 @@
       "id": "heal",
       "name": "治疗术",
       "type": "治疗",
-      "range": "300像素",
+      "range": "300坐标单位",
       "description": "为目标恢复150点生命值，有25%几率触发1.5倍暴击治疗"
     },
     {
       "id": "speed_boost",
       "name": "加速",
       "type": "增益",
-      "range": "300像素",
+      "range": "300坐标单位",
       "description": "提升目标50点移动速度，持续5秒"
     }
   ],

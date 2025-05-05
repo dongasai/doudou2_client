@@ -654,7 +654,7 @@ export class TouchController {
 
   /**
    * 获取英雄攻击范围
-   * @returns 攻击范围（屏幕坐标系中的像素值）
+   * @returns 攻击范围（屏幕坐标系中的坐标单位值）
    */
   private getHeroAttackRange(): number | null {
     // 获取战斗状态

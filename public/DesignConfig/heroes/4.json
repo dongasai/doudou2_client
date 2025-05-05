@@ -27,14 +27,14 @@
       "id": "piercing_arrow",
       "name": "穿透箭",
       "type": "范围伤害",
-      "range": "500像素",
+      "range": "500坐标单位",
       "description": "发射穿透箭，最多命中3个目标，造成伤害并附加15点流血效果"
     },
     {
       "id": "quick_shot",
       "name": "快速射击",
       "type": "单体爆发",
-      "range": "450像素",
+      "range": "450坐标单位",
       "description": "快速射击造成90点伤害，30%暴击率，暴击伤害1.8倍"
     }
   ],

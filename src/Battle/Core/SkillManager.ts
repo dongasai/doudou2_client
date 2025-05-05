@@ -58,7 +58,7 @@ export interface SkillConfig {
   type: SkillType;         // 技能类型
   targetType: TargetType;  // 目标类型
   cooldown: number;        // 冷却时间（毫秒）
-  range?: number;          // 射程（像素）
+  range?: number;          // 射程（坐标单位）
   duration?: number;       // 持续时间（毫秒）
   baseDamage?: number;     // 基础伤害
   baseHeal?: number;       // 基础治疗

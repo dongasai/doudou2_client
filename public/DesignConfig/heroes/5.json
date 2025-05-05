@@ -26,14 +26,14 @@
       "id": "frost_nova",
       "name": "冰霜新星",
       "type": "范围控制",
-      "range": "350像素",
+      "range": "350坐标单位",
       "description": "释放冰霜新星，范围内敌人减速50%，持续5秒"
     },
     {
       "id": "stun_shot",
       "name": "眩晕射击",
       "type": "单体控制",
-      "range": "400像素",
+      "range": "400坐标单位",
       "description": "发射冰箭造成70点伤害并眩晕目标2秒"
     }
   ],
