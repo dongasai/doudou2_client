@@ -459,8 +459,13 @@ export class EventHandlers {
    * @param event 事件数据
    */
   private onGameOver(event: GameOverEvent): void {
+    console.log('[INFO] 游戏结束事件:', event);
+
+    // 确保结果是正确的
+    const result = event.result || (event.victory ? 'victory' : 'defeat');
+
     // 显示游戏结束提示
-    this.uiManager.showGameOverNotification(event.result, () => {
+    this.uiManager.showGameOverNotification(result, () => {
       // 返回到关卡选择场景
       // 使用UI管理器的场景引用切换场景
       const scene = this.uiManager.getScene();

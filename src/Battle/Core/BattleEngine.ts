@@ -271,14 +271,24 @@ export class BattleEngine {
     // 获取战斗统计数据
     const stats = this.getBattleStats();
 
+    // 获取战斗管理器的结果
+    const battleResult = this.getBattleResult();
+
     // 判断胜利条件
-    // 这里简单判断：如果英雄还活着，就算胜利
-    const heroAlive = stats.heroStats && stats.heroStats.length > 0 &&
-                      stats.heroStats.some(hero => hero.hp > 0);
+    // 使用战斗管理器的结果，而不是自己判断
+    const isVictory = battleResult === BattleResult.VICTORY;
+
+    console.log('[INFO] 战斗结果:', {
+      battleResult,
+      isVictory,
+      crystalHP: stats.crystalStats?.hp || 0,
+      heroHP: stats.heroStats?.[0]?.hp || 0
+    });
 
     // 返回结果
     return {
-      victory: heroAlive,
+      victory: isVictory,
+      result: battleResult,
       stats: stats,
       duration: stats.duration,
       enemiesDefeated: stats.totalEnemiesDefeated
