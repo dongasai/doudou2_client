@@ -45,8 +45,8 @@ export class CameraController {
       const initialZoom = 1.5; // 使用原始缩放级别
       mainCamera.setZoom(initialZoom);
 
-      // 设置相机背景色
-      mainCamera.setBackgroundColor('#111122');
+      // 设置相机背景色为纯黑色
+      mainCamera.setBackgroundColor('#000000');
 
       // 设置相机淡入效果
       mainCamera.fadeIn(1000, 0, 0, 0);

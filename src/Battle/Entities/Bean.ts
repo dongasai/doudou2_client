@@ -7,6 +7,7 @@ import { logger } from '../Core/Logger';
 import { Entity, EntityStats, EntityType } from './Entity';
 import { Vector2D, Vector2DUtils } from '../Types/Vector2D';
 import { DamageManager, DamageType } from '../Core/DamageManager';
+import { EntityManager } from '../Core/EntityManager';
 
 // 豆豆类型枚举
 export enum BeanType {
@@ -56,6 +57,10 @@ export class Bean extends Entity {
   private waveIndex: number = 0;
   // 目标位置
   private targetPosition: Vector2D | null = null;
+  // 伤害管理器
+  private damageManager: DamageManager | null = null;
+  // 实体管理器
+  private entityManager: EntityManager | null = null;
 
   /**
    * 构造函数
@@ -192,6 +197,24 @@ export class Bean extends Entity {
    */
   public getWaveIndex(): number {
     return this.waveIndex;
+  }
+
+  /**
+   * 设置伤害管理器
+   * @param damageManager 伤害管理器
+   */
+  public setDamageManager(damageManager: DamageManager): void {
+    this.damageManager = damageManager;
+    logger.debug(`豆豆${this.id}设置伤害管理器`);
+  }
+
+  /**
+   * 设置实体管理器
+   * @param entityManager 实体管理器
+   */
+  public setEntityManager(entityManager: EntityManager): void {
+    this.entityManager = entityManager;
+    logger.debug(`豆豆${this.id}设置实体管理器`);
   }
 
   /**
@@ -382,11 +405,62 @@ export class Bean extends Entity {
     // 更新上次攻击时间
     this.lastAttackTime = currentTime;
 
-    // 执行攻击（实际实现中，应该通过伤害管理器处理）
+    // 获取攻击力
+    const attackPower = this.stats.attack || 10;
+
+    // 执行攻击
     if (this.targetId) {
-      logger.info(`豆豆${this.id}攻击目标: ${this.targetId}, 攻击力: ${this.stats.attack || 0}`);
+      // 记录攻击日志
+      logger.info(`豆豆${this.id}攻击目标: ${this.targetId}, 攻击力: ${attackPower}`);
+
+      // 如果有伤害管理器和实体管理器，使用伤害管理器造成伤害
+      if (this.damageManager && this.entityManager) {
+        // 从实体管理器获取目标实体
+        const targetEntity = this.entityManager.getEntity(this.targetId);
+
+        if (targetEntity && targetEntity.isAlive()) {
+          // 记录目标实体的当前生命值
+          const targetHpBefore = targetEntity.getStat('hp');
+          logger.debug(`目标${this.targetId}当前生命值: ${targetHpBefore}`);
+
+          // 应用伤害
+          const damageResult = this.damageManager.applyDamage(
+            this, // 伤害来源
+            targetEntity, // 伤害目标
+            attackPower, // 伤害量
+            DamageType.PHYSICAL, // 伤害类型
+            {
+              criticalRate: 0.1, // 10%暴击率
+              evadeCheck: false, // 水晶不能闪避
+              ignoreDefense: false // 不忽略防御
+            }
+          );
+
+          // 记录目标实体的新生命值
+          const targetHpAfter = targetEntity.getStat('hp');
+
+          logger.info(`豆豆${this.id}攻击目标${this.targetId}，造成${damageResult.actualAmount}点伤害，目标生命值: ${targetHpBefore} -> ${targetHpAfter}`);
+
+          // 检查目标是否死亡
+          if (!targetEntity.isAlive()) {
+            logger.info(`目标${this.targetId}已被摧毁`);
+          }
+        } else {
+          logger.warn(`豆豆${this.id}的目标${this.targetId}不存在或已死亡`);
+          // 目标不存在或已死亡，切换回移动状态
+          this.setState(BeanState.MOVE);
+        }
+      } else {
+        if (!this.damageManager) {
+          logger.warn(`豆豆${this.id}没有伤害管理器，无法造成伤害`);
+        }
+        if (!this.entityManager) {
+          logger.warn(`豆豆${this.id}没有实体管理器，无法获取目标实体`);
+        }
+      }
     } else if (this.targetPosition) {
-      logger.info(`豆豆${this.id}攻击位置目标: (${this.targetPosition.x}, ${this.targetPosition.y}), 攻击力: ${this.stats.attack || 0}`);
+      // 位置目标，无法造成伤害
+      logger.info(`豆豆${this.id}攻击位置目标: (${this.targetPosition.x}, ${this.targetPosition.y}), 攻击力: ${attackPower}`);
     }
 
     // 攻击后可以继续移动

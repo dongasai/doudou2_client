@@ -638,8 +638,11 @@ export class BattleManager {
    * @param crystalConfig 水晶配置
    */
   private createCrystal(crystalConfig: any): void {
+    // 记录水晶配置
+    logger.debug(`水晶配置: ${JSON.stringify(crystalConfig)}`);
+
     // 确保水晶配置中有正确的HP值
-    const maxHp = crystalConfig.maxHp || crystalConfig.maxHP || 1000;
+    const maxHp = crystalConfig.maxHp || crystalConfig.maxHP || crystalConfig.stats?.maxHp || crystalConfig.stats?.maxHP || 1000;
 
     // 创建水晶实体
     this.crystal = new Crystal(
@@ -648,10 +651,15 @@ export class BattleManager {
       { x: 1500, y: 1500 },
       {
         hp: maxHp,
-        maxHp: maxHp
+        maxHp: maxHp,
+        defense: 50, // 添加防御属性
+        magicDefense: 50 // 添加魔法防御属性
       },
       this.frameManager.getCurrentLogicFrame()
     );
+
+    // 验证水晶状态
+    logger.info(`水晶创建后状态: HP=${this.crystal.getStat('hp')}/${this.crystal.getStat('maxHp')}, 防御=${this.crystal.getStat('defense')}`);
 
     // 添加到实体管理器
     this.entityManager.addEntity(this.crystal);
@@ -662,13 +670,14 @@ export class BattleManager {
     // 设置豆豆生成范围，确保豆豆生成在离水晶足够远的位置
     this.waveManager.setSpawnRange(800, 1200);
 
-    logger.info(`创建水晶: HP=${maxHp}`);
+    logger.info(`创建水晶: HP=${maxHp}, ID=${this.crystal.getId()}`);
 
     // 触发水晶创建事件
     this.eventManager.emit('crystalCreated', {
       id: this.crystal.getId(),
       position: this.crystal.getPosition(),
-      maxHp: this.crystal.getStat('maxHp')
+      maxHp: this.crystal.getStat('maxHp'),
+      hp: this.crystal.getStat('hp')
     });
 
     // 同时触发通用实体创建事件，确保视图层能正确显示水晶
@@ -680,6 +689,12 @@ export class BattleManager {
       stats: this.crystal.getStats()
     };
     this.eventManager.emit(EventType.ENTITY_CREATED, entityCreatedData);
+
+    // 设置水晶的伤害冷却时间为较短的值，确保能够连续受到伤害
+    if (this.crystal.setDamageCooldown) {
+      this.crystal.setDamageCooldown(200); // 设置为200毫秒
+      logger.debug(`设置水晶伤害冷却时间为200毫秒`);
+    }
   }
 
   /**
@@ -1034,6 +1049,18 @@ export class BattleManager {
         logger.debug(`豆豆${bean.getId()}设置目标为水晶${this.crystal.getId()}，状态为${bean.getState()}`);
       } else {
         logger.warn(`豆豆${bean.getId()}无法设置目标，水晶不存在`);
+      }
+
+      // 设置伤害管理器
+      if (bean.setDamageManager) {
+        bean.setDamageManager(this.damageManager);
+        logger.debug(`为豆豆${bean.getId()}设置伤害管理器`);
+      }
+
+      // 设置实体管理器
+      if (bean.setEntityManager) {
+        bean.setEntityManager(this.entityManager);
+        logger.debug(`为豆豆${bean.getId()}设置实体管理器`);
       }
 
       // 添加到实体管理器

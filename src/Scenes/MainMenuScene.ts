@@ -34,6 +34,10 @@ export class MainMenuScene extends Phaser.Scene {
    * 创建场景
    */
   create(): void {
+    // 设置主场景的帧率为10fps，极大降低资源消耗
+    this.game.loop.targetFps = 10;
+    console.log('[INFO] 主菜单场景帧率设置为10fps');
+
     // 创建背景
     this.createBackground();
 
@@ -48,58 +52,14 @@ export class MainMenuScene extends Phaser.Scene {
    * 创建背景
    */
   private createBackground(): void {
-    // 创建渐变背景
+    // 创建纯黑色背景
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
 
-    // 创建渐变矩形 - 使用多个矩形模拟渐变效果
+    // 创建纯黑色背景
     const background = this.add.graphics();
-
-    // 设置颜色（从深绿色到浅绿色的渐变）
-    const topColor = 0x0a3a1a;
-    const bottomColor = 0x3a7a4a;
-
-    // 创建多个矩形来模拟渐变
-    const steps = 20;
-    for (let i = 0; i < steps; i++) {
-      const ratio = i / steps;
-      const color = Phaser.Display.Color.Interpolate.ColorWithColor(
-        Phaser.Display.Color.ValueToColor(topColor),
-        Phaser.Display.Color.ValueToColor(bottomColor),
-        steps,
-        i
-      );
-
-      background.fillStyle(color.color, 1);
-      background.fillRect(0, height * (i / steps), width, height / steps + 1);
-    }
-
-    // 添加一些装饰性的豆豆图案
-    const emojis = ['🟢', '🟤', '🔴', '🟠', '🟡'];
-    for (let i = 0; i < 20; i++) {
-      const x = Math.random() * width;
-      const y = Math.random() * height;
-      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-      const scale = 0.5 + Math.random() * 1.5;
-      const alpha = 0.3 + Math.random() * 0.4;
-
-      const text = this.add.text(x, y, emoji, {
-        fontSize: `${24 * scale}px`,
-        color: '#ffffff'
-      });
-      text.setAlpha(alpha);
-      text.setOrigin(0.5);
-
-      // 添加简单的动画
-      this.tweens.add({
-        targets: text,
-        y: y + 50,
-        alpha: alpha - 0.2,
-        duration: 2000 + Math.random() * 3000,
-        yoyo: true,
-        repeat: -1
-      });
-    }
+    background.fillStyle(0x000000, 1); // 纯黑色背景
+    background.fillRect(0, 0, width, height);
   }
 
   /**

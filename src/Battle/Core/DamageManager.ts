@@ -99,7 +99,7 @@ export class DamageManager {
 
     if (isEvaded) {
       logger.debug(`伤害被闪避: ${source?.getId() || 'unknown'} -> ${target.getId()}`);
-      
+
       // 触发闪避事件
       this.eventManager.emit('damageEvaded', {
         source,
@@ -107,7 +107,7 @@ export class DamageManager {
         damageType: type,
         skillId
       });
-      
+
       return {
         originalAmount: amount,
         actualAmount: 0,
@@ -124,7 +124,7 @@ export class DamageManager {
     // 暴击检查
     let isCritical = false;
     let damageMultiplier = 1.0;
-    
+
     if (criticalRate > 0) {
       isCritical = this.randomManager.randomBool(criticalRate);
       if (isCritical) {
@@ -147,8 +147,16 @@ export class DamageManager {
     // 确保伤害至少为1
     actualAmount = Math.max(1, Math.floor(actualAmount));
 
+    // 记录目标当前生命值
+    const targetHpBefore = target.getStat('hp');
+    logger.debug(`目标${target.getId()}当前生命值: ${targetHpBefore}`);
+
     // 应用伤害
     const appliedDamage = target.takeDamage(actualAmount, type, source);
+
+    // 记录目标新生命值
+    const targetHpAfter = target.getStat('hp');
+    logger.debug(`目标${target.getId()}受到伤害后生命值: ${targetHpAfter}, 减少了${targetHpBefore - targetHpAfter}点`);
 
     // 创建伤害结果
     const result: DamageResult = {
@@ -214,7 +222,7 @@ export class DamageManager {
     // 暴击检查
     let isCritical = false;
     let healMultiplier = 1.0;
-    
+
     if (criticalRate > 0) {
       isCritical = this.randomManager.randomBool(criticalRate);
       if (isCritical) {
@@ -262,16 +270,16 @@ export class DamageManager {
     // 获取目标的闪避率（基于速度属性）
     const targetSpeed = target.getStat('speed') || 0;
     const baseEvadeRate = targetSpeed * 0.002; // 每点速度提供0.2%的闪避率
-    
+
     // 获取攻击者的命中率（如果有）
     let attackerAccuracy = 0;
     if (source) {
       attackerAccuracy = source.getStat('accuracy') || 0;
     }
-    
+
     // 计算最终闪避率（考虑攻击者的命中率）
     const finalEvadeRate = Math.max(0, Math.min(0.75, baseEvadeRate - attackerAccuracy * 0.001)); // 闪避率上限75%
-    
+
     // 随机判定是否闪避
     return this.randomManager.randomBool(finalEvadeRate);
   }
@@ -294,7 +302,7 @@ export class DamageManager {
     let defense = 0;
     let damageReduction = 0;
     let blockChance = 0;
-    
+
     // 根据伤害类型选择对应的防御属性
     if (type === DamageType.PHYSICAL) {
       defense = target.getStat('defense') || 0;
@@ -305,11 +313,11 @@ export class DamageManager {
       // 真实伤害不受防御影响
       return { reducedAmount: amount, blocked: false };
     }
-    
+
     // 计算伤害减免百分比
     // 防御公式: 减伤率 = 防御 / (防御 + 100)，这样防御越高，边际效益越低
     damageReduction = defense / (defense + 100);
-    
+
     // 检查是否格挡（仅对物理伤害有效）
     let blocked = false;
     if (type === DamageType.PHYSICAL && blockChance > 0) {
@@ -319,10 +327,10 @@ export class DamageManager {
         damageReduction += 0.5;
       }
     }
-    
+
     // 应用伤害减免
     const reducedAmount = amount * (1 - Math.min(0.9, damageReduction)); // 最大减伤90%
-    
+
     return { reducedAmount, blocked };
   }
 }

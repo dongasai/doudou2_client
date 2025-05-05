@@ -154,6 +154,10 @@ export class BattleScene extends Phaser.Scene {
     console.log('创建战斗场景');
 
     try {
+      // 设置战斗场景的帧率为30fps，平衡性能和流畅度
+      this.game.loop.targetFps = 30;
+      console.log('[INFO] 战斗场景帧率设置为30fps');
+
       // 创建背景
       this.createBackground();
       console.log('背景创建成功');
@@ -195,44 +199,16 @@ export class BattleScene extends Phaser.Scene {
       const width = this.cameras.main.width;
       const height = this.cameras.main.height;
 
-      // 创建渐变矩形 - 使用多个矩形模拟渐变效果
+      // 创建纯黑色背景
       const background = this.add.graphics();
-
-      // 设置颜色（从深蓝色到浅蓝色的渐变）
-      const topColor = 0x1a2a3a;
-      const bottomColor = 0x4a6a8a;
-
-      // 创建多个矩形来模拟渐变
-      const steps = 20;
-      for (let i = 0; i < steps; i++) {
-        const color = Phaser.Display.Color.Interpolate.ColorWithColor(
-          Phaser.Display.Color.ValueToColor(topColor),
-          Phaser.Display.Color.ValueToColor(bottomColor),
-          steps,
-          i
-        );
-
-        background.fillStyle(color.color, 1);
-        background.fillRect(0, height * (i / steps), width, height / steps + 1);
-      }
+      background.fillStyle(0x000000, 1); // 纯黑色背景
+      background.fillRect(0, 0, width, height);
 
       // 设置背景深度为最低，确保它在所有其他元素之下
       background.setDepth(-1000);
 
       // 将背景固定到相机，使其不随相机移动
       background.setScrollFactor(0);
-
-      // 添加一些随机的星星（点）
-      for (let i = 0; i < 50; i++) {
-        const x = Math.random() * width;
-        const y = Math.random() * height;
-        const size = Math.random() * 2 + 1;
-        const alpha = Math.random() * 0.8 + 0.2;
-
-        const star = this.add.circle(x, y, size, 0xffffff, alpha);
-        star.setDepth(-999); // 星星在背景之上，但在其他元素之下
-        star.setScrollFactor(0); // 星星固定到相机
-      }
 
       console.log('[INFO] 背景创建完成');
     } catch (error) {

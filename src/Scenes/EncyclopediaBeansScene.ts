@@ -30,6 +30,10 @@ export class EncyclopediaBeansScene extends Phaser.Scene {
 
   async create(): Promise<void> {
     try {
+      // 设置豆豆百科场景的帧率为10fps，极大降低资源消耗
+      this.game.loop.targetFps = 10;
+      console.log('[INFO] 豆豆百科场景帧率设置为10fps');
+
       // 创建背景矩形
       this.createBackground();
 

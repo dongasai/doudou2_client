@@ -47,13 +47,13 @@ export class Crystal extends Entity {
     currentFrame: number
   ) {
     super(id, EntityType.CRYSTAL, name, position, stats, currentFrame);
-    
+
     // 添加水晶标签
     this.addTag('crystal');
-    
+
     // 更新初始状态
     this.updateState();
-    
+
     logger.debug(`水晶创建: ${this.toString()}`);
   }
 
@@ -78,6 +78,15 @@ export class Crystal extends Entity {
   public setDefenseBonus(bonus: number): void {
     this.defenseBonus = Math.max(0, bonus);
     logger.debug(`水晶${this.id}防御加成设置为${this.defenseBonus}`);
+  }
+
+  /**
+   * 设置伤害冷却时间
+   * @param cooldown 冷却时间（毫秒）
+   */
+  public setDamageCooldown(cooldown: number): void {
+    this.damageCooldown = Math.max(0, cooldown);
+    logger.debug(`水晶${this.id}伤害冷却时间设置为${this.damageCooldown}ms`);
   }
 
   /**
@@ -106,36 +115,48 @@ export class Crystal extends Entity {
    * @returns 实际造成的伤害
    */
   public override takeDamage(amount: number, type: string, source?: Entity): number {
+    // 记录当前生命值
+    const currentHp = this.stats.hp;
+    logger.debug(`水晶${this.id}受到伤害前生命值: ${currentHp}/${this.stats.maxHp}`);
+
     // 检查无敌状态
     if (this.invulnerable) {
       logger.debug(`水晶${this.id}处于无敌状态，免疫伤害`);
       return 0;
     }
-    
+
     // 检查伤害冷却
     const currentTime = Date.now();
     if (currentTime - this.lastDamageTime < this.damageCooldown) {
       logger.debug(`水晶${this.id}处于伤害冷却中，免疫伤害`);
       return 0;
     }
-    
+
     // 应用防御加成
     const reducedAmount = amount * (1 - this.defenseBonus / 100);
-    
+    logger.debug(`水晶${this.id}应用防御加成后伤害: ${amount} -> ${reducedAmount}, 防御加成: ${this.defenseBonus}%`);
+
     // 调用父类方法应用伤害
     const actualDamage = super.takeDamage(reducedAmount, type, source);
-    
+
+    // 记录新的生命值
+    const newHp = this.stats.hp;
+    logger.info(`水晶${this.id}受到${actualDamage}点伤害，生命值: ${currentHp} -> ${newHp}, 来源: ${source?.getId() || '未知'}`);
+
     if (actualDamage > 0) {
       // 更新上次受伤时间
       this.lastDamageTime = currentTime;
-      
+
       // 更新状态
       this.updateState();
-      
+
       // 触发受伤效果
       this.onDamaged(actualDamage, source);
+
+      // 触发水晶受伤事件（实际实现中，应该通过事件管理器触发）
+      // 这里可以添加事件触发代码
     }
-    
+
     return actualDamage;
   }
 
@@ -146,7 +167,7 @@ export class Crystal extends Entity {
    */
   public override update(deltaTime: number, currentFrame: number): void {
     super.update(deltaTime, currentFrame);
-    
+
     // 检查无敌状态
     if (this.invulnerable) {
       const elapsedTime = Date.now() - this.invulnerableStartTime;
@@ -155,7 +176,7 @@ export class Crystal extends Entity {
         logger.debug(`水晶${this.id}无敌状态结束`);
       }
     }
-    
+
     // 水晶特有的更新逻辑
     // ...
   }
@@ -166,7 +187,7 @@ export class Crystal extends Entity {
   private updateState(): void {
     const hpPercent = (this.stats.hp / this.stats.maxHp) * 100;
     let newState: CrystalState;
-    
+
     if (this.stats.hp <= 0) {
       newState = CrystalState.DESTROYED;
     } else if (hpPercent < 30) {
@@ -176,13 +197,13 @@ export class Crystal extends Entity {
     } else {
       newState = CrystalState.NORMAL;
     }
-    
+
     if (newState !== this.state) {
       const oldState = this.state;
       this.state = newState;
-      
+
       logger.info(`水晶${this.id}状态变更: ${oldState} -> ${newState}, HP: ${this.stats.hp}/${this.stats.maxHp} (${hpPercent.toFixed(1)}%)`);
-      
+
       // 触发状态变更效果
       this.onStateChanged(oldState, newState);
     }
@@ -195,7 +216,7 @@ export class Crystal extends Entity {
    */
   private onDamaged(damage: number, source?: Entity): void {
     logger.debug(`水晶${this.id}受到${damage}点伤害，来源: ${source?.getId() || '未知'}`);
-    
+
     // 受伤特效和音效（实际实现中，应该触发事件）
     // ...
   }
@@ -212,18 +233,18 @@ export class Crystal extends Entity {
         // 进入受损状态
         logger.debug(`水晶${this.id}进入受损状态`);
         break;
-        
+
       case CrystalState.CRITICAL:
         // 进入危急状态
         logger.debug(`水晶${this.id}进入危急状态`);
         break;
-        
+
       case CrystalState.DESTROYED:
         // 水晶被摧毁
         logger.debug(`水晶${this.id}被摧毁`);
         break;
     }
-    
+
     // 触发状态变更事件（实际实现中，应该通过事件管理器触发）
     // ...
   }
@@ -234,10 +255,10 @@ export class Crystal extends Entity {
    */
   protected override onDeath(killer?: Entity): void {
     super.onDeath(killer);
-    
+
     // 水晶死亡特有逻辑
     logger.info(`水晶${this.id}被摧毁，击杀者: ${killer?.getId() || '未知'}`);
-    
+
     // 触发游戏结束事件（实际实现中，应该通过事件管理器触发）
     // ...
   }

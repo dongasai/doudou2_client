@@ -190,23 +190,31 @@ export abstract class Entity {
    */
   public takeDamage(amount: number, type: string, source?: Entity): number {
     if (!this.alive || amount <= 0) {
+      logger.debug(`实体${this.id}无法受到伤害: 存活=${this.alive}, 伤害量=${amount}`);
       return 0;
     }
 
     // 计算实际伤害（可被子类重写以实现不同的伤害计算逻辑）
     const actualDamage = this.calculateDamage(amount, type, source);
-    
-    // 应用伤害
+
+    // 记录当前生命值
     const currentHp = this.stats.hp;
+    logger.debug(`实体${this.id}受到伤害前生命值: ${currentHp}/${this.stats.maxHp}`);
+
+    // 应用伤害
     this.stats.hp = Math.max(0, currentHp - actualDamage);
-    
+
+    // 记录新生命值
+    const newHp = this.stats.hp;
+    logger.debug(`实体${this.id}受到${actualDamage}点伤害，生命值: ${currentHp} -> ${newHp}`);
+
     // 检查是否死亡
     if (this.stats.hp <= 0) {
       this.alive = false;
       this.onDeath(source);
+      logger.info(`实体${this.id}死亡，击杀者: ${source?.getId() || '未知'}`);
     }
-    
-    logger.debug(`实体受伤: ${this.id}, 伤害: ${actualDamage}, 剩余HP: ${this.stats.hp}`);
+
     return actualDamage;
   }
 
