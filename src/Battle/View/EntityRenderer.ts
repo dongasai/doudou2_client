@@ -207,12 +207,23 @@ export class EntityRenderer {
         x: screenPos.x,
         y: screenPos.y,
         duration: 100,
-        ease: 'Linear'
+        ease: 'Linear',
+        onUpdate: () => {
+          // 如果这个实体是当前选中的实体，更新选中效果的位置
+          if (this.selectedEntityId === entityId && this.selectionIndicator) {
+            this.updateSelectionIndicatorPosition(sprite);
+          }
+        }
       });
     } else {
       // 直接设置位置
       sprite.x = screenPos.x;
       sprite.y = screenPos.y;
+
+      // 如果这个实体是当前选中的实体，更新选中效果的位置
+      if (this.selectedEntityId === entityId && this.selectionIndicator) {
+        this.updateSelectionIndicatorPosition(sprite);
+      }
     }
 
     // 如果是豆豆实体，检查是否在屏幕内并更新指示器
@@ -221,6 +232,26 @@ export class EntityRenderer {
       const emoji = this.entityEmojis.get(entityId) || '🟢';
       this.offscreenIndicatorManager.updateIndicator(entityId, position, emoji, isVisible);
     }
+  }
+
+  /**
+   * 更新选中效果的位置
+   * @param sprite 目标精灵
+   */
+  private updateSelectionIndicatorPosition(sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Text): void {
+    if (!this.selectionIndicator) return;
+
+    // 清除之前的绘制
+    this.selectionIndicator.clear();
+
+    // 重新绘制选中效果
+    this.selectionIndicator.lineStyle(3, 0x8A2BE2, 0.8); // 紫色
+
+    // 计算圆圈大小（比精灵稍大）
+    const size = Math.max(sprite.width, sprite.height) * 1.3;
+
+    // 绘制圆圈
+    this.selectionIndicator.strokeCircle(sprite.x, sprite.y, size / 2);
   }
 
   /**
@@ -550,6 +581,12 @@ export class EntityRenderer {
 
     console.log(`[INFO] 找到实体${entityId}的精灵，开始播放死亡动画`);
 
+    // 如果死亡的实体是当前选中的实体，清除选中效果
+    if (this.selectedEntityId === entityId) {
+      console.log(`[INFO] 死亡的实体${entityId}是当前选中的实体，清除选中效果`);
+      this.setSelectedEntity(null);
+    }
+
     // 根据实体类型播放不同的死亡动画
     if (entityId.startsWith('bean_')) {
       // ===== 豆豆死亡动画 =====
@@ -659,6 +696,85 @@ export class EntityRenderer {
    */
   public hasEntity(entityId: string): boolean {
     return this.entitySprites.has(entityId);
+  }
+
+  /**
+   * 设置选中的实体
+   * @param entityId 实体ID
+   */
+  public setSelectedEntity(entityId: string | null): void {
+    console.log(`[INFO] 设置选中实体: ${entityId}`);
+
+    // 如果当前已有选中的实体，先清除选中效果
+    if (this.selectedEntityId) {
+      this.clearSelectionIndicator();
+    }
+
+    // 更新选中的实体ID
+    this.selectedEntityId = entityId;
+
+    // 如果传入的实体ID为null，则只清除选中效果
+    if (!entityId) {
+      return;
+    }
+
+    // 获取实体精灵
+    const sprite = this.entitySprites.get(entityId);
+    if (!sprite) {
+      console.warn(`[WARN] 找不到实体${entityId}的精灵，无法显示选中效果`);
+      return;
+    }
+
+    // 创建选中效果
+    this.showSelectionIndicator(sprite);
+  }
+
+  /**
+   * 显示选中效果
+   * @param sprite 目标精灵
+   */
+  private showSelectionIndicator(sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Text): void {
+    // 清除之前的选中效果
+    this.clearSelectionIndicator();
+
+    // 创建新的选中效果
+    this.selectionIndicator = this.scene.add.graphics();
+
+    // 设置紫色外圈
+    this.selectionIndicator.lineStyle(3, 0x8A2BE2, 0.8); // 紫色
+
+    // 计算圆圈大小（比精灵稍大）
+    const size = Math.max(sprite.width, sprite.height) * 1.3;
+
+    // 绘制圆圈
+    this.selectionIndicator.strokeCircle(sprite.x, sprite.y, size / 2);
+
+    // 设置深度，确保显示在实体下方
+    this.selectionIndicator.setDepth(DepthLayers.WORLD_ENTITY - 1);
+
+    // 添加脉动动画效果
+    // this.scene.tweens.add({
+    //   targets: this.selectionIndicator,
+    //   alpha: { from: 0.9, to: 0.5 },
+    //   scale: { from: 0.95, to: 1.05 },
+    //   duration: 800,
+    //   yoyo: true,
+    //   repeat: -1,
+    //   ease: 'Sine.easeInOut'
+    // });
+
+    console.log(`[INFO] 显示选中效果: 位置(${sprite.x}, ${sprite.y}), 大小${size}`);
+  }
+
+  /**
+   * 清除选中效果
+   */
+  private clearSelectionIndicator(): void {
+    if (this.selectionIndicator) {
+      this.selectionIndicator.destroy();
+      this.selectionIndicator = null;
+      console.log(`[INFO] 清除选中效果`);
+    }
   }
 
   /**

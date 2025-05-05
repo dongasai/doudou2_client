@@ -104,6 +104,16 @@ export class TouchController {
   private onBeanClicked(event: { beanId: string, position: Vector2D }): void {
     console.log(`[INFO] 处理豆豆点击事件: ${event.beanId}`);
 
+    // 获取实体渲染器
+    const entityRenderer = this.scene.data.get('entityRenderer');
+    if (!entityRenderer) {
+      console.warn('[WARN] 找不到实体渲染器，无法显示选中效果');
+    } else {
+      // 设置选中效果
+      entityRenderer.setSelectedEntity(event.beanId);
+      console.log(`[INFO] 设置豆豆${event.beanId}为选中状态`);
+    }
+
     // 如果当前有选中的技能，则使用技能攻击豆豆
     if (this.selectedSkillId) {
       // 使用技能攻击豆豆

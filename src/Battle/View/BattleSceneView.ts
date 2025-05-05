@@ -84,6 +84,10 @@ export class BattleSceneView {
       console.log('[INFO] 初始化实体渲染器...');
       this.entityRenderer = new EntityRenderer(scene, this.cameraController);
 
+      // 将实体渲染器设置到scene.data中，以便其他组件可以访问
+      scene.data.set('entityRenderer', this.entityRenderer);
+      console.log('[INFO] 实体渲染器已设置到scene.data中');
+
       // 初始化屏幕外指示器管理器
       console.log('[INFO] 初始化屏幕外指示器管理器...');
       this.offscreenIndicatorManager = new OffscreenIndicatorManager(scene, this.cameraController);

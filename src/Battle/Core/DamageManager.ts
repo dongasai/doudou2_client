@@ -184,7 +184,18 @@ export class DamageManager {
       });
     }
 
-    logger.debug(`伤害应用: ${source?.getId() || 'unknown'} -> ${target.getId()}, 类型: ${type}, 原始: ${amount}, 实际: ${appliedDamage}, 暴击: ${isCritical}`);
+    // 如果目标是豆豆，添加详细的info日志
+    if (target.getType() === 'bean') {
+      logger.info(`豆豆${target.getId()}被${source?.getName() || '未知'}攻击，类型: ${type}, 原始伤害: ${amount}, 实际伤害: ${appliedDamage}, 暴击: ${isCritical ? '是' : '否'}, 格挡: ${isBlocked ? '是' : '否'}`);
+
+      // 记录豆豆的剩余生命值百分比
+      const currentHp = target.getStat('hp');
+      const maxHp = target.getStat('maxHp');
+      const hpPercentage = Math.round((currentHp / maxHp) * 100);
+      logger.info(`豆豆${target.getId()}剩余生命值: ${currentHp}/${maxHp} (${hpPercentage}%)`);
+    } else {
+      logger.debug(`伤害应用: ${source?.getId() || 'unknown'} -> ${target.getId()}, 类型: ${type}, 原始: ${amount}, 实际: ${appliedDamage}, 暴击: ${isCritical}`);
+    }
     return result;
   }
 

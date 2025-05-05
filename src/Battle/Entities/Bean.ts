@@ -478,20 +478,49 @@ export class Bean extends Entity {
     // 豆豆死亡特有逻辑
     this.setState(BeanState.DEAD);
 
+    // 记录豆豆死亡的详细信息
+    const killerInfo = killer ? `${killer.getName()}(${killer.getId()})` : '未知';
+    const position = `(${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)})`;
+    const waveInfo = `第${this.waveIndex + 1}波`;
+
+    // 获取豆豆类型的中文名称
+    let beanTypeStr = '未知豆豆';
+    switch (this.beanType) {
+      case BeanType.NORMAL: beanTypeStr = '普通豆'; break;
+      case BeanType.FAST: beanTypeStr = '快速豆'; break;
+      case BeanType.STRONG: beanTypeStr = '强壮豆'; break;
+      case BeanType.POISON: beanTypeStr = '毒豆'; break;
+      case BeanType.EXPLOSIVE: beanTypeStr = '炸弹豆'; break;
+      case BeanType.FROST: beanTypeStr = '冰霜豆'; break;
+      case BeanType.ARMORED: beanTypeStr = '铁甲豆'; break;
+      case BeanType.RAGE: beanTypeStr = '狂暴豆'; break;
+      case BeanType.BOSS: beanTypeStr = 'BOSS豆'; break;
+    }
+
+    logger.info(`豆豆${this.id}(${beanTypeStr})死亡，位置: ${position}，波次: ${waveInfo}，击杀者: ${killerInfo}`);
+
     // 根据豆豆类型执行不同的死亡效果
     switch (this.beanType) {
       case BeanType.EXPLOSIVE:
         // 爆炸豆死亡时产生爆炸效果
-        logger.debug(`爆炸豆${this.id}爆炸！`);
+        logger.info(`爆炸豆${this.id}爆炸！可能对周围实体造成伤害`);
         break;
 
       case BeanType.POISON:
         // 毒豆死亡时释放毒云
-        logger.debug(`毒豆${this.id}释放毒云！`);
+        logger.info(`毒豆${this.id}释放毒云！可能对周围实体造成持续伤害`);
+        break;
+
+      case BeanType.RAGE:
+        // 狂暴豆死亡
+        logger.info(`狂暴豆${this.id}死亡！不再对周围豆豆提供增益效果`);
+        break;
+
+      case BeanType.BOSS:
+        // BOSS豆死亡
+        logger.info(`BOSS豆${this.id}被击败！可能掉落特殊奖励`);
         break;
     }
-
-    logger.info(`豆豆${this.id}死亡，击杀者: ${killer?.getId() || '未知'}`);
   }
 
   /**
