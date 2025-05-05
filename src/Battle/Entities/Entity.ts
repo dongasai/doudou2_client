@@ -209,9 +209,9 @@ export abstract class Entity {
 
     // 添加详细的info日志，记录实体受到伤害的情况
     if (this.type === EntityType.BEAN) {
-      logger.info(`豆豆${this.id}受到${actualDamage}点${damageType}伤害，生命值: ${currentHp} -> ${newHp}，来源: ${source?.getId() || '未知'}`);
+      logger.info(`豆豆${this.id}受到${actualDamage}点${type}伤害，生命值: ${currentHp} -> ${newHp}，来源: ${source?.getId() || '未知'}`);
     } else {
-      logger.debug(`实体${this.id}受到${actualDamage}点伤害，生命值: ${currentHp} -> ${newHp}`);
+      logger.debug(`实体${this.id}受到${actualDamage}点${type}伤害，生命值: ${currentHp} -> ${newHp}`);
     }
 
     // 检查是否死亡
