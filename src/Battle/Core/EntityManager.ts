@@ -6,6 +6,7 @@
 import { logger } from './Logger';
 import { Entity, EntityType } from '../Entities/Entity';
 import { Vector2D, Vector2DUtils } from '../Types/Vector2D';
+import { EventType } from '@/Event/EventTypes';
 
 export class EntityManager {
   // 实体映射（ID -> 实体）
@@ -26,7 +27,7 @@ export class EntityManager {
   constructor(gridSize: number = 100) {
     this.gridSize = gridSize;
     logger.debug(`实体管理器初始化，网格大小: ${gridSize}`);
-    
+
     // 初始化实体类型分组
     for (const type in EntityType) {
       this.entityGroups.set(EntityType[type as keyof typeof EntityType], new Set());
@@ -39,31 +40,31 @@ export class EntityManager {
    */
   public addEntity(entity: Entity): void {
     const id = entity.getId();
-    
+
     // 检查ID是否已存在
     if (this.entities.has(id)) {
       logger.warn(`实体ID已存在: ${id}`);
       return;
     }
-    
+
     // 添加到实体映射
     this.entities.set(id, entity);
-    
+
     // 添加到类型分组
     const type = entity.getType();
     if (!this.entityGroups.has(type)) {
       this.entityGroups.set(type, new Set());
     }
     this.entityGroups.get(type)!.add(id);
-    
+
     // 添加到标签分组
     for (const tag of entity.getTags()) {
       this.addEntityToTagGroup(id, tag);
     }
-    
+
     // 添加到空间网格
     this.updateEntityInSpatialGrid(entity);
-    
+
     logger.debug(`添加实体: ${id}, 类型: ${type}`);
   }
 
@@ -77,26 +78,26 @@ export class EntityManager {
       logger.warn(`实体ID不存在: ${id}`);
       return;
     }
-    
+
     const entity = this.entities.get(id)!;
-    
+
     // 从类型分组中移除
     const type = entity.getType();
     if (this.entityGroups.has(type)) {
       this.entityGroups.get(type)!.delete(id);
     }
-    
+
     // 从标签分组中移除
     for (const tag of entity.getTags()) {
       this.removeEntityFromTagGroup(id, tag);
     }
-    
+
     // 从空间网格中移除
     this.removeEntityFromSpatialGrid(entity);
-    
+
     // 从实体映射中移除
     this.entities.delete(id);
-    
+
     logger.debug(`移除实体: ${id}`);
   }
 
@@ -123,7 +124,7 @@ export class EntityManager {
     if (!this.entityGroups.has(type)) {
       return [];
     }
-    
+
     const ids = this.entityGroups.get(type)!;
     return Array.from(ids).map(id => this.entities.get(id)!);
   }
@@ -136,7 +137,7 @@ export class EntityManager {
     if (!this.tagGroups.has(tag)) {
       return [];
     }
-    
+
     const ids = this.tagGroups.get(tag)!;
     return Array.from(ids).map(id => this.entities.get(id)!);
   }
@@ -151,7 +152,7 @@ export class EntityManager {
     // 获取可能包含目标的网格
     const gridIds = this.getGridsInRadius(position, radius);
     const candidateIds = new Set<string>();
-    
+
     // 收集所有候选实体ID
     for (const gridId of gridIds) {
       if (this.spatialGrid.has(gridId)) {
@@ -161,24 +162,24 @@ export class EntityManager {
         }
       }
     }
-    
+
     // 过滤出在半径内的实体
     const result: Entity[] = [];
     for (const id of candidateIds) {
       const entity = this.entities.get(id)!;
-      
+
       // 如果指定了类型，检查类型是否匹配
       if (type !== undefined && entity.getType() !== type) {
         continue;
       }
-      
+
       // 检查距离
       const distance = Vector2DUtils.distance(position, entity.getPosition());
       if (distance <= radius) {
         result.push(entity);
       }
     }
-    
+
     return result;
   }
 
@@ -186,12 +187,47 @@ export class EntityManager {
    * 更新所有实体
    * @param deltaTime 时间增量（毫秒）
    * @param currentFrame 当前帧号
+   * @param eventManager 事件管理器（可选）
    */
-  public updateAllEntities(deltaTime: number, currentFrame: number): void {
+  public updateAllEntities(deltaTime: number, currentFrame: number, eventManager?: any): void {
     for (const entity of this.entities.values()) {
+      // 记录更新前的位置
+      const oldPosition = entity.getPosition();
+
       // 更新实体
       entity.update(deltaTime, currentFrame);
-      
+
+      // 获取更新后的位置
+      const newPosition = entity.getPosition();
+
+      // 检查位置是否发生变化
+      const positionChanged =
+        Math.abs(oldPosition.x - newPosition.x) > 0.01 ||
+        Math.abs(oldPosition.y - newPosition.y) > 0.01;
+
+      // 如果位置发生变化且提供了事件管理器，触发实体移动事件
+      if (positionChanged && eventManager && entity.isAlive()) {
+        // 构造事件数据，确保与EntityMovedEvent接口匹配
+        const entityMovedData = {
+          entityId: entity.getId(),
+          entityType: entity.getType() === 'hero' ? 'hero' :
+                     entity.getType() === 'bean' ? 'bean' :
+                     entity.getType() === 'crystal' ? 'crystal' : 'bean',
+          position: newPosition,
+          speed: entity.getStat('speed') || 0,
+          direction: entity.getRotation()
+        };
+
+        // 触发实体移动事件
+        try {
+          // 使用事件常量而不是字符串
+          eventManager.emit(EventType.ENTITY_MOVED, entityMovedData);
+          logger.debug(`实体${entity.getId()}移动事件触发: 位置=(${newPosition.x.toFixed(2)}, ${newPosition.y.toFixed(2)}), 速度=${entityMovedData.speed}, 方向=${entityMovedData.direction?.toFixed(2) || 'N/A'}`);
+        } catch (error) {
+          logger.error(`触发实体移动事件失败: ${error}`);
+        }
+      }
+
       // 更新实体在空间网格中的位置
       this.updateEntityInSpatialGrid(entity);
     }
@@ -202,18 +238,18 @@ export class EntityManager {
    */
   public clearAllEntities(): void {
     this.entities.clear();
-    
+
     // 清除类型分组
     for (const group of this.entityGroups.values()) {
       group.clear();
     }
-    
+
     // 清除标签分组
     this.tagGroups.clear();
-    
+
     // 清除空间网格
     this.spatialGrid.clear();
-    
+
     logger.debug('清除所有实体');
   }
 
@@ -260,7 +296,7 @@ export class EntityManager {
   private removeEntityFromTagGroup(entityId: string, tag: string): void {
     if (this.tagGroups.has(tag)) {
       this.tagGroups.get(tag)!.delete(entityId);
-      
+
       // 如果标签分组为空，删除该分组
       if (this.tagGroups.get(tag)!.size === 0) {
         this.tagGroups.delete(tag);
@@ -275,13 +311,13 @@ export class EntityManager {
   private updateEntityInSpatialGrid(entity: Entity): void {
     // 先从旧位置移除
     this.removeEntityFromSpatialGrid(entity);
-    
+
     // 计算网格坐标
     const position = entity.getPosition();
     const gridX = Math.floor(position.x / this.gridSize);
     const gridY = Math.floor(position.y / this.gridSize);
     const gridId = `${gridX},${gridY}`;
-    
+
     // 添加到新位置
     if (!this.spatialGrid.has(gridId)) {
       this.spatialGrid.set(gridId, new Set());
@@ -298,10 +334,10 @@ export class EntityManager {
     const gridX = Math.floor(position.x / this.gridSize);
     const gridY = Math.floor(position.y / this.gridSize);
     const gridId = `${gridX},${gridY}`;
-    
+
     if (this.spatialGrid.has(gridId)) {
       this.spatialGrid.get(gridId)!.delete(entity.getId());
-      
+
       // 如果网格为空，删除该网格
       if (this.spatialGrid.get(gridId)!.size === 0) {
         this.spatialGrid.delete(gridId);
@@ -316,20 +352,20 @@ export class EntityManager {
    */
   private getGridsInRadius(center: Vector2D, radius: number): string[] {
     const result: string[] = [];
-    
+
     // 计算网格范围
     const minGridX = Math.floor((center.x - radius) / this.gridSize);
     const maxGridX = Math.floor((center.x + radius) / this.gridSize);
     const minGridY = Math.floor((center.y - radius) / this.gridSize);
     const maxGridY = Math.floor((center.y + radius) / this.gridSize);
-    
+
     // 收集所有网格ID
     for (let x = minGridX; x <= maxGridX; x++) {
       for (let y = minGridY; y <= maxGridY; y++) {
         result.push(`${x},${y}`);
       }
     }
-    
+
     return result;
   }
 }

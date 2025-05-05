@@ -480,8 +480,8 @@ export class BattleManager {
   private onFrameUpdate(frameType: FrameType, frameNumber: number, deltaTime: number): void {
     const currentTime = Date.now();
 
-    // 更新实体
-    this.entityManager.updateAllEntities(deltaTime, frameNumber);
+    // 更新实体，传递事件管理器以便触发实体移动事件
+    this.entityManager.updateAllEntities(deltaTime, frameNumber, this.eventManager);
 
     // 更新技能
     this.skillManager.update(deltaTime, currentTime);
@@ -1031,6 +1031,9 @@ export class BattleManager {
       if (this.crystal) {
         bean.setTarget(this.crystal.getId());
         bean.setState(BeanState.MOVE); // 设置为移动状态，让豆豆开始移动
+        logger.debug(`豆豆${bean.getId()}设置目标为水晶${this.crystal.getId()}，状态为${bean.getState()}`);
+      } else {
+        logger.warn(`豆豆${bean.getId()}无法设置目标，水晶不存在`);
       }
 
       // 添加到实体管理器
