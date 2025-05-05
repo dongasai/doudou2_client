@@ -294,45 +294,43 @@ export class EntityRenderer {
     // 停止之前的动画（如果有）
     this.scene.tweens.killTweensOf(sprite);
 
-    // 播放受击动画 - 红色闪烁效果
-    sprite.setTint(0xff0000);
-
-    // 添加震动效果
+    // 保存原始位置
     const originalX = sprite.x;
     const originalY = sprite.y;
 
-    // 创建震动动画
-    this.scene.tweens.add({
-      targets: sprite,
-      x: { from: originalX - 5, to: originalX + 5 },
-      y: { from: originalY - 2, to: originalY + 2 },
-      duration: 50,
-      yoyo: true,
-      repeat: 2,
-      ease: 'Sine.easeInOut',
-      onComplete: () => {
-        // 恢复原始位置
-        sprite.x = originalX;
-        sprite.y = originalY;
-      }
-    });
-
-    // 添加缩放效果
-    this.scene.tweens.add({
-      targets: sprite,
-      scale: { from: 1.2, to: 1.0 },
-      duration: 200,
-      ease: 'Back.easeOut'
-    });
-
-    // 清除红色着色
-    this.scene.time.delayedCall(150, () => {
-      sprite.clearTint();
-    });
-
-    // 如果是豆豆，添加特殊效果
+    // 根据实体类型播放不同的受击动画
     if (entityId.startsWith('bean_')) {
-      // 创建闪光效果
+      // ===== 豆豆受击动画 =====
+
+      // 红色闪烁效果
+      sprite.setTint(0xff0000);
+
+      // 震动效果 - 豆豆震动幅度较大
+      this.scene.tweens.add({
+        targets: sprite,
+        x: { from: originalX - 8, to: originalX + 8 },
+        y: { from: originalY - 3, to: originalY + 3 },
+        duration: 50,
+        yoyo: true,
+        repeat: 3,
+        ease: 'Sine.easeInOut',
+        onComplete: () => {
+          // 恢复原始位置
+          sprite.x = originalX;
+          sprite.y = originalY;
+        }
+      });
+
+      // 缩放效果 - 豆豆被压扁再弹回
+      this.scene.tweens.add({
+        targets: sprite,
+        scaleX: { from: 1.3, to: 1.0 },
+        scaleY: { from: 0.7, to: 1.0 },
+        duration: 200,
+        ease: 'Elastic.easeOut'
+      });
+
+      // 闪光效果
       const flash = this.scene.add.graphics();
       flash.fillStyle(0xffffff, 0.8);
       flash.fillCircle(sprite.x, sprite.y, 30);
@@ -347,6 +345,186 @@ export class EntityRenderer {
         onComplete: () => {
           flash.destroy();
         }
+      });
+
+      // 清除红色着色
+      this.scene.time.delayedCall(150, () => {
+        sprite.clearTint();
+      });
+
+    } else if (entityId.startsWith('hero_')) {
+      // ===== 英雄受击动画 =====
+
+      // 蓝色闪烁效果（区别于豆豆的红色）
+      sprite.setTint(0x3366ff);
+
+      // 震动效果 - 英雄震动幅度较小
+      this.scene.tweens.add({
+        targets: sprite,
+        x: { from: originalX - 3, to: originalX + 3 },
+        y: { from: originalY - 1, to: originalY + 1 },
+        duration: 40,
+        yoyo: true,
+        repeat: 2,
+        ease: 'Sine.easeInOut',
+        onComplete: () => {
+          // 恢复原始位置
+          sprite.x = originalX;
+          sprite.y = originalY;
+        }
+      });
+
+      // 英雄受击时短暂变暗
+      this.scene.tweens.add({
+        targets: sprite,
+        alpha: { from: 0.6, to: 1.0 },
+        duration: 150,
+        ease: 'Cubic.easeOut'
+      });
+
+      // 添加防御姿态效果（轻微后仰再回正）
+      this.scene.tweens.add({
+        targets: sprite,
+        angle: { from: -5, to: 0 },
+        duration: 200,
+        ease: 'Quad.easeOut'
+      });
+
+      // 清除蓝色着色
+      this.scene.time.delayedCall(120, () => {
+        sprite.clearTint();
+      });
+
+      // 添加防护罩效果
+      const shield = this.scene.add.graphics();
+      shield.lineStyle(2, 0x00ffff, 0.8);
+      shield.strokeCircle(sprite.x, sprite.y, 40);
+      shield.setDepth(DepthLayers.WORLD_EFFECT);
+
+      // 防护罩消失动画
+      this.scene.tweens.add({
+        targets: shield,
+        alpha: 0,
+        scale: 1.2,
+        duration: 300,
+        onComplete: () => {
+          shield.destroy();
+        }
+      });
+
+    } else if (entityId.startsWith('crystal_')) {
+      // ===== 水晶受击动画 =====
+
+      // 紫色闪烁效果
+      sprite.setTint(0xff00ff);
+
+      // 水晶震动效果 - 频率高但幅度小
+      this.scene.tweens.add({
+        targets: sprite,
+        x: { from: originalX - 2, to: originalX + 2 },
+        y: { from: originalY - 2, to: originalY + 2 },
+        duration: 30,
+        yoyo: true,
+        repeat: 5,
+        ease: 'Sine.easeInOut',
+        onComplete: () => {
+          // 恢复原始位置
+          sprite.x = originalX;
+          sprite.y = originalY;
+        }
+      });
+
+      // 水晶受击时发光效果
+      this.scene.tweens.add({
+        targets: sprite,
+        alpha: { from: 1.5, to: 1.0 }, // 超过1的alpha会产生过曝效果
+        duration: 300,
+        ease: 'Expo.easeOut'
+      });
+
+      // 清除紫色着色
+      this.scene.time.delayedCall(200, () => {
+        sprite.clearTint();
+      });
+
+      // 添加能量波纹效果
+      for (let i = 0; i < 2; i++) {
+        const ring = this.scene.add.graphics();
+        ring.lineStyle(3 - i, 0xff00ff, 0.7 - i * 0.3);
+        ring.strokeCircle(sprite.x, sprite.y, 30 + i * 20);
+        ring.setDepth(DepthLayers.WORLD_EFFECT);
+
+        // 波纹扩散动画
+        this.scene.tweens.add({
+          targets: ring,
+          alpha: 0,
+          scale: 1.5 + i * 0.5,
+          duration: 400 + i * 200,
+          delay: i * 100,
+          onComplete: () => {
+            ring.destroy();
+          }
+        });
+      }
+
+      // 添加碎片效果
+      for (let i = 0; i < 5; i++) {
+        const shard = this.scene.add.graphics();
+        shard.fillStyle(0xff00ff, 0.7);
+        shard.fillTriangle(0, 0, 5, 10, 10, 0);
+        shard.setPosition(sprite.x, sprite.y);
+        shard.setDepth(DepthLayers.WORLD_EFFECT);
+
+        // 随机角度
+        shard.rotation = Math.random() * Math.PI * 2;
+
+        // 碎片飞散动画
+        this.scene.tweens.add({
+          targets: shard,
+          x: sprite.x + Math.cos(shard.rotation) * 50,
+          y: sprite.y + Math.sin(shard.rotation) * 50,
+          alpha: 0,
+          duration: 300,
+          ease: 'Cubic.easeOut',
+          onComplete: () => {
+            shard.destroy();
+          }
+        });
+      }
+
+    } else {
+      // ===== 默认受击动画（用于其他类型实体）=====
+
+      // 红色闪烁效果
+      sprite.setTint(0xff0000);
+
+      // 基础震动效果
+      this.scene.tweens.add({
+        targets: sprite,
+        x: { from: originalX - 5, to: originalX + 5 },
+        y: { from: originalY - 2, to: originalY + 2 },
+        duration: 50,
+        yoyo: true,
+        repeat: 2,
+        ease: 'Sine.easeInOut',
+        onComplete: () => {
+          // 恢复原始位置
+          sprite.x = originalX;
+          sprite.y = originalY;
+        }
+      });
+
+      // 基础缩放效果
+      this.scene.tweens.add({
+        targets: sprite,
+        scale: { from: 1.2, to: 1.0 },
+        duration: 200,
+        ease: 'Back.easeOut'
+      });
+
+      // 清除红色着色
+      this.scene.time.delayedCall(150, () => {
+        sprite.clearTint();
       });
     }
   }
