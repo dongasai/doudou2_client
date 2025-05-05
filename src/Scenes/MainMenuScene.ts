@@ -34,9 +34,9 @@ export class MainMenuScene extends Phaser.Scene {
    * 创建场景
    */
   create(): void {
-    // 设置主场景的帧率为10fps，极大降低资源消耗
-    this.game.loop.targetFps = 10;
-    console.log('[INFO] 主菜单场景帧率设置为10fps');
+    // 设置主场景的帧率为2fps，极大降低资源消耗
+    this.game.loop.targetFps = 2;
+    console.log('[INFO] 主菜单场景帧率帧率为2fpss');
 
     // 创建背景
     this.createBackground();

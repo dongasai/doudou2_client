@@ -26,9 +26,9 @@ export class EncyclopediaLevelsScene extends Phaser.Scene {
 
   async create(): Promise<void> {
     try {
-      // 设置关卡百科场景的帧率为10fps，极大降低资源消耗
-      this.game.loop.targetFps = 10;
-      console.log('[INFO] 关卡百科场景帧率设置为10fps');
+      // 设置关卡百科场景的帧率为2fps，极大降低资源消耗
+      this.game.loop.targetFps = 2;
+      console.log('[INFO] 关卡百科场景帧率帧率为2fpss');
 
       // 创建背景矩形
       this.createBackground();
