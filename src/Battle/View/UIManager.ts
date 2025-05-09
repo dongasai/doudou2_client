@@ -699,20 +699,44 @@ export class UIManager {
         
         // 显示暂停覆盖层
         if (this.pauseOverlay) {
+          // 强制设置蒙层在最上层
+          this.pauseOverlay.setDepth(DepthLayers.UI_OVERLAY);
+          
+          // 确保蒙层和所有子元素可见
           this.pauseOverlay.setVisible(true);
           this.pauseOverlay.setAlpha(1);
+          
           // 显示所有子元素
-          this.pauseOverlay.list.forEach(child => {
-            if (child && 'setVisible' in child && typeof (child as any).setVisible === 'function') {
-              (child as Phaser.GameObjects.GameObject).setVisible(true);
-            }
-            if (child && 'setAlpha' in child && typeof (child as any).setAlpha === 'function') {
-              (child as Phaser.GameObjects.GameObject).setAlpha(1);
+          this.pauseOverlay.list.forEach((child, index) => {
+            if (child) {
+              if ('setVisible' in child && typeof (child as any).setVisible === 'function') {
+                (child as Phaser.GameObjects.GameObject).setVisible(true);
+              }
+              if ('setAlpha' in child && typeof (child as any).setAlpha === 'function') {
+                (child as Phaser.GameObjects.GameObject).setAlpha(1);
+              }
+              if ('setDepth' in child && typeof (child as any).setDepth === 'function') {
+                (child as Phaser.GameObjects.GameObject).setDepth(DepthLayers.UI_OVERLAY + 1);
+              }
+              console.log(`[DEBUG] 子元素${index}状态:`,
+                child.visible,
+                child.alpha,
+                'depth' in child ? child.depth : 'N/A'
+              );
             }
           });
           console.info('进入暂停状态，子元素数量：', this.pauseOverlay.list.length);
+          
+          // 强制重绘场景
+          this.scene.events.emit('render');
         } else {
           console.error('[ERROR] 暂停覆盖层创建失败');
+          // 尝试重新创建蒙层
+          this.createPauseOverlay();
+          if (this.pauseOverlay) {
+            this.pauseOverlay.setVisible(true);
+            this.pauseOverlay.setAlpha(1);
+          }
         }
       } else {
         // 继续游戏
