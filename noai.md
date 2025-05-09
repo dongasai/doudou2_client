@@ -22,3 +22,4 @@ src/Battle/View/BattleSceneView.ts 事件监听,还有未使用EventType的
 [11](11)
 
 战斗场景,增加屏幕外豆豆指示器,当豆豆已出现屏幕外时,显示指示器,当豆豆进入屏幕时,隐藏指示器
+

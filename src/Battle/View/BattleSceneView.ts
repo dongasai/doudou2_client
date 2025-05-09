@@ -628,6 +628,7 @@ export class BattleSceneView {
 
     // 移除事件监听
     this.eventHandlers.removeAllEventListeners();
+    this.eventManager.off('GamePauseResume', () => {});
 
     // 销毁组件
     this.skillEffectView.clearAllEffects();

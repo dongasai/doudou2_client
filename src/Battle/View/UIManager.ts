@@ -16,7 +16,7 @@ export class UIManager {
   private statusBar!: Phaser.GameObjects.Container;
   private waveIndicator!: Phaser.GameObjects.Text;
   private pauseButton!: Phaser.GameObjects.Text;
-  private pauseOverlay!: Phaser.GameObjects.Container; // 暂停覆盖层
+  private pauseOverlay: Phaser.GameObjects.Container | null = null; // 暂停覆盖层
   private skillButtonsContainer!: Phaser.GameObjects.Container;
   private skillUIComponents: Map<string, SkillUIComponent> = new Map();
 
@@ -82,9 +82,8 @@ export class UIManager {
       this.createPauseButton();
       console.log('[INFO] 创建暂停按钮成功');
 
-      // 创建暂停覆盖层 (覆盖整个屏幕)
-      this.createPauseOverlay();
-      console.log('[INFO] 创建暂停覆盖层成功');
+      // 延迟创建暂停覆盖层，首次暂停时再创建
+      this.pauseOverlay = null;
 
       // 创建技能按钮 (位于屏幕底部中央)
       this.createSkillButtons();
@@ -111,12 +110,8 @@ export class UIManager {
       this.skillButtonsContainer.setAlpha(1);
       this.skillButtonsContainer.setDepth(DepthLayers.UI_ELEMENT);
 
-      // 确保暂停覆盖层初始时是隐藏的
-      if (this.pauseOverlay) {
-        this.pauseOverlay.setVisible(false);
-        this.pauseOverlay.setAlpha(0);
-        console.log('[INFO] 确保暂停覆盖层初始时隐藏');
-      }
+      // 暂停覆盖层将在首次暂停时创建
+      console.log('[INFO] 暂停覆盖层将在首次暂停时创建');
 
       console.log('[INFO] UI元素创建完成');
 
@@ -386,7 +381,13 @@ export class UIManager {
 
       // 创建暂停覆盖层容器
       this.pauseOverlay = this.scene.add.container(0, 0);
+      
+      // 设置初始属性
+      this.pauseOverlay.setVisible(false);
+      this.pauseOverlay.setAlpha(1); // 保持alpha为1，通过可见性控制显示
+      this.pauseOverlay.setActive(true);
       this.pauseOverlay.setDepth(DepthLayers.UI_OVERLAY);
+      console.log('[DEBUG] 创建暂停覆盖层完成，深度：', DepthLayers.UI_OVERLAY);
 
       // 创建半透明黑色背景
       const bg = this.scene.add.rectangle(
@@ -435,10 +436,21 @@ export class UIManager {
         }
       );
       tipText.setOrigin(0.5);
+      tipText.setVisible(false); // 初始隐藏文本
       this.pauseOverlay.add(tipText);
 
-      // 初始时隐藏覆盖层
+      // 初始时强制隐藏覆盖层及其所有子元素
       this.pauseOverlay.setVisible(false);
+      this.pauseOverlay.setAlpha(0);
+      this.pauseOverlay.list.forEach(child => {
+        if ('setVisible' in child && typeof child.setVisible === 'function') {
+          child.setVisible(false);
+        }
+        if ('setAlpha' in child && typeof child.setAlpha === 'function') {
+          child.setAlpha(0);
+        }
+      });
+      console.log('[DEBUG] 暂停覆盖层强制隐藏完成，子元素数量:', this.pauseOverlay.list.length);
 
       console.log('[INFO] 暂停覆盖层创建完成');
     } catch (error) {
@@ -672,17 +684,35 @@ export class UIManager {
           }
         });
 
+        // 首次暂停时创建覆盖层
+        if (!this.pauseOverlay) {
+          this.createPauseOverlay();
+          console.log('[INFO] 首次暂停，创建暂停覆盖层');
+          
+          // 确保蒙层属性正确设置
+          if (this.pauseOverlay && 'setDepth' in this.pauseOverlay && 'setActive' in this.pauseOverlay) {
+            (this.pauseOverlay as Phaser.GameObjects.Container).setDepth(DepthLayers.UI_OVERLAY);
+            (this.pauseOverlay as Phaser.GameObjects.Container).setActive(true);
+            console.log('[DEBUG] 设置蒙层深度和激活状态');
+          }
+        }
+        
         // 显示暂停覆盖层
         if (this.pauseOverlay) {
           this.pauseOverlay.setVisible(true);
-
-          // 添加淡入动画
-          this.scene.tweens.add({
-            targets: this.pauseOverlay,
-            alpha: { from: 0, to: 1 },
-            duration: 300,
-            ease: 'Power2'
+          this.pauseOverlay.setAlpha(1);
+          // 显示所有子元素
+          this.pauseOverlay.list.forEach(child => {
+            if (child && 'setVisible' in child && typeof (child as any).setVisible === 'function') {
+              (child as Phaser.GameObjects.GameObject).setVisible(true);
+            }
+            if (child && 'setAlpha' in child && typeof (child as any).setAlpha === 'function') {
+              (child as Phaser.GameObjects.GameObject).setAlpha(1);
+            }
           });
+          console.info('进入暂停状态，子元素数量：', this.pauseOverlay.list.length);
+        } else {
+          console.error('[ERROR] 暂停覆盖层创建失败');
         }
       } else {
         // 继续游戏
@@ -712,16 +742,9 @@ export class UIManager {
 
         // 隐藏暂停覆盖层
         if (this.pauseOverlay) {
-          // 添加淡出动画
-          this.scene.tweens.add({
-            targets: this.pauseOverlay,
-            alpha: 0,
-            duration: 300,
-            ease: 'Power2',
-            onComplete: () => {
-              this.pauseOverlay.setVisible(false);
-            }
-          });
+          this.pauseOverlay.setVisible(false);
+          this.pauseOverlay.setAlpha(0);
+          console.info('推出暂停状态');
         }
       }
     } catch (error) {

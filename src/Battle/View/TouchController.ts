@@ -12,6 +12,9 @@ export class TouchController {
   private scene: Phaser.Scene;
   private battleEngine: BattleEngine;
 
+  // 游戏状态
+  private isGamePaused: boolean = false;
+
   // 触摸状态
   private isTouchActive: boolean = false;
   private selectedSkillId: string | null = null;
@@ -32,6 +35,9 @@ export class TouchController {
   constructor(scene: Phaser.Scene, battleEngine: BattleEngine) {
     this.scene = scene;
     this.battleEngine = battleEngine;
+
+    // 监听游戏暂停/恢复事件
+    this.scene.events.on('GamePauseResume', (e: {isPaused: boolean}) => this.handleGamePause(e.isPaused));
 
     // 创建目标指示器
     this.targetIndicator = scene.add.image(0, 0, 'target_indicator');
@@ -73,7 +79,18 @@ export class TouchController {
    * 技能选择事件处理
    * @param skillId 技能ID
    */
+  /**
+   * 处理游戏暂停/恢复事件
+   * @param isPaused 是否暂停
+   */
+  private handleGamePause(isPaused: boolean): void {
+    this.isGamePaused = isPaused;
+    this.resetTouchState();
+  }
+
   private onSkillSelected(skillId: string): void {
+    if (this.isGamePaused) return;
+    
     // 如果已经选择了这个技能，则不做任何操作
     // 因为取消选择的逻辑已经在SkillUIComponent中处理
     if (this.selectedSkillId === skillId) {
@@ -91,6 +108,8 @@ export class TouchController {
    * @param skillId 技能ID
    */
   private onSkillDeselected(skillId: string): void {
+    if (this.isGamePaused) return;
+    
     // 如果当前选中的技能被取消选择，则重置状态
     if (this.selectedSkillId === skillId) {
       this.resetTouchState();
@@ -102,6 +121,8 @@ export class TouchController {
    * @param event 豆豆点击事件数据
    */
   private onBeanClicked(event: { beanId: string, position: Vector2D }): void {
+    if (this.isGamePaused) return;
+    
     console.log(`[INFO] 处理豆豆点击事件: ${event.beanId}`);
 
     // 获取实体渲染器
@@ -134,6 +155,8 @@ export class TouchController {
    * @param pointer 指针
    */
   private onPointerDown(pointer: Phaser.Input.Pointer): void {
+    if (this.isGamePaused) return;
+    
     // 如果没有选择技能，进入移动模式
     if (!this.selectedSkillId) {
       this.mode = 'move';
@@ -162,6 +185,8 @@ export class TouchController {
    * @param pointer 指针
    */
   private onPointerMove(pointer: Phaser.Input.Pointer): void {
+    if (this.isGamePaused) return;
+    
     // 如果触摸未激活，不处理
     if (!this.isTouchActive || !this.touchStartPosition) {
       return;
@@ -182,6 +207,8 @@ export class TouchController {
    * @param pointer 指针
    */
   private onPointerUp(pointer: Phaser.Input.Pointer): void {
+    if (this.isGamePaused) return;
+    
     // 如果触摸未激活，不处理
     if (!this.isTouchActive || !this.touchStartPosition || !this.currentTouchPosition) {
       return;
